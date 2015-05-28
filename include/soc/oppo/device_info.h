@@ -17,7 +17,7 @@
 //dram type
 enum{
 	DRAM_TYPE0 = 0,
-	DRAM_TYPE1,	
+	DRAM_TYPE1,
 	DRAM_TYPE2,
 	DRAM_TYPE3,
 	DRAM_UNKNOWN,
