@@ -453,6 +453,9 @@ struct msm_otg {
 	atomic_t set_fpr_with_lpm_exit;
 	int async_int;
 	unsigned cur_power;
+	#ifdef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
+	struct workqueue_struct *otg_wq;
+	#endif
 	struct delayed_work chg_work;
 	struct delayed_work id_status_work;
 	struct delayed_work suspend_work;
@@ -542,6 +545,12 @@ struct msm_otg {
 	bool pm_done;
 	struct qpnp_vadc_chip	*vadc_dev;
 	int ext_id_irq;
+	#if 0//def VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
+	struct mutex *inputbits_mutex; 
+	#endif
+	#ifdef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
+	wait_queue_head_t      host_suspend_wait;
+	#endif
 };
 
 struct ci13xxx_platform_data {

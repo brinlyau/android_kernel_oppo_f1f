@@ -333,14 +333,18 @@ asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
 
 die_sig:
 	trace_undef_instr(regs, (void *)pc);
-
+//#ifdef VENDOR_EDIT //yixue.ge add for close user debug at release build
+#ifdef CONFIG_DEBUG_USER
+//#endif
 	if (user_mode(regs) && show_unhandled_signals &&
 		unhandled_signal(current, SIGILL) && printk_ratelimit()) {
 		pr_info("%s[%d]: undefined instruction: pc=%p\n",
 			current->comm, task_pid_nr(current), pc);
 		dump_instr(KERN_INFO, regs);
 	}
-
+//#ifdef VENDOR_EDIT //yixue.ge add for close user debug at release build
+#endif
+//#endif
 	info.si_signo = SIGILL;
 	info.si_errno = 0;
 	info.si_code  = ILL_ILLOPC;
@@ -366,8 +370,14 @@ asmlinkage long do_ni_syscall(struct pt_regs *regs)
 		pr_info("%s[%d]: syscall %d\n", current->comm,
 			task_pid_nr(current), (int)regs->syscallno);
 		dump_instr("", regs);
+	//#ifdef VENDOR_EDIT //yixue.ge add for close user debug at release build
+	#ifdef CONFIG_DEBUG_USER
+	//#endif
 		if (user_mode(regs))
 			__show_regs(regs);
+	//#ifdef VENDOR_EDIT //yixue.ge add for close user debug at release build
+	#endif
+	//#endif
 	}
 
 	return sys_ni_syscall();

@@ -26,9 +26,17 @@
 #include <linux/cpu.h>
 #include <linux/cpu_pm.h>
 #include <linux/platform_device.h>
+#ifdef VENDOR_EDIT
+	/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
+#include <asm/dma-contiguous.h>
+#include <asm/page.h>
+#include <asm/cacheflush.h>
+#endif
 #include <soc/qcom/scm.h>
 #include <soc/qcom/memory_dump.h>
 #include <soc/qcom/watchdog.h>
+
+#include <linux/workqueue.h>
 
 #define MODULE_NAME "msm_watchdog"
 #define WDT0_ACCSCSSNBARK_INT 0
@@ -74,6 +82,11 @@ struct msm_watchdog_data {
 	struct msm_watchdog_data __percpu **wdog_cpu_dd;
 	struct notifier_block panic_blk;
 	bool enabled;
+#ifdef VENDOR_EDIT
+	/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
+	struct msm_dump_data *cpu_data;
+	uint64_t cpu_data_phy;
+#endif
 };
 
 /*
@@ -383,6 +396,7 @@ void msm_trigger_wdog_bite(void)
 {
 	if (!wdog_data)
 		return;
+
 	pr_info("Causing a watchdog bite!");
 	__raw_writel(1, wdog_data->base + WDT0_BITE_TIME);
 	mb();
@@ -397,11 +411,18 @@ void msm_trigger_wdog_bite(void)
 		__raw_readl(wdog_data->base + WDT0_BITE_TIME));
 }
 
+#ifdef VENDOR_EDIT
+/* fanhui@PhoneSW.BSP, 2016/01/20, use this function to find wdog working cpu */
+extern int oppo_get_work_cpu(struct work_struct *work);
+#endif
+
 static irqreturn_t wdog_bark_handler(int irq, void *dev_id)
 {
 	struct msm_watchdog_data *wdog_dd = (struct msm_watchdog_data *)dev_id;
 	unsigned long nanosec_rem;
 	unsigned long long t = sched_clock();
+	int work_cpu = 0;
+	int wdog_busy = 0;
 
 	nanosec_rem = do_div(t, 1000000000);
 	printk(KERN_INFO "Watchdog bark! Now = %lu.%06lu\n", (unsigned long) t,
@@ -410,10 +431,36 @@ static irqreturn_t wdog_bark_handler(int irq, void *dev_id)
 	nanosec_rem = do_div(wdog_dd->last_pet, 1000000000);
 	printk(KERN_INFO "Watchdog last pet at %lu.%06lu\n", (unsigned long)
 		wdog_dd->last_pet, nanosec_rem / 1000);
+	
 	if (wdog_dd->do_ipi_ping)
 		dump_cpu_alive_mask(wdog_dd);
-	msm_trigger_wdog_bite();
-	panic("Failed to cause a watchdog bite! - Falling back to kernel panic!");
+#ifdef VENDOR_EDIT //fangpan@oppo.com,2015/11/04
+	/*ensure the current cache will flush to the ddr*/
+	flush_cache_all();
+
+	/*outer_flush_all is not supported by 64bit kernel*/
+#ifndef CONFIG_ARM64
+	outer_flush_all();
+#endif
+#endif
+
+#ifdef VENDOR_EDIT
+/* fanhui@PhoneSW.BSP, 2016/01/20, print more info about cpu the wdog on */
+	work_cpu = oppo_get_work_cpu(&wdog_dd->dogwork_struct.work);
+	wdog_busy = work_busy(&wdog_dd->dogwork_struct.work);
+	if (wdog_busy & WORK_BUSY_RUNNING)
+		printk(KERN_EMERG "Watchdog work is running at CPU(%d)\n", work_cpu);
+	if (wdog_busy & WORK_BUSY_PENDING)
+		printk(KERN_EMERG "Watchdog work is pending at CPU(%d)\n", work_cpu);
+	if (work_cpu >= 0)
+		dump_cpu_task(work_cpu);
+#endif
+
+#ifdef VENDOR_EDIT
+/* fanhui@PhoneSW.BSP, 2016/01/20, delete trigger wdog bite, panic will trigger wdog if in dload mode*/
+	//msm_trigger_wdog_bite();
+	panic("Handle a watchdog bite! - Falling back to kernel panic!");
+#endif
 	return IRQ_HANDLED;
 }
 
@@ -429,9 +476,14 @@ static void configure_bark_dump(struct msm_watchdog_data *wdog_dd)
 	int ret;
 	struct msm_client_dump cpu_dump_entry;
 	struct msm_dump_entry dump_entry;
+#ifndef VENDOR_EDIT
 	struct msm_dump_data *cpu_data;
-	int cpu;
+#else
+	struct msm_dump_data *cpu_data = wdog_dd->cpu_data;
+	bool need_reinital = false;
+#endif
 	void *cpu_buf;
+	int cpu;
 	struct {
 		unsigned addr;
 		int len;
@@ -476,25 +528,45 @@ static void configure_bark_dump(struct msm_watchdog_data *wdog_dd)
 			 */
 		}
 	} else {
-		cpu_data = kzalloc(sizeof(struct msm_dump_data) *
-				   num_present_cpus(), GFP_KERNEL);
-		if (!cpu_data) {
-			pr_err("cpu dump data structure allocation failed\n");
-			goto out0;
+#ifdef VENDOR_EDIT
+		if(cpu_data== NULL) {
+			need_reinital = true;
+#endif
+			cpu_data = kzalloc(sizeof(struct msm_dump_data) *
+					num_present_cpus(), GFP_KERNEL);
+			if (!cpu_data) {
+				pr_err("cpu dump data structure allocation failed\n");
+				goto out0;
+			}
+			cpu_buf = kzalloc(MAX_CPU_CTX_SIZE * num_present_cpus(),
+					GFP_KERNEL);
+			if (!cpu_buf) {
+				pr_err("cpu reg context space allocation failed\n");
+				goto out1;
+			}
+#ifdef VENDOR_EDIT
 		}
-		cpu_buf = kzalloc(MAX_CPU_CTX_SIZE * num_present_cpus(),
-				  GFP_KERNEL);
-		if (!cpu_buf) {
-			pr_err("cpu reg context space allocation failed\n");
-			goto out1;
-		}
-
+#endif
 		for_each_cpu(cpu, cpu_present_mask) {
-			cpu_data[cpu].addr = virt_to_phys(cpu_buf +
-							cpu * MAX_CPU_CTX_SIZE);
-			cpu_data[cpu].len = MAX_CPU_CTX_SIZE;
+#ifdef VENDOR_EDIT
+			if(need_reinital) {
+#endif
+				cpu_data[cpu].addr = virt_to_phys(cpu_buf +
+										cpu * MAX_CPU_CTX_SIZE);
+				cpu_data[cpu].len = MAX_CPU_CTX_SIZE;
+#ifdef VENDOR_EDIT
+			}
+#endif
 			dump_entry.id = MSM_DUMP_DATA_CPU_CTX + cpu;
-			dump_entry.addr = virt_to_phys(&cpu_data[cpu]);
+#ifdef VENDOR_EDIT
+			if(need_reinital)
+#endif
+				dump_entry.addr = virt_to_phys(&cpu_data[cpu]);
+#ifdef VENDOR_EDIT
+			else
+				dump_entry.addr = wdog_dd->cpu_data_phy
+									+ sizeof(struct msm_dump_data) * cpu;
+#endif
 			ret = msm_dump_data_register(MSM_DUMP_TABLE_APPS,
 						     &dump_entry);
 			/*
@@ -598,12 +670,53 @@ static void dump_pdata(struct msm_watchdog_data *pdata)
 								pdata->base);
 }
 
+#ifdef VENDOR_EDIT
+	//fangpan@oppo.com, 2015/11/04, enable watchdog cpu dump
+static int init_watch_cpu_ctx(struct platform_device *pdev,
+		struct msm_watchdog_data *pdata, phys_addr_t base,unsigned long size)
+{
+	struct msm_dump_data **cpu_data = &pdata->cpu_data;
+	int cpu;
+	uint64_t cpu_buf = 0;
+	void __iomem *virt_iobase;
+
+	if (!request_mem_region(base, size, "watchdog_cpu_ctx")) {
+		pr_err("request mem region (0x%llx@0x%llx) failed\n",
+				(unsigned long long)size, (unsigned long long)base);
+		return -ENXIO;
+	}
+
+	virt_iobase = devm_ioremap_nocache(&pdev->dev, base, size);
+	if (!virt_iobase) {
+		dev_err(&pdev->dev,
+				"%s: ERROR could not ioremap: start=%llx, len=%lu\n",
+				__func__, (unsigned long long)base, size);
+		return -ENXIO;
+	}
+	*cpu_data = (struct msm_dump_data *)virt_iobase;
+	pdata->cpu_data_phy = (uint64_t)base;
+	if(sizeof(struct msm_dump_data) * num_present_cpus() < size)
+		cpu_buf = sizeof(struct msm_dump_data) * num_present_cpus()
+					+ (uint64_t)base;
+
+	if(cpu_buf)
+		for_each_cpu(cpu, cpu_present_mask) {
+			(*cpu_data)[cpu].addr = cpu_buf + cpu * MAX_CPU_CTX_SIZE;
+			(*cpu_data)[cpu].len = MAX_CPU_CTX_SIZE;
+		}
+	return 0;
+}
+#endif
+
 static int msm_wdog_dt_to_pdata(struct platform_device *pdev,
 					struct msm_watchdog_data *pdata)
 {
 	struct device_node *node = pdev->dev.of_node;
+#ifdef VENDOR_EDIT
+	phys_addr_t wdt_cpu_ctx_add = 0;
+#endif
 	struct resource *res;
-	int ret;
+	int ret = 0;
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "wdt-base");
 	if (!res)
@@ -663,8 +776,16 @@ static int msm_wdog_dt_to_pdata(struct platform_device *pdev,
 		return -ENXIO;
 	}
 	pdata->irq_ppi = irq_is_percpu(pdata->bark_irq);
+
+#ifdef VENDOR_EDIT
+	//fangpan@oppo.com, 2015/11/04, enable watchdog cpu  dump
+	wdt_cpu_ctx_add = cma_get_base_byname("cpu_ctx_reserve_mem");
+	if(wdt_cpu_ctx_add != dma_contiguous_def_base && wdt_cpu_ctx_add != 0)
+		ret = init_watch_cpu_ctx(pdev, pdata, wdt_cpu_ctx_add,
+				cma_get_size_byname("cpu_ctx_reserve_mem"));
+#endif
 	dump_pdata(pdata);
-	return 0;
+	return ret;
 }
 
 static int msm_watchdog_probe(struct platform_device *pdev)
