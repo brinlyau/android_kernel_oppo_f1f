@@ -1310,18 +1310,9 @@ static int cpr_adjust_init_voltages(struct device_node *of_node,
 
 		if (volt_adjust) {
 			cpr_vreg->pvs_corner_v[i] += volt_adjust;
-			#ifndef VENDOR_EDIT
-			//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-			/*
 			cpr_info(cpr_vreg, "adjusted initial voltage[%d]: %d -> %d uV\n",
 				i, cpr_vreg->pvs_corner_v[i] - volt_adjust,
-				cpr_vreg->pvs_corner_v[i]);			
-			*/
-			#else /* VENDOR_EDIT */
-			cpr_debug(cpr_vreg, "adjusted initial voltage[%d]: %d -> %d uV\n",
-				i, cpr_vreg->pvs_corner_v[i] - volt_adjust,
-				cpr_vreg->pvs_corner_v[i]);			    
-			#endif /* VENDOR_EDIT */
+				cpr_vreg->pvs_corner_v[i]);
 		}
 	}
 
@@ -1630,40 +1621,19 @@ static int cpr_pvs_init(struct platform_device *pdev,
 		pos += scnprintf(buf + pos, buflen - pos, "%u%s",
 				cpr_vreg->pvs_corner_v[i],
 				i < highest_fuse_corner ? " " : "");
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
-	cpr_info(cpr_vreg, "pvs voltage: [%s] uV\n", buf);	
-	*/
-	#else /* VENDOR_EDIT */
-	cpr_debug(cpr_vreg, "pvs voltage: [%s] uV\n", buf);	    
-	#endif /* VENDOR_EDIT */
+	cpr_info(cpr_vreg, "pvs voltage: [%s] uV\n", buf);
 
 	for (i = CPR_FUSE_CORNER_MIN, pos = 0; i <= highest_fuse_corner; i++)
 		pos += scnprintf(buf + pos, buflen - pos, "%d%s",
 				cpr_vreg->fuse_ceiling_volt[i],
 				i < highest_fuse_corner ? " " : "");
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
-	cpr_info(cpr_vreg, "ceiling voltage: [%s] uV\n", buf);	
-	*/
-	#else /* VENDOR_EDIT */
-	cpr_debug(cpr_vreg, "ceiling voltage: [%s] uV\n", buf);	    
-	#endif /* VENDOR_EDIT */
+	cpr_info(cpr_vreg, "ceiling voltage: [%s] uV\n", buf);
 
 	for (i = CPR_FUSE_CORNER_MIN, pos = 0; i <= highest_fuse_corner; i++)
 		pos += scnprintf(buf + pos, buflen - pos, "%d%s",
 				cpr_vreg->fuse_floor_volt[i],
 				i < highest_fuse_corner ? " " : "");
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
-	cpr_info(cpr_vreg, "floor voltage: [%s] uV\n", buf);	
-	*/
-	#else /* VENDOR_EDIT */
-	cpr_debug(cpr_vreg, "floor voltage: [%s] uV\n", buf);	    
-	#endif /* VENDOR_EDIT */
+	cpr_info(cpr_vreg, "floor voltage: [%s] uV\n", buf);
 
 	kfree(buf);
 	return 0;
@@ -2086,20 +2056,10 @@ static int cpr_virtual_corner_quot_adjust(struct cpr_regulator *cpr_vreg,
 
 		if (quot_adjust) {
 			cpr_vreg->quot_adjust[i] -= (int)quot_adjust;
-			#ifndef VENDOR_EDIT
-			//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-			/*
 			cpr_info(cpr_vreg, "corner=%d adjusted quotient=%d\n",
 					i,
 			cpr_vreg->cpr_fuse_target_quot[cpr_vreg->corner_map[i]]
-						- cpr_vreg->quot_adjust[i]);			
-			*/
-			#else /* VENDOR_EDIT */
-			cpr_debug(cpr_vreg, "corner=%d adjusted quotient=%d\n",
-					i,
-			cpr_vreg->cpr_fuse_target_quot[cpr_vreg->corner_map[i]]
-						- cpr_vreg->quot_adjust[i]);			    
-			#endif /* VENDOR_EDIT */
+						- cpr_vreg->quot_adjust[i]);
 		}
 	}
 
@@ -2397,16 +2357,8 @@ static int cpr_get_corner_quot_adjustment(struct cpr_regulator *cpr_vreg,
 			      - cpr_vreg->cpr_fuse_target_quot[i - 1])
 			  / (freq_max[i] - freq_max[i - 1]);
 		scaling[i] = min(scaling[i], max_factor[i]);
-		#ifndef VENDOR_EDIT
-		//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-		/*
 		cpr_info(cpr_vreg, "fuse corner %d quotient adjustment scaling factor: %d.%03d\n",
-			i, scaling[i] / 1000, scaling[i] % 1000);		
-		*/
-		#else /* VENDOR_EDIT */
-		cpr_debug(cpr_vreg, "fuse corner %d quotient adjustment scaling factor: %d.%03d\n",
-			i, scaling[i] / 1000, scaling[i] % 1000);		    
-		#endif /* VENDOR_EDIT */
+			i, scaling[i] / 1000, scaling[i] % 1000);
 	}
 
 	/*
@@ -2436,20 +2388,9 @@ static int cpr_get_corner_quot_adjustment(struct cpr_regulator *cpr_vreg,
 	}
 
 	for (i = CPR_CORNER_MIN; i <= cpr_vreg->num_corners; i++)
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
 		cpr_info(cpr_vreg, "adjusted quotient[%d] = %d\n", i,
 			cpr_vreg->cpr_fuse_target_quot[cpr_vreg->corner_map[i]]
 			- cpr_vreg->quot_adjust[i]);
-	*/
-	#else /* VENDOR_EDIT */
-		cpr_debug(cpr_vreg, "adjusted quotient[%d] = %d\n", i,
-			cpr_vreg->cpr_fuse_target_quot[cpr_vreg->corner_map[i]]
-			- cpr_vreg->quot_adjust[i]);    
-	#endif /* VENDOR_EDIT */
-        
-
 
 	maps_valid = true;
 
@@ -2798,16 +2739,8 @@ static int cpr_adjust_target_quots(struct platform_device *pdev,
 
 		if (quot_adjust) {
 			cpr_vreg->cpr_fuse_target_quot[i] += quot_adjust;
-			#ifndef VENDOR_EDIT
-			//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-			/*
 			cpr_info(cpr_vreg, "Corner[%d]: adjusted target quot = %d\n",
-				i, cpr_vreg->cpr_fuse_target_quot[i]);			
-			*/
-			#else /* VENDOR_EDIT */
-			cpr_debug(cpr_vreg, "Corner[%d]: adjusted target quot = %d\n",
-				i, cpr_vreg->cpr_fuse_target_quot[i]);			    
-			#endif /* VENDOR_EDIT */
+				i, cpr_vreg->cpr_fuse_target_quot[i]);
 		}
 	}
 
@@ -2976,14 +2909,7 @@ static int cpr_init_cpr_efuse(struct platform_device *pdev,
 	/* Read the control bits of eFuse */
 	fuse_bits = cpr_read_efuse_row(cpr_vreg, cpr_fuse_row[0],
 					cpr_fuse_row[1]);
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
 	cpr_info(cpr_vreg, "[row:%d] = 0x%llx\n", cpr_fuse_row[0], fuse_bits);
-	*/
-	#else /* VENDOR_EDIT */
-	cpr_debug(cpr_vreg, "[row:%d] = 0x%llx\n", cpr_fuse_row[0], fuse_bits);    
-	#endif /* VENDOR_EDIT */
 
 	if (cpr_vreg->cpr_fuse_redundant) {
 		if (of_find_property(of_node,
@@ -3075,21 +3001,10 @@ static int cpr_init_cpr_efuse(struct platform_device *pdev,
 		/* Unpack the target quotient by scaling. */
 		cpr_vreg->cpr_fuse_target_quot[i] *= quot_scale[i].multiplier;
 		cpr_vreg->cpr_fuse_target_quot[i] += quot_scale[i].offset;
-		#ifndef VENDOR_EDIT
-		//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode 
-		/*
 		cpr_info(cpr_vreg,
 			"Corner[%d]: ro_sel = %d, target quot = %d\n", i,
 			cpr_vreg->cpr_fuse_ro_sel[i],
-			cpr_vreg->cpr_fuse_target_quot[i]);		
-		*/
-		#else /* VENDOR_EDIT */
-		cpr_debug(cpr_vreg,
-			"Corner[%d]: ro_sel = %d, target quot = %d\n", i,
-			cpr_vreg->cpr_fuse_ro_sel[i],
-			cpr_vreg->cpr_fuse_target_quot[i]);		    
-		#endif /* VENDOR_EDIT */
-
+			cpr_vreg->cpr_fuse_target_quot[i]);
 	}
 
 	for (i = CPR_FUSE_CORNER_MIN + 1;
@@ -3419,7 +3334,7 @@ static int cpr_init_cpr_parameters(struct platform_device *pdev,
 	  CPR_PROP_READ_U32(cpr_vreg, of_node, "cpr-up-threshold",
 		  &cpr_vreg->up_threshold, rc);
 	#endif
-	
+
 	if (rc)
 		return rc;
 
@@ -3432,9 +3347,8 @@ static int cpr_init_cpr_parameters(struct platform_device *pdev,
 			&cpr_vreg->down_threshold, rc);
 	else
 		CPR_PROP_READ_U32(cpr_vreg, of_node, "cpr-down-threshold",
-      		&cpr_vreg->down_threshold, rc);
+		&cpr_vreg->down_threshold, rc);
 	#endif
-	
 	if (rc)
 		return rc;
 	cpr_info(cpr_vreg, "up threshold = %u, down threshold = %u\n",

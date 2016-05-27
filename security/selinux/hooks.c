@@ -85,7 +85,7 @@
 #include <linux/msg.h>
 #include <linux/shm.h>
 #include <linux/pft.h>
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 //jiemin.zhu@Swap.Android.Kernel, add for reboot system when there is no memory
 //to alloc scontext, maybe some hardware error
 #include <linux/reboot.h>

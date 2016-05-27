@@ -280,7 +280,7 @@ static int qpnp_vib_parse_dt(struct qpnp_vib *vib)
 		vib->time_min = 0;
 	}
 #endif/*VENDOR_EDIT*/
-	
+
 	vib->vtg_level = QPNP_VIB_DEFAULT_VTG_LVL;
 	rc = of_property_read_u32(spmi->dev.of_node,
 			"qcom,vib-vtg-level-mV", &temp_val);

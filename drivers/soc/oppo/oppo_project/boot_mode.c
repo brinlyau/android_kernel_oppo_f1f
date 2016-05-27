@@ -12,7 +12,7 @@ static struct kobject *systeminfo_kobj;
 static int ftm_mode = MSM_BOOT_MODE__NORMAL;
 
 int __init  board_mfg_mode_init(void)
-{	
+{
     char *substr;
 
     substr = strstr(boot_command_line, "oppo_ftm_mode=");
@@ -31,10 +31,10 @@ int __init  board_mfg_mode_init(void)
             ftm_mode = MSM_BOOT_MODE__RECOVERY;
         else if(strncmp(substr, "ftmsilence", 10) == 0)
             ftm_mode = MSM_BOOT_MODE__SILENCE;
-    } 	
+    }
 
 	pr_err("board_mfg_mode_init, " "ftm_mode=%d\n", ftm_mode);
-	
+
 	return 0;
 
 }
@@ -105,7 +105,7 @@ char pwron_event[16];
 static int __init start_reason_init(void)
 {
     int i;
-    char * substr = strstr(boot_command_line, "androidboot.startupmode="); 
+    char * substr = strstr(boot_command_line, "androidboot.startupmode=");
     if(NULL == substr)
 		return 0;
     substr += strlen("androidboot.startupmode=");
@@ -113,9 +113,9 @@ static int __init start_reason_init(void)
         pwron_event[i] = substr[i];
     }
     pwron_event[i] = '\0';
-    
+
     printk(KERN_INFO "%s: parse poweron reason %s\n", __func__, pwron_event);
-	
+
 	return 1;
 }
 //__setup("androidboot.startupmode=", start_reason_setup);
@@ -126,20 +126,20 @@ static int __init boot_mode_init(void)
     int i;
 	int rc = 0;
     char *substr = strstr(boot_command_line, "androidboot.mode=");
-	
+
     if(NULL == substr)
 	return 0;
 
     substr += strlen("androidboot.mode=");
-	
+
     for(i=0; substr[i] != ' '; i++) {
         boot_mode[i] = substr[i];
     }
     boot_mode[i] = '\0';
 
     printk(KERN_INFO "%s: parse boot_mode is %s\n", __func__, boot_mode);
-	
-#ifdef VENDOR_EDIT		
+
+#ifdef VENDOR_EDIT
 	/* OPPO 2013.07.09 hewei add begin for factory mode*/
 	board_mfg_mode_init();
 	/* OPPO 2013.07.09 hewei add end */

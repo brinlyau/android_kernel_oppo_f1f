@@ -282,14 +282,14 @@ static bool has_stopped_jobs(struct pid *pgrp)
 	return false;
 }
 
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 //Shu.Liu@OnlineRd.Driver, 2014/01/20, add for clean backstage
 static bool oppo_is_android_core_group(struct pid *pgrp)
 {
 	struct task_struct *p;
 
 	do_each_pid_task(pgrp, PIDTYPE_PGID, p) {
-		if(( !strcmp(p->comm,"zygote") ) || ( !strcmp(p->comm,"main")) )	
+		if(( !strcmp(p->comm,"zygote") ) || ( !strcmp(p->comm,"main")) )
 		{
 			printk("oppo_is_android_core_group: find zygote will be hungup, ignore it \n");
 			return true;
@@ -326,7 +326,7 @@ kill_orphaned_pgrp(struct task_struct *tsk, struct task_struct *parent)
 	    task_session(parent) == task_session(tsk) &&
 	    will_become_orphaned_pgrp(pgrp, ignored_task) &&
 	    has_stopped_jobs(pgrp)) {
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 //Shu.Liu@OnlineRd.Driver, 2014/01/10, add for clean backstage
 		if(oppo_is_android_core_group(pgrp))
 		{

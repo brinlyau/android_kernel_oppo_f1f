@@ -448,8 +448,8 @@ CFLAGS_KERNEL +=   -DCONFIG_ENHANCED_LMK
 CFLAGS_MODULE +=   -DCONFIG_ENHANCED_LMK
 KBUILD_CPPFLAGS += -DCONFIG_ENHANCED_LMK
 endif
-
 #endif /*VENDOR_EDIT*/
+
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
 KERNELVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)

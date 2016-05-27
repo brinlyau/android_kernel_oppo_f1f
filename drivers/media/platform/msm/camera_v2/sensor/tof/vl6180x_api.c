@@ -233,8 +233,8 @@ int VL6180x_InitData(VL6180xDev_t dev){
                         VL6180xDevDataSet(dev, Part2PartOffsetNVM, user_offset_calib);
                 if (user_xtalk_calib != 0)
                       VL6180x_WrWord(dev, SYSRANGE_CROSSTALK_COMPENSATION_RATE, user_xtalk_calib);
-#endif              
-                
+#endif
+
         dmax_status = _DMax_InitData(dev);
         if( dmax_status < 0 ){
             VL6180x_ErrLog("DMax init failure");
@@ -386,7 +386,7 @@ int VL6180x_Prepare(VL6180xDev_t dev)
         if(status <0)
         {
         pr_err("%s:%d VL6180x_StaticInit failed  status=%d\n", __func__, __LINE__,status);
-        
+
         }
 
         if( status) break;
@@ -396,7 +396,7 @@ int VL6180x_Prepare(VL6180xDev_t dev)
         if(status <0)
         {
         pr_err("%s:%d VL6180x_RangeConfigInterrupt failed  status=%d\n", __func__, __LINE__,status);
-        
+
         }
 
         if( status)
@@ -407,7 +407,7 @@ int VL6180x_Prepare(VL6180xDev_t dev)
         if(status <0)
         {
         pr_err("%s:%d VL6180x_RangeSetRawThresholds failed  status=%d\n", __func__, __LINE__,status);
-        
+
         }
 
         if( status ){
@@ -438,7 +438,7 @@ int VL6180x_Prepare(VL6180xDev_t dev)
     if(status <0)
     {
     pr_err("%s:%d VL6180x_ClearAllInterrupt failed  status=%d\n", __func__, __LINE__,status);
-    
+
     }
 
     }
@@ -447,7 +447,7 @@ int VL6180x_Prepare(VL6180xDev_t dev)
     if(status <0)
     {
     pr_err("%s:%d final failed  status=%d\n", __func__, __LINE__,status);
-    
+
     }
 
     return status;
@@ -732,14 +732,14 @@ int VL6180x_RangePollMeasurement(VL6180xDev_t dev, VL6180x_RangeData_t *pRangeDa
 
 
 
-#if 1 
+#if 1
 {
     IntrStatus_t IntStatus;
 
     /* poll for new sample ready */
 //    while(1){
         status=VL6180x_RangeGetInterruptStatus(dev, &IntStatus.val);
- 
+
 
         if(  IntStatus.status.Range != RES_INT_STAT_GPIO_NEW_SAMPLE_READY ){
             pr_err("%s:%d VL6180x_RangeGetInterruptStatus fail IntStatus.status.Range %d\n", __func__, __LINE__,IntStatus.status.Range);
@@ -775,7 +775,7 @@ int VL6180x_RangePollMeasurement(VL6180xDev_t dev, VL6180x_RangeData_t *pRangeDa
         status = VL6180x_RangeGetMeasurement(dev, pRangeData);
         pRangeData->valid_data = 1;
 
- 
+
 
 
     /*  clear range interrupt source */
@@ -1215,7 +1215,7 @@ static int  VL6180x_UpscaleStaticInit(VL6180xDev_t dev)
         }
         */
         /*if ( ModuleID  == 0xb4 && RevMaj==0x01 && RevMin>=0x02)*/{
-        
+
             status=VL6180x_UpscaleRegInit(dev);
             if( status){
                 pr_err("regInit fail");
@@ -1658,7 +1658,7 @@ int VL6180x_UpscaleInitPatch0(VL6180xDev_t dev){
         status=VL6180x_WrByte(dev, 0xDB, (CalValue>>16)&0xff);
         status=VL6180x_WrByte(dev, 0xDC, (CalValue>>8)&0xff);
         status=VL6180x_WrByte(dev, 0xDD, CalValue&0xff);
-    
+
     }
     //status=VL6180x_WrDWord( dev, 0xDA, CalValue);
     return status;
@@ -2329,6 +2329,3 @@ static int _DMax_Compute(VL6180xDev_t dev, VL6180x_RangeData_t *pRange){
 
 #undef _DMaxData
 #endif /* VL6180x_HAVE_DMAX_RANGING */
-
-
-

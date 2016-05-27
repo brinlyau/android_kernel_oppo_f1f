@@ -1033,8 +1033,8 @@ static void msm_eeprom_s5k3m2_read_vendorInfo(struct msm_eeprom_ctrl_t *e_ctrl)
     e_ctrl->i2c_client.addr_type = MSM_CAMERA_I2C_WORD_ADDR;
 
     rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-            		&e_ctrl->i2c_client, 0x0031,
-            		&read_data, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, 0x0031,
+			&read_data, MSM_CAMERA_I2C_BYTE_DATA);
     if (rc < 0) {
 		pr_err("%s read 0x0031 failed\n", __func__);
 	} else {
@@ -1046,23 +1046,23 @@ static void msm_eeprom_s5k3m2_read_vendorInfo(struct msm_eeprom_ctrl_t *e_ctrl)
         uint16_t sum1 = 0, read_value = 0;
         for (i = 0; i <= 0x1B; i++) {
             rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-        		&e_ctrl->i2c_client, i,
-        		&read_data, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, i,
+			&read_data, MSM_CAMERA_I2C_BYTE_DATA);
             if (rc < 0) {
-        		pr_err("%s read 0x%x fail\n", __func__, i);
-        	} else {
-        	    if (i == 0) {
+			pr_err("%s read 0x%x fail\n", __func__, i);
+		} else {
+		    if (i == 0) {
                     read_value = read_data;
                     //pr_err("%s read 0x%x=%d\n", __func__, i, read_value);
-        	    }
+		    }
                 sum1 += read_data;
             }
         }
         sum1 = sum1%255;
 
         rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-        		&e_ctrl->i2c_client, 0x0032,
-        		&read_data, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, 0x0032,
+			&read_data, MSM_CAMERA_I2C_BYTE_DATA);
 
         if (sum1 == read_data) {
             pr_err("%s read module info success,value=%d\n", __func__, read_value);
@@ -1074,16 +1074,16 @@ static void msm_eeprom_s5k3m2_read_vendorInfo(struct msm_eeprom_ctrl_t *e_ctrl)
         read_value = 0;
         //PDAF Gain Map Flag
         rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-        		&e_ctrl->i2c_client, 0x0B08,
-        		&read_data, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, 0x0B08,
+			&read_data, MSM_CAMERA_I2C_BYTE_DATA);
         if (rc < 0) {
             pr_err("%s read 0x0B08 failed\n", __func__);
         }
 
 		//PDAF PCC Flag
         rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-        		&e_ctrl->i2c_client, 0x0B0A,
-        		&read_value, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, 0x0B0A,
+			&read_value, MSM_CAMERA_I2C_BYTE_DATA);
         if (rc < 0) {
             pr_err("%s read 0x0B0A failed\n", __func__);
         }
@@ -1096,21 +1096,21 @@ static void msm_eeprom_s5k3m2_read_vendorInfo(struct msm_eeprom_ctrl_t *e_ctrl)
 
         //read LSC algorithm manufacture
         rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_read(
-        		&e_ctrl->i2c_client, 0x0030,
-        		&s5k3m2_lsc_info, MSM_CAMERA_I2C_BYTE_DATA);
+			&e_ctrl->i2c_client, 0x0030,
+			&s5k3m2_lsc_info, MSM_CAMERA_I2C_BYTE_DATA);
         if (rc < 0) {
             pr_err("%s read 0x0030 failed\n", __func__);
         } else {
             pr_err("%s read 0x0030=%d\n", __func__,s5k3m2_lsc_info);
         }
-		
+
     }
 }
 
 #ifdef VENDOR_EDIT
 /*zhengrong.zhang, 2015/04/15, add for pdaf engineer mode*/
 static ssize_t s5k3m2_eeprom_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
@@ -1135,7 +1135,7 @@ static int msm_eeprom_proc_init(void)
     if (proc_entry == NULL)
     {
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create s5k3m2_eeprom_info proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create s5k3m2_eeprom_info proc entry\n", __func__);
     }
     return ret;
 }
@@ -1167,7 +1167,7 @@ static int read_eeprom_memory_3h7(struct msm_eeprom_ctrl_t *e_ctrl,
 			pr_err("qcom,slave-addr = 0x%X\n",
 				eb_info->i2c_slaveaddr);
 		}
-		
+
 		if (emap[j].page.valid_size) {
 			e_ctrl->i2c_client.addr_type = emap[j].page.addr_t;
 			rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_write(
@@ -1179,7 +1179,7 @@ static int read_eeprom_memory_3h7(struct msm_eeprom_ctrl_t *e_ctrl,
 				return rc;
 			}
 		}
-		
+
 		if (emap[j].pageen.valid_size) {
 			e_ctrl->i2c_client.addr_type = emap[j].pageen.addr_t;
 			rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_write(
@@ -1191,7 +1191,7 @@ static int read_eeprom_memory_3h7(struct msm_eeprom_ctrl_t *e_ctrl,
 				return rc;
 			}
 		}
-		
+
 		if (emap[j].poll.valid_size) {
 			e_ctrl->i2c_client.addr_type = emap[j].poll.addr_t;
 			rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_write(
@@ -1220,7 +1220,6 @@ static int read_eeprom_memory_3h7(struct msm_eeprom_ctrl_t *e_ctrl,
 	}
 	return rc;
 }
-
 #endif
 
 #ifdef VENDOR_EDIT
@@ -1551,7 +1550,7 @@ static int msm_eeprom_platform_probe(struct platform_device *pdev)
 #endif
 #ifdef VENDOR_EDIT
 /* lanhe add for 15005 3h7 eeprom*/
-    if (strcmp(eb_info->eeprom_name, "truly_s5k3h7") == 0) 
+    if (strcmp(eb_info->eeprom_name, "truly_s5k3h7") == 0)
 		rc = read_eeprom_memory_3h7(e_ctrl, &e_ctrl->cal_data);
 	else
 #endif

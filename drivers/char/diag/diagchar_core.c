@@ -2188,14 +2188,14 @@ int mask_request_validate(unsigned char mask_buf[])
 				return 1;
 			break;
         #endif /* VENDOR_EDIT */
-        
+
         #ifdef VENDOR_EDIT
         //WenLong.Cai@Mobile.Network, 2014/08/25, Add for Non-Signaling antenna factory test.
         case 0x0b:
             printk(KERN_INFO "DIAG_SUBSYS_FTM 0x0B");
             return 1;
         #endif /* VENDOR_EDIT */
-        
+
 		default:
 			return 0;
 			break;

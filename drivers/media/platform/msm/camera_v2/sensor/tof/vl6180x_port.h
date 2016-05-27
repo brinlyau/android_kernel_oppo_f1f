@@ -38,7 +38,7 @@
  *  When target platform and compiler provide stdint.h and stddef.h it is enough to include thems.\n
  *  If stdint.h is not available review and adapt all signed and unsigned 8/16/32 bits basic types. \n
  *  If stddef.h is not available review and adapt NULL definition.
- */ 
+ */
 
 /**
  * @defgroup porting_i2c  I2C device register access
@@ -417,6 +417,3 @@ uint8_t *VL6180x_GetI2cBuffer(VL6180xDev_t dev, int n_byte);
 #endif
 
 #endif  /* VL6180x_PORT */
-
-
-

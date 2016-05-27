@@ -314,30 +314,30 @@ enum {
 
 #define REG14_SMB1357_CHG_ENABLE_SOURCE_MASK                    BIT(7)
 #define REG14_SMB1357_CHG_ENABLE_FOR_COMMAND_REGISTER           0x00
-#define REG14_SMB1357_CHG_ENABLE_FOR_ENABLE_PIN                 BIT(7) 
+#define REG14_SMB1357_CHG_ENABLE_FOR_ENABLE_PIN                 BIT(7)
 
 #define REG14_SMB1357_CHG_ENABLE_POLARITY_MASK                  BIT(6)
 #define REG14_SMB1357_CHG_ENABLE_FOR_ACTIVE_HIGH                0x00
-#define REG14_SMB1357_CHG_ENABLE_FOR_ACTIVE_LOW                 BIT(6) 
+#define REG14_SMB1357_CHG_ENABLE_FOR_ACTIVE_LOW                 BIT(6)
 
 #define REG14_SMB1357_PRE_TO_FAST_CHARGING_MODE_MASK            BIT(5)
 #define REG14_SMB1357_PRE_TO_FAST_CHARGING_FOR_AUTO             0x00
-#define REG14_SMB1357_PRE_TO_FAST_CHARGING_FOR_COMMAND          BIT(5) 
+#define REG14_SMB1357_PRE_TO_FAST_CHARGING_FOR_COMMAND          BIT(5)
 
 #define REG14_SMB1357_CURRENT_TERMINATION_MASK                  BIT(3)
 #define REG14_SMB1357_CURRENT_TERMINATION_ENABLE                0x00
-#define REG14_SMB1357_CURRENT_TERMINATION_DISABLE               BIT(3) 
+#define REG14_SMB1357_CURRENT_TERMINATION_DISABLE               BIT(3)
 
 #define REG14_SMB1357_AUTO_RECHARGE_MASK                        BIT(2)
 #define REG14_SMB1357_AUTO_RECHARGE_ENABLE                      0x00
-#define REG14_SMB1357_AUTO_RECHARGE_DISABLE                     BIT(2) 
+#define REG14_SMB1357_AUTO_RECHARGE_DISABLE                     BIT(2)
 
 #define REG14_SMB1357_HOLD_OFF_CHARGING_TIME_MASK               BIT(1)
 #define REG14_SMB1357_HOLD_OFF_CHARGING_FOR_700US               0x00
-#define REG14_SMB1357_HOLD_OFF_CHARGING_FOR_350MS               BIT(1) 
+#define REG14_SMB1357_HOLD_OFF_CHARGING_FOR_350MS               BIT(1)
 
-#define REG14_SMB1357_CHARGER_INHIBIT_MASK                      BIT(0)	
-#define REG14_SMB1357_CHARGER_INHIBIT_ENABLE                    BIT(0) 	
+#define REG14_SMB1357_CHARGER_INHIBIT_MASK                      BIT(0)
+#define REG14_SMB1357_CHARGER_INHIBIT_ENABLE                    BIT(0)
 #define REG14_SMB1357_CHARGER_INHIBIT_DISABLE                   0x00
 
 
@@ -454,10 +454,10 @@ enum {
 #define REG1E_SMB1357_FLOAT_VOLTAGE_4330MV                      (BIT(5) | BIT(3) | BIT(0))
 #define REG1E_SMB1357_FLOAT_VOLTAGE_4340MV                      (BIT(5) | BIT(3) | BIT(1))
 #define REG1E_SMB1357_FLOAT_VOLTAGE_4350MV	                    (BIT(5) | BIT(3) | BIT(1) | BIT(0))
-#define SMB1357_MIN_FLOAT_MV                            		3600
-#define SMB1357_MAX_FLOAT_MV                            		4500
-#define SMB1357_VFLOAT_STEP_MV                          		20
-#define SMB1357_VFLOAT_4350MV                           		4350
+#define SMB1357_MIN_FLOAT_MV						3600
+#define SMB1357_MAX_FLOAT_MV						4500
+#define SMB1357_VFLOAT_STEP_MV						20
+#define SMB1357_VFLOAT_4350MV						4350
 
 
 /* Address:32h */
@@ -497,37 +497,37 @@ enum {
 #define REG41_SMB1357_INPUT_CURRENT_MODE_FOR_APSD				0x00
 #define REG41_SMB1357_INPUT_CURRENT_MODE_FOR_COMMAND			BIT(2)
 
-#define REG41_SMB1357_USB_CONTROL_MODE_MASK 					(BIT(1) | BIT(0))
-#define REG41_SMB1357_USB_100_MODE 								0x00
-#define REG41_SMB1357_USB_500_MODE 								BIT(1)
-#define REG41_SMB1357_USB_AC_MODE 								BIT(0)
+#define REG41_SMB1357_USB_CONTROL_MODE_MASK					(BIT(1) | BIT(0))
+#define REG41_SMB1357_USB_100_MODE								0x00
+#define REG41_SMB1357_USB_500_MODE								BIT(1)
+#define REG41_SMB1357_USB_AC_MODE								BIT(0)
 
 
 /* Address:42h */
 #define REG42_SMB1357_ADDRESS									0x42
 
-#define REG42_SMB1357_CHARGER_OK_COMMAND_MASK            		BIT(5)
+#define REG42_SMB1357_CHARGER_OK_COMMAND_MASK				BIT(5)
 #define REG42_SMB1357_CHARGER_OK_COMMAND_ENABLE					BIT(5)
 
-#define REG42_SMB1357_THERM_A_THERM_MONITOR_MASK           		BIT(4)
-#define REG42_SMB1357_THERM_A_THERM_MONITOR_ENABLE            	0x00
-#define REG42_SMB1357_THERM_A_THERM_MONITOR_DISABLE            	BIT(4)
+#define REG42_SMB1357_THERM_A_THERM_MONITOR_MASK			BIT(4)
+#define REG42_SMB1357_THERM_A_THERM_MONITOR_ENABLE		0x00
+#define REG42_SMB1357_THERM_A_THERM_MONITOR_DISABLE		BIT(4)
 
-#define REG42_SMB1357_TURN_OFF_STAT_PIN_MASK            		BIT(3)
+#define REG42_SMB1357_TURN_OFF_STAT_PIN_MASK				BIT(3)
 #define REG42_SMB1357_TURN_OFF_STAT_PIN_DISABLE					0x00
 #define REG42_SMB1357_TURN_OFF_STAT_PIN_ENABLE					BIT(3)
 
-#define REG42_SMB1357_PRE_TO_FAST_CHARGING_MASK            		BIT(2)
+#define REG42_SMB1357_PRE_TO_FAST_CHARGING_MASK				BIT(2)
 #define REG42_SMB1357_PRE_TO_FAST_CHARGING_DISABLE				0x00
 #define REG42_SMB1357_PRE_TO_FAST_CHARGING_ENABLE				BIT(2)
 
 #define REG42_SMB1357_CHARGING_MASK								BIT(1)
-#define REG42_SMB1357_CHARGING_DISABLE                    		0x00
-#define REG42_SMB1357_CHARGING_ENABLE                    		BIT(1)
+#define REG42_SMB1357_CHARGING_DISABLE					0x00
+#define REG42_SMB1357_CHARGING_ENABLE					BIT(1)
 
-#define REG42_SMB1357_OTG_MASK                   				BIT(0)
-#define REG42_SMB1357_OTG_DISABLE			                	0x00
-#define REG42_SMB1357_OTG_ENABLE			                	BIT(0)
+#define REG42_SMB1357_OTG_MASK							BIT(0)
+#define REG42_SMB1357_OTG_DISABLE						0x00
+#define REG42_SMB1357_OTG_ENABLE						BIT(0)
 
 
 /* Address:47h */
@@ -536,14 +536,14 @@ enum {
 #define REG47_SMB1357_CMD_A_USBIN_SUSPEND_MASK                  BIT(3)
 #define REG47_SMB1357_CMD_A_USBIN_SUSPEND_ENABLE                BIT(3)
 
-#define REG47_SMB1357_CMD_A_DCIN_SUSPEND_MASK                  	BIT(2)
+#define REG47_SMB1357_CMD_A_DCIN_SUSPEND_MASK			BIT(2)
 #define REG47_SMB1357_CMD_A_DCIN_SUSPEND_ENABLE                 BIT(2)
 
 
 /* Address:4Ah */
 #define REG4A_SMB1357_ADDRESS									0x4A
 
-#define REG4A_SMB1357_STATUS_C_CHG_HOLD_OFF_BIT               	BIT(3)
+#define REG4A_SMB1357_STATUS_C_CHG_HOLD_OFF_BIT			BIT(3)
 
 #define REG4A_SMB1357_STATUS_C_CHARGING_MASK					(BIT(2) | BIT(1))
 #define REG4A_SMB1357_STATUS_C_NO_CHARGING						0x00
@@ -650,23 +650,23 @@ enum {
 #define REG56_SMB1357_IRQ_G_CHARGE_INHIBIT_STATUS				BIT(0)
 
 
-#define IRQ_A_REG_SMB1357   	                                REG50_SMB1357_ADDRESS	
-#define IRQ_B_REG_SMB1357   	                                REG51_SMB1357_ADDRESS	
-#define IRQ_C_REG_SMB1357   	                                REG52_SMB1357_ADDRESS	
-#define IRQ_D_REG_SMB1357   	                                REG53_SMB1357_ADDRESS	
-#define IRQ_E_REG_SMB1357   	                                REG54_SMB1357_ADDRESS	
-#define IRQ_F_REG_SMB1357   	                                REG55_SMB1357_ADDRESS	
-#define IRQ_G_REG_SMB1357   	                                REG56_SMB1357_ADDRESS	
+#define IRQ_A_REG_SMB1357	                                REG50_SMB1357_ADDRESS
+#define IRQ_B_REG_SMB1357	                                REG51_SMB1357_ADDRESS
+#define IRQ_C_REG_SMB1357	                                REG52_SMB1357_ADDRESS
+#define IRQ_D_REG_SMB1357	                                REG53_SMB1357_ADDRESS
+#define IRQ_E_REG_SMB1357	                                REG54_SMB1357_ADDRESS
+#define IRQ_F_REG_SMB1357	                                REG55_SMB1357_ADDRESS
+#define IRQ_G_REG_SMB1357	                                REG56_SMB1357_ADDRESS
 
 
 // config register
-#define SMB1357_LAST_CNFG_REG                           		0x1F
+#define SMB1357_LAST_CNFG_REG						0x1F
 // command register
-#define SMB1357_FIRST_CMD_REG                           		0x40
-#define SMB1357_LAST_CMD_REG                            		0x42
+#define SMB1357_FIRST_CMD_REG						0x40
+#define SMB1357_LAST_CMD_REG						0x42
 // status register
-#define SMB1357_FIRST_STATUS_REG                        		0x46
-#define SMB1357_LAST_STATUS_REG                         		0x56
+#define SMB1357_FIRST_STATUS_REG					0x46
+#define SMB1357_LAST_STATUS_REG						0x56
 
 
 OPPO_SMB1357_EXT int smb1357_get_prop_fastcharger_type(struct opchg_charger *chip);

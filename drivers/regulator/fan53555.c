@@ -591,11 +591,11 @@ static int fan53555_regulator_probe(struct i2c_client *client,
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 		if(is_project(OPPO_15018)||is_project(OPPO_15011) || is_project(OPPO_15085))
 		{
- 			ext_apc_buck_is_fan53555 = true;
+			ext_apc_buck_is_fan53555 = true;
 		} else {
 			ext_apc_buck_is_fan53555 = false;
 		}
-  	}
+	}
 	#endif
 	di->chip_id = val & DIE_ID;
 	/* Get chip revision */

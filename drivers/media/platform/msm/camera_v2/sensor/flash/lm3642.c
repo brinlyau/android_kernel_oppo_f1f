@@ -21,7 +21,7 @@
 
 #ifdef VENDOR_EDIT
 /* xianglie.liu 2014-09-05 add for add project name */
-//#include <mach/oppo_project.h> 
+//#include <mach/oppo_project.h>
 /*hufeng 2014-11-03 add foraviod led off twice*/
 static struct mutex flash_mode_lock;
 /*OPPO 2014-08-01 hufeng add for flash engineer mode test*/
@@ -48,19 +48,19 @@ static struct i2c_driver lm3642_i2c_driver;
 /*
 CURRENT CONTROL REGISTER (0x09)
 
-Bit7 
+Bit7
     RFU
 
-Bit6 Bit5 Bit4 
-    Torch Current (LM3642LT) 
-    000 = 48.4 mA(default) (24mA) 
-    001 =93.74 mA (46.87mA) 
-    010 =140.63 mA (70.315mA) 
-    011 = 187.5 mA (93.25mA) 
-    100 =234.38 mA(117.19mA) 
-    101 = 281.25 mA(140.625mA) 
-    110 = 328.13 mA(164.075mA) 
-    111 = 375 mA(187.5mA) 
+Bit6 Bit5 Bit4
+    Torch Current (LM3642LT)
+    000 = 48.4 mA(default) (24mA)
+    001 =93.74 mA (46.87mA)
+    010 =140.63 mA (70.315mA)
+    011 = 187.5 mA (93.25mA)
+    100 =234.38 mA(117.19mA)
+    101 = 281.25 mA(140.625mA)
+    110 = 328.13 mA(164.075mA)
+    111 = 375 mA(187.5mA)
 
 Bit3 Bit2 Bit1 Bit0
     Flash Current
@@ -94,6 +94,7 @@ static struct msm_camera_i2c_reg_array lm3642_off_array[] = {
 static struct msm_camera_i2c_reg_array lm3642_release_array[] = {
 	{0x0A, 0x00},
 };
+
 #ifdef OPPO_CMCC_TEST
 /* xianglie.liu add for cmcc */
 static struct msm_camera_i2c_reg_array lm3642_low_array[] = {
@@ -341,9 +342,9 @@ static int msm_led_cci_test_init(void)
 	{
 		msm_camera_config_single_vreg(&fctrl.pdev->dev,
 			power_info->cam_vreg,
-			&vreg,1);	
+			&vreg,1);
 	}
-	else 
+	else
 	{
 		gpio_set_value_cansleep(
 			power_info->gpio_conf->gpio_num_info->
@@ -366,11 +367,11 @@ static int msm_led_cci_test_off(void)
 	LM3642_DBG("%s:%d called\n", __func__, __LINE__);
 	//if (led_test_mode == 2)
 	//	cancel_delayed_work_sync(&led_blink_work);
-	if (fctrl.flash_i2c_client && fctrl.reg_setting) 
+	if (fctrl.flash_i2c_client && fctrl.reg_setting)
 	{
 		int i = 0;
 		uint16_t reg_value = 0;
-		
+
 		//read flag register
 		rc = fctrl.flash_i2c_client->i2c_func_tbl->i2c_read(
 			fctrl.flash_i2c_client, 0x0B,
@@ -388,7 +389,7 @@ static int msm_led_cci_test_off(void)
 					&reg_value, MSM_CAMERA_I2C_BYTE_DATA);
 				if (reg_value == 0)
 					break;
-				pr_err(" flag 0x%x j=%d\n",reg_value,j);	
+				pr_err(" flag 0x%x j=%d\n",reg_value,j);
 			}
 		}
 
@@ -427,13 +428,13 @@ static int msm_led_cci_test_off(void)
 		LM3642_DBG("%s:%d camera already power up\n", __func__, __LINE__);
 		return rc;
 	}
-	if (power_info->cam_vreg != NULL && power_info->num_vreg>0) 
+	if (power_info->cam_vreg != NULL && power_info->num_vreg>0)
 	{
 		msm_camera_config_single_vreg(&fctrl.pdev->dev,
 			power_info->cam_vreg,
 			&vreg,0);
 	}
-	else 
+	else
 	{
 		gpio_set_value_cansleep(
 			power_info->gpio_conf->gpio_num_info->
@@ -504,7 +505,7 @@ static int msm_led_cci_test_torch(struct msm_led_flash_ctrl_t *fctrl)
 					&reg_value, MSM_CAMERA_I2C_BYTE_DATA);
 				if (reg_value == 0)
 					break;
-				pr_err(" flag 0x%x j=%d\n",reg_value,j);	
+				pr_err(" flag 0x%x j=%d\n",reg_value,j);
 			}
 		}
 	}
@@ -564,7 +565,7 @@ static int msm_led_cci_test_torch(struct msm_led_flash_ctrl_t *fctrl)
 
 /* zhengrong.zhang 2014-11-08 Add for flash proc read */
 static ssize_t flash_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
@@ -573,20 +574,20 @@ static ssize_t flash_proc_read(struct file *filp, char __user *buff,
 }
 
 static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
 	char buf[8] = {0};
 	int new_mode = 0;
 	int i = 0;
 	if (len > 8)
 		len = 8;
-	if (copy_from_user(buf, buff, len)) 
+	if (copy_from_user(buf, buff, len))
 	{
 		pr_err("proc write error.\n");
 		return -EFAULT;
 	}
 	new_mode = simple_strtoul(buf, NULL, 10);
-	if (new_mode == led_test_mode) 
+	if (new_mode == led_test_mode)
 	{
 		pr_err("the same mode as old\n");
 		return len;
@@ -614,7 +615,7 @@ static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
 		mutex_lock(&flash_mode_lock);
 		if (led_test_mode > 0 && led_test_mode <= 3) {
 			msm_led_cci_test_off();
-			led_test_mode = 0;
+		led_test_mode = 0;
 		}
 
 		if (blink_work) {
@@ -633,10 +634,10 @@ static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
 	case 2:
 		mutex_lock(&flash_mode_lock);
 		if (!blink_work) {
-			msm_led_cci_test_init();
-			schedule_delayed_work(&led_blink_work, msecs_to_jiffies(50));
-			blink_work = true;
-			led_test_mode = 2;
+		msm_led_cci_test_init();
+		schedule_delayed_work(&led_blink_work, msecs_to_jiffies(50));
+		blink_work = true;
+		led_test_mode = 2;
 		}
 		mutex_unlock(&flash_mode_lock);
 		break;
@@ -668,13 +669,13 @@ static int flash_proc_init(struct msm_led_flash_ctrl_t *flash_ctl)
 {
 	int ret=0;
 	struct proc_dir_entry *proc_entry;
-	
+
 	INIT_DELAYED_WORK(&led_blink_work, msm_led_cci_test_blink_work);
 	proc_entry = proc_create_data( "qcom_flash", 0666, NULL,&led_test_fops, (void*)&fctrl);
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create qcom_flash proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create qcom_flash proc entry\n", __func__);
 	}
 	return ret;
 }
@@ -758,7 +759,7 @@ static struct i2c_driver lm3642_i2c_driver = {
 };
 #ifdef VENDOR_EDIT
 /*OPPO hufeng 2014-07-24 add for flash cci driver*/
-static const struct of_device_id lm3642_trigger_dt_match[] = 
+static const struct of_device_id lm3642_trigger_dt_match[] =
 {
 	{.compatible = FLASH_NAME, .data = &fctrl},
 	{}
@@ -789,26 +790,26 @@ static int msm_flash_lm3642_platform_probe(struct platform_device *pdev)
 /*OPPO 2014-11-11 zhengrong.zhang add for torch can't use when open subcamera after boot*/
 	power_info = &fctrl.flashdata->power_info;
 	rc = msm_camera_request_gpio_table(
-    	power_info->gpio_conf->cam_gpio_req_tbl,
-    	power_info->gpio_conf->cam_gpio_req_tbl_size, 1);
+	power_info->gpio_conf->cam_gpio_req_tbl,
+	power_info->gpio_conf->cam_gpio_req_tbl_size, 1);
 	if (rc < 0) {
 		pr_err("%s: request gpio failed\n", __func__);
 	}
 	rc = msm_camera_request_gpio_table(
-    	power_info->gpio_conf->cam_gpio_req_tbl,
-    	power_info->gpio_conf->cam_gpio_req_tbl_size, 0);
+	power_info->gpio_conf->cam_gpio_req_tbl,
+	power_info->gpio_conf->cam_gpio_req_tbl_size, 0);
 	if (rc < 0) {
 		pr_err("%s: request gpio failed\n", __func__);
 	}
 #endif
-    
+
 	return rc;
 }
 
-static struct platform_driver lm3642_platform_driver = 
+static struct platform_driver lm3642_platform_driver =
 {
 	.probe = msm_flash_lm3642_platform_probe,
-	.driver = 
+	.driver =
 	{
 		.name = FLASH_NAME,
 		.owner = THIS_MODULE,

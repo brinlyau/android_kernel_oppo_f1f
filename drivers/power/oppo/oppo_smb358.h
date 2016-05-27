@@ -132,9 +132,9 @@ static int fast_chg_current[] = {
 #define USB3_ENABLE_MASK                        BIT(5)
 #define USB3_ENABLE_BIT                         BIT(5)
 
-#define OTHER_CTRL_REG                  		0x09
+#define OTHER_CTRL_REG					0x09
 #define CHG_LOW_BATT_THRESHOLD_MASK             (BIT(3) | BIT(2) | BIT(1) | BIT(0))//0x0F
-#define SMB358_BATT_GOOD_THRE_2P5 				0x1
+#define SMB358_BATT_GOOD_THRE_2P5				0x1
 
 #define OTG_TLIM_THERM_REG                      0x0A
 #define OTG_CURRENT_LIMIT_MASK                  (BIT(2) | BIT(3))
@@ -261,7 +261,7 @@ static int fast_chg_current[] = {
 // config register
 #define SMB358_LAST_CNFG_REG                    0x0D
 // command register
-#define SMB358_FIRST_CMD_REG                   	0x30
+#define SMB358_FIRST_CMD_REG			0x30
 #define SMB358_LAST_CMD_REG                     0x33
 // status register
 #define SMB358_FIRST_STATUS_REG                 0x35

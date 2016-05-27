@@ -412,7 +412,7 @@ static void log_store(int facility, int level,
 {
 	struct log *msg;
 	u32 size, pad_len;
-	#ifdef VENDOR_EDIT 
+	#ifdef VENDOR_EDIT
 	//part 1/3: yixue.ge 2015-04-22 add for add cpu number and current id and current comm to kmsg
     int this_cpu = smp_processor_id();
     char tbuf[50];
@@ -420,7 +420,7 @@ static void log_store(int facility, int level,
 
     if (console_suspended == 0) {
        tlen = snprintf(tbuf, sizeof(tbuf), " (%x)[%d:%s]",
-               this_cpu, current->pid, current->comm); 
+               this_cpu, current->pid, current->comm);
     } else {
         tlen = snprintf(tbuf, sizeof(tbuf), " %x)", this_cpu);
     }
@@ -428,7 +428,7 @@ static void log_store(int facility, int level,
 
 	/* number of '\0' padding bytes to next message */
 	size = sizeof(struct log) + text_len + dict_len;
-	#ifdef VENDOR_EDIT 
+	#ifdef VENDOR_EDIT
 	//part 2/3: yixue.ge 2015-04-22 add for add cpu number and current id and current comm to kmsg
 	size +=tlen;
 	#endif //add end part 2/3
@@ -467,7 +467,7 @@ static void log_store(int facility, int level,
 
 	/* fill message */
 	msg = (struct log *)(log_buf + log_next_idx);
-	#ifndef VENDOR_EDIT 
+	#ifndef VENDOR_EDIT
 	//part 3/3: yixue.ge 2015-04-22 add for add cpu number and current id and current comm to kmsg
 	memcpy(log_text(msg), text, text_len);
 	#else

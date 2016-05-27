@@ -23,7 +23,7 @@ static struct workqueue_struct *autosleep_wq;
 static DEFINE_MUTEX(autosleep_lock);
 static struct wakeup_source *autosleep_ws;
 
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 /* OPPO 2015-03-26 sjc Add begin for sleep debug */
 static void wakelock_printk(struct work_struct *work);
 static struct workqueue_struct *wakelock_printk_work_queue = NULL;
@@ -34,7 +34,7 @@ static void wakelock_printk(struct work_struct *work)
 	queue_delayed_work(wakelock_printk_work_queue, &wakelock_printk_work, msecs_to_jiffies(60*1000));
 }
 
-void wakelock_printk_control(int on) 
+void wakelock_printk_control(int on)
 {
 	if (wakelock_printk_work_queue == NULL) {
 		printk(KERN_INFO "%s: wakelock_printk_work_queue is NULL, do nothing\n", __func__);
@@ -118,7 +118,7 @@ int pm_autosleep_set_state(suspend_state_t state)
 	if (state >= PM_SUSPEND_MAX)
 		return -EINVAL;
 #endif
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 /* OPPO 2015-03-26 sjc Add begin for sleep debug */
 	wakelock_printk_control(0);
 #endif /* VENDOR_EDIT */
@@ -138,20 +138,20 @@ int pm_autosleep_set_state(suspend_state_t state)
 	}
 
 	mutex_unlock(&autosleep_lock);
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 /* OPPO 2015-03-26 sjc Add begin for sleep debug */
-	wakelock_printk_control(1); 
+	wakelock_printk_control(1);
 #endif /* VENDOR_EDIT */
 	return 0;
 }
 
 int __init pm_autosleep_init(void)
 {
-#ifdef VENDOR_EDIT 
+#ifdef VENDOR_EDIT
 /* OPPO 2015-03-26 sjc Add begin for sleep debug */
 	wakelock_printk_work_queue = create_singlethread_workqueue("wakelock_printk");
 	if (wakelock_printk_work_queue == NULL)
-		printk(KERN_INFO "%s: failed to create work queue\n", __func__);	
+		printk(KERN_INFO "%s: failed to create work queue\n", __func__);
 #endif /* VENDOR_EDIT */
 
 	autosleep_ws = wakeup_source_register("autosleep");

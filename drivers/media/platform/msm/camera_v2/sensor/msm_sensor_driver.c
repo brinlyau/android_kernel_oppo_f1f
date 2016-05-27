@@ -1237,13 +1237,13 @@ FREE_SENSOR_I2C_CLIENT:
 #ifdef VENDOR_EDIT
 /*zhengrong.zhang, 2015/04/15, add for pdaf engineer mode*/
 static ssize_t pdaf_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
     snprintf(value, sizeof(value), "%d", (is_pdaf_supported << 1 | pdaf_calibration_flag));
 
-    pr_err("%s,is_pdaf_supported=%d,calibration_flag=%d,value=%s\n", __func__, 
+    pr_err("%s,is_pdaf_supported=%d,calibration_flag=%d,value=%s\n", __func__,
         is_pdaf_supported,pdaf_calibration_flag,value);
     return simple_read_from_buffer(buff, len, data, value,1);
 }
@@ -1263,14 +1263,14 @@ static int msm_sensor_driver_pdaf_proc_init(void)
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create pdaf_calibration proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create pdaf_calibration proc entry\n", __func__);
 	}
 	return ret;
 }
 
 /*zhengrong.zhang, 2015/07/08, add for laser*/
 static ssize_t laser_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
@@ -1295,7 +1295,7 @@ static int msm_sensor_driver_laser_proc_init(void)
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create laser proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create laser proc entry\n", __func__);
 	}
 	return ret;
 }

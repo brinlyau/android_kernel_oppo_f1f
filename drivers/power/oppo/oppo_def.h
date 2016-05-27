@@ -21,28 +21,28 @@ enum {
     OPCHG_CHG_TEMP_COOL,			//	-3< t <0
     OPCHG_CHG_TEMP_PRE_COOL1,		//	0< t <5
     OPCHG_CHG_TEMP_PRE_COOL,		//	5< t <12
-    OPCHG_CHG_TEMP_PRE_NORMAL,		//	12< t <22
-    OPCHG_CHG_TEMP_NORMAL,			//	22< t <45
+    OPCHG_CHG_TEMP_PRE_NORMAL,	//	12< t <22
+    OPCHG_CHG_TEMP_NORMAL,		//	22< t <45
     OPCHG_CHG_TEMP_WARM,			//	45< t <53
-    OPCHG_CHG_TEMP_HOT,				//	>53
+    OPCHG_CHG_TEMP_HOT,			//	>53
 };
 
 // batterynotify is int type ,so define max bit(14)
-#define 	Notify_Charger_Over_Vol                   	BIT(1)// 1 // charger voltage high
-#define	Notify_Charger_Low_Vol                    	BIT(2)// 2 // charger voltage low
-#define	Notify_Bat_Over_Temp                      	BIT(3)// 3 // battery temp high
-#define	Notify_Bat_Low_Temp                       	BIT(4)// 4 // battery temp low
-#define	Notify_Bat_Not_Connect                    	BIT(5)// 5 // battery disconnect
-#define	Notify_Bat_Over_Vol                       	BIT(6)// 6 // battery voltage high
-#define	Notify_Bat_Full                           	BIT(7)// 7 // normal charger full
-#define	Notify_Chging_Current                     	BIT(8)// 8 
-#define	Notify_Chging_OverTime					  	BIT(9)// 9 // time out charegr full
-#define	Notify_Bat_Full_High_Temp			  			BIT(10)// 10// high_temp charger full
-#define	Notify_Bat_Full_Low_Temp			  			BIT(11)// 11// low_temp charger full
+#define		Notify_Charger_Over_Vol				BIT(1)// 1 // charger voltage high
+#define	Notify_Charger_Low_Vol				BIT(2)// 2 // charger voltage low
+#define	Notify_Bat_Over_Temp				BIT(3)// 3 // battery temp high
+#define	Notify_Bat_Low_Temp				BIT(4)// 4 // battery temp low
+#define	Notify_Bat_Not_Connect				BIT(5)// 5 // battery disconnect
+#define	Notify_Bat_Over_Vol				BIT(6)// 6 // battery voltage high
+#define	Notify_Bat_Full					BIT(7)// 7 // normal charger full
+#define	Notify_Chging_Current				BIT(8)// 8
+#define	Notify_Chging_OverTime						BIT(9)// 9 // time out charegr full
+#define	Notify_Bat_Full_High_Temp						BIT(10)// 10// high_temp charger full
+#define	Notify_Bat_Full_Low_Temp						BIT(11)// 11// low_temp charger full
 #define	Notify_Bat_Full_THIRD_BATTERY					BIT(14)// 14   // no_thirdbat charger full
-#define	Notify_Bat_MAX								BIT(14)// 14   
+#define	Notify_Bat_MAX								BIT(14)// 14
 
-typedef enum   
+typedef enum
 {
 	/*! Battery is absent               */
     CV_BATTERY_TEMP_REGION__ABSENT,
@@ -118,7 +118,7 @@ enum {
 
 enum {
     CHARGER_RESET_BY_TEMP_COOL      = BIT(0),
-	CHARGER_RESET_BY_TEMP_PRE_COOL1  = BIT(1),
+    CHARGER_RESET_BY_TEMP_PRE_COOL1  = BIT(1),
     CHARGER_RESET_BY_TEMP_PRE_COOL  = BIT(2),
     CHARGER_RESET_BY_TEMP_PRE_NORMAL = BIT(3),
     CHARGER_RESET_BY_TEMP_NORMAL    = BIT(4),
@@ -156,7 +156,7 @@ enum {
 	USER	= BIT(0),
 	THERMAL = BIT(1),
 	CURRENT = BIT(2),
-	SOC 	= BIT(3),
+	SOC	= BIT(3),
 };
 
 #define CONFIG_GAUGE_BQ27411						1
@@ -200,7 +200,7 @@ struct opchg_charger {
 	bool							bms_controlled_charging;
 	bool							using_pmic_therm;
 	int								charging_disabled_status;
-    
+
     /* status tracking */
 	bool                            batt_ovp;
     bool                            batt_pre_full;
@@ -223,7 +223,7 @@ struct opchg_charger {
     #endif
     bool                            otg_enable_pending;
     bool                            otg_disable_pending;
-    
+
     int                             charging_disabled;
  //   int                             fastchg_current_max_ma;
  //   int                             fastchg_current_ma;
@@ -234,12 +234,12 @@ struct opchg_charger {
     int                             charging_opchg_temp_statu;
     int                             temp_vfloat_mv;
     int                             workaround_flags;
-    
+
 	struct power_supply				dc_psy;
     struct power_supply             *usb_psy;
     struct power_supply             *bms_psy;
     struct power_supply             batt_psy;
-    
+
     struct delayed_work             update_opchg_thread_work;
     struct delayed_work             opchg_delayed_wakeup_work;
 	struct work_struct				opchg_modify_tp_param_work;
@@ -247,36 +247,36 @@ struct opchg_charger {
 	struct work_struct				bq24157_usbin_valid_work;
 	struct work_struct				bq24188_usbin_valid_work;
     struct wakeup_source            source;
-    
+
     struct opchg_regulator         otg_vreg;
-    
+
     struct dentry                   *debug_root;
     u32                             peek_poke_address;
-    
+
     struct qpnp_vadc_chip           *vadc_dev;
     struct qpnp_adc_tm_chip         *adc_tm_dev;
     struct qpnp_adc_tm_btm_param    adc_param;
 
 	int								fast_charge_project;
-	
+
     int                             fastchg_current_max_ma;
     int                             limit_current_max_ma;
     int                             iterm_ma;
     int                             vfloat_mv;
     int                             recharge_mv;
-	
+
     int                             hot_bat_decidegc;
     int                             temp_hot_vfloat_mv;
     int                             temp_hot_fastchg_current_ma;
-	
+
     int                             warm_bat_decidegc;
     int                             temp_warm_vfloat_mv;
     int                             temp_warm_fastchg_current_ma;
-	
+
 	int                             pre_normal_bat_decidegc;
     int                             temp_pre_normal_vfloat_mv;
-    int                             temp_pre_normal_fastchg_current_ma;	
-	
+    int                             temp_pre_normal_fastchg_current_ma;
+
     int                             pre_cool_bat_decidegc;
     int                             temp_pre_cool_vfloat_mv;
     int                             temp_pre_cool_fastchg_current_ma;
@@ -289,7 +289,7 @@ struct opchg_charger {
     int                             cool_bat_decidegc;
     int                             temp_cool_vfloat_mv;
     int                             temp_cool_fastchg_current_ma;
-	
+
     int                             cold_bat_decidegc;
     int                             bat_present_decidegc;
 	int								non_standard_vfloat_mv;
@@ -299,7 +299,7 @@ struct opchg_charger {
 	int                             pre_full_term_vfloat_mv;
 	int								vfloat_new;
 
-	
+
     struct regulator*               vcc_i2c;
     int                             irq_gpio;
 	int								usbin_switch_gpio;
@@ -320,7 +320,7 @@ struct opchg_charger {
     int                             min_term_voltage[TERM_VOL_MAX+1];
     int                             disabled_status;
     int                             reseted_status;
-    int                            	suspend_status;
+    int					suspend_status;
     int                             overtime_status;
     int                             charging_phase;
     int                             fastcharger_type;
@@ -349,12 +349,12 @@ struct opchg_charger {
 
 	int                             charger_type;
 	//int								battery_low_vol;
-	int								boot_mode;						
-#ifdef OPPO_USE_FAST_CHARGER_RESET_MCU	
-	int 							   fast_charger_reset_count;	
-	int 							   fast_charger_reset_sign;
-	int 							   fast_charger_disable_sign;
-#endif	
+	int								boot_mode;
+#ifdef OPPO_USE_FAST_CHARGER_RESET_MCU
+	int							   fast_charger_reset_count;
+	int							   fast_charger_reset_sign;
+	int							   fast_charger_disable_sign;
+#endif
 	bool                            is_lcd_on;
 	bool                            is_camera_on;
 	bool                            is_factory_mode;
@@ -383,7 +383,7 @@ struct opchg_charger {
 	bool							aicl_working;
 	int								aicl_delay_count;
 
-	int 							vindpm_vol;
+	int							vindpm_vol;
 	int								vindpm_level;
 	int								sw_aicl_point;
 	int								sw_eoc_count;
@@ -407,16 +407,16 @@ struct opchg_gpio_control {
 };
 
 struct opchg_fast_charger {
-    struct i2c_client               	*client;
-    struct device                   	*dev;
-	
-    struct mutex                    	fast_read_write_lock;
-    struct delayed_work             	update_opfastchg_thread_work;
-    struct delayed_work             	opfastchg_delayed_wakeup_work;
-	
-    struct regulator*               	vcc_i2c;
-    int                             	opchg_fast_driver_id;
-    int                             	g_fast_charging_wakeup;
+    struct i2c_client			*client;
+    struct device			*dev;
+
+    struct mutex			fast_read_write_lock;
+    struct delayed_work			update_opfastchg_thread_work;
+    struct delayed_work			opfastchg_delayed_wakeup_work;
+
+    struct regulator*			vcc_i2c;
+    int					opchg_fast_driver_id;
+    int					g_fast_charging_wakeup;
 };
 
 struct opchg_bms_charger;
@@ -430,10 +430,10 @@ struct cmd_address {
 //bq27411 standard cmds
 	u8	reg_cntl;
 	u8	reg_temp;
-	u8 	reg_volt;
+	u8	reg_volt;
 	u8	reg_flags;
 	u8	reg_nac;
-	u8 	reg_fac;
+	u8	reg_fac;
 	u8	reg_rm;
 	u8	reg_fcc;
 	u8	reg_ai;
@@ -502,9 +502,9 @@ struct opchg_bms_charger {
 	struct device						*dev;
 
 	struct bq27541_access_methods			*bus;
-	
+
 	int				id;
-	
+
 
 	struct work_struct		counter;
 	/* 300ms delay is needed after bq27541 is powered up
@@ -512,14 +512,14 @@ struct opchg_bms_charger {
 	 */
 	struct  delayed_work		hw_config;
 	int soc_pre;
-	int 								fcc_pre;//full_charge_soc;
-	int 								soh_pre;
-	int 								cc_pre;
-	int 								fac_pre;
-	int 								rm_pre;
-	int 								pchg_pre;
-	int 								dod0_pre;
-	int 								flags_pre;
+	int								fcc_pre;//full_charge_soc;
+	int								soh_pre;
+	int								cc_pre;
+	int								fac_pre;
+	int								rm_pre;
+	int								pchg_pre;
+	int								dod0_pre;
+	int								flags_pre;
 	int temp_pre;
 	int batt_vol_pre;
 	int current_pre;
@@ -548,30 +548,30 @@ struct opchg_bms_charger {
 	atomic_t suspended;
 	bool fast_chg_ing;
 
-	
+
 	int								opchg_swtich1_gpio;
 	int								opchg_swtich2_gpio;
 	int								opchg_reset_gpio;
 	int								opchg_clock_gpio;
 	int								opchg_data_gpio;
 
-	struct pinctrl 						*pinctrl;
-	struct pinctrl_state 					*gpio_switch1_act_switch2_act;
-	struct pinctrl_state 					*gpio_switch1_sleep_switch2_sleep;
-	struct pinctrl_state 					*gpio_switch1_act_switch2_sleep;
-	struct pinctrl_state 					*gpio_switch1_sleep_switch2_act;
-	
-	struct pinctrl_state 					*gpio_clock_active;
-	struct pinctrl_state 					*gpio_clock_sleep;
-	struct pinctrl_state 					*gpio_data_active;
-	struct pinctrl_state 					*gpio_data_sleep;
-	struct pinctrl_state 					*gpio_reset_active;
-	struct pinctrl_state 					*gpio_reset_sleep;
+	struct pinctrl						*pinctrl;
+	struct pinctrl_state					*gpio_switch1_act_switch2_act;
+	struct pinctrl_state					*gpio_switch1_sleep_switch2_sleep;
+	struct pinctrl_state					*gpio_switch1_act_switch2_sleep;
+	struct pinctrl_state					*gpio_switch1_sleep_switch2_act;
+
+	struct pinctrl_state					*gpio_clock_active;
+	struct pinctrl_state					*gpio_clock_sleep;
+	struct pinctrl_state					*gpio_data_active;
+	struct pinctrl_state					*gpio_data_sleep;
+	struct pinctrl_state					*gpio_reset_active;
+	struct pinctrl_state					*gpio_reset_sleep;
 #ifdef CONFIG_GAUGE_BQ27411
 	int device_type;
 	struct cmd_address						cmd_addr;
 #endif
-	
+
 };
 
 

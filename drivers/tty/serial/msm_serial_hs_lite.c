@@ -1384,7 +1384,7 @@ static void dump_hsl_regs(struct uart_port *port)
 	ncf = msm_hsl_read(port, regmap[vid][UARTDM_NCF_TX]);
 	txfs = msm_hsl_read(port, regmap[vid][UARTDM_TXFS]);
 	rxfs = msm_hsl_read(port, regmap[vid][UARTDM_RXFS]);
-	
+
 #ifdef VENDOR_EDIT //Tong.han@BSP.group.TP, Modify for selct console config for diffrent scene,2014/12/23
 #if defined(CONFIG_OPPO_DAILY_BUILD)
 	con_state = get_console_state(port);
@@ -1393,7 +1393,7 @@ static void dump_hsl_regs(struct uart_port *port)
 		con_state = -ENODEV;
 	else
 		con_state = get_console_state(port);
-#endif	
+#endif
 #endif /*VENDOR_EDIT*/
 
 	msm_hsl_console_state[0] = sr;
@@ -1597,7 +1597,7 @@ static ssize_t show_msm_console(struct device *dev,
 		enable = -ENODEV;
 	else
 		enable = get_console_state(port);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 
 	return snprintf(buf, sizeof(enable), "%d\n", enable);
@@ -1627,7 +1627,7 @@ static ssize_t set_msm_console(struct device *dev,
 		cur_state = -ENODEV;
 	else
 		cur_state = get_console_state(port);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 
 	enable = buf[0] - '0';
@@ -1907,7 +1907,7 @@ static int msm_serial_hsl_probe(struct platform_device *pdev)
 		ret = uart_add_one_port(&msm_hsl_uart_driver_no_console, port);
 	else
 		ret = uart_add_one_port(&msm_hsl_uart_driver, port);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 	if (msm_hsl_port->pclk)
 		clk_disable_unprepare(msm_hsl_port->pclk);
@@ -1947,7 +1947,7 @@ static int msm_serial_hsl_remove(struct platform_device *pdev)
 		uart_remove_one_port(&msm_hsl_uart_driver_no_console, port);
 	else
 		uart_remove_one_port(&msm_hsl_uart_driver, port);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 
 	clk_put(msm_hsl_port->pclk);
@@ -2010,7 +2010,7 @@ static int msm_serial_hsl_suspend(struct device *dev)
 			uart_suspend_port(&msm_hsl_uart_driver_no_console, port);
 		else
 			uart_suspend_port(&msm_hsl_uart_driver, port);
-#endif		
+#endif
 #endif/*VENDOR_EDIT*/
 		if (device_may_wakeup(dev))
 			enable_irq_wake(port->irq);
@@ -2034,7 +2034,7 @@ static int msm_serial_hsl_resume(struct device *dev)
 			uart_resume_port(&msm_hsl_uart_driver_no_console, port);
 		else
 			uart_resume_port(&msm_hsl_uart_driver, port);
-#endif		
+#endif
 #endif/*VENDOR_EDIT*/
 		if (device_may_wakeup(dev))
 			disable_irq_wake(port->irq);
@@ -2106,7 +2106,7 @@ static int __init msm_serial_hsl_init(void)
 		ret = uart_register_driver(&msm_hsl_uart_driver_no_console);
 	else
 		ret = uart_register_driver(&msm_hsl_uart_driver);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 	if (unlikely(ret))
 		return ret;
@@ -2125,9 +2125,9 @@ static int __init msm_serial_hsl_init(void)
 			uart_unregister_driver(&msm_hsl_uart_driver_no_console);
 		else
 			uart_unregister_driver(&msm_hsl_uart_driver);
-#endif	
+#endif
 	}
-#endif/*VENDOR_EDIT*/	
+#endif/*VENDOR_EDIT*/
 
 	pr_info("driver initialized\n");
 
@@ -2152,7 +2152,7 @@ static void __exit msm_serial_hsl_exit(void)
 		uart_unregister_driver(&msm_hsl_uart_driver_no_console);
 	else
 		uart_unregister_driver(&msm_hsl_uart_driver);
-#endif	
+#endif
 #endif/*VENDOR_EDIT*/
 }
 

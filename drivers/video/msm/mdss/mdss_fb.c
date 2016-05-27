@@ -53,12 +53,12 @@
 
 #include "mdss_fb.h"
 #include "mdss_mdp_splash_logo.h"
+#include "mdss_mdp.h"
 
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2014/08/27  Add for 14045 LCD */
 #include <soc/oppo/oppo_project.h>
 #include "mdss_dsi.h"
-#include "mdss_mdp.h"
 #ifdef VENDOR_EDIT
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/04/01  Add for 15009 lcd-backlight ctrl in factory mode START */
 #include <soc/oppo/boot_mode.h>
@@ -680,7 +680,7 @@ static ssize_t mdss_mdp_lcdoff_event(struct device *dev,
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
     struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
-  	   pr_err("%s YXQ mfd=0x%p\n", __func__, mfd);
+	   pr_err("%s YXQ mfd=0x%p\n", __func__, mfd);
 	if (!mfd)
 			return -ENODEV;
 #ifdef VENDOR_EDIT
@@ -692,7 +692,7 @@ static ssize_t mdss_mdp_lcdoff_event(struct device *dev,
 	   if(is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15085)){
 			return sprintf(buf,"mdss_fb_suspend_sub is called\n");
 	   }
-		if(is_project(OPPO_15037) || is_project(OPPO_15035))
+		if(is_project(OPPO_15037))
 		{
 			mdss_fb_suspend_sub(mfd);
 			return sprintf(buf,"mdss_fb_suspend_sub is called\n");
@@ -709,7 +709,7 @@ static ssize_t mdss_set_low_power_mode(struct device *dev,
     sscanf(buf, "%du", &level);
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 	if(is_project(14005) || is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15085))
-    	set_acl_mode(level);
+	set_acl_mode(level);
     return count;
 }
 extern void set_hbm_mode(int level);
@@ -732,7 +732,7 @@ extern int cabc_mode;
 static ssize_t mdss_get_cabc(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	if(!(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) || is_project(OPPO_16000) ||is_project(OPPO_15029)||is_project(OPPO_15109))){
+	if(!(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) ||is_project(OPPO_15109))){
 		return 0;
 	}
 	printk(KERN_INFO "get cabc mode = %d\n",cabc_mode);
@@ -750,17 +750,17 @@ static ssize_t mdss_set_cabc(struct device *dev,
     return count;
 }
 /* YongPeng.Yi@SWDP.MultiMedia END */
-static ssize_t mdss_get_closebl_flag(struct device *dev,	
-    							struct device_attribute *attr, char *buf)
-{	
+static ssize_t mdss_get_closebl_flag(struct device *dev,
+							struct device_attribute *attr, char *buf)
+{
     printk(KERN_INFO "get closebl flag = %d\n",lcd_closebl_flag);
     return sprintf(buf, "%d\n", lcd_closebl_flag);
-}	
+}
 
 static ssize_t mdss_set_closebl_flag(struct device *dev,
                                struct device_attribute *attr,
                                const char *buf, size_t count)
-{	
+{
 	int closebl = 0;
 	sscanf(buf, "%du", &closebl);
 	pr_err("lcd_closebl_flag = %d\n",closebl);
@@ -768,7 +768,7 @@ static ssize_t mdss_set_closebl_flag(struct device *dev,
 		lcd_closebl_flag = 0;
 	pr_err("mdss_set_closebl_flag = %d\n",lcd_closebl_flag);
     return count;
-}	
+}
 #endif /*VENDOR_EDIT*/
 
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
@@ -814,8 +814,8 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_lcdoff.attr,
 	&dev_attr_lpm.attr,
 	&dev_attr_hbm.attr,
-	&dev_attr_cabc.attr,
 	&dev_attr_closebl.attr,
+	&dev_attr_cabc.attr,
 #endif /*VENDOR_EDIT*/
 	NULL,
 };
@@ -1461,7 +1461,7 @@ static int mdss_fb_unblank_sub(struct msm_fb_data_type *mfd)
 					is_project(OPPO_15085) || is_project(OPPO_15035) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15109)) || panel_dead){
 					panel_dead = false;
 					//mdss_fb_set_backlight(mfd, mfd->unset_bl_level);
-					mdss_fb_set_backlight(mfd, save_bl);	
+					mdss_fb_set_backlight(mfd, save_bl);
 				}
 			}
 #endif /*VENDOR_EDIT*/

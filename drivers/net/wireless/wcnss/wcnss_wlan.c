@@ -44,7 +44,7 @@
 #include <soc/qcom/smd.h>
 #ifdef VENDOR_EDIT
 //Yadong.Hu@Prd.Svc.Wifi, 2015/05/21, Add for distinguish the type of wcnss
-#include <soc/oppo/device_info.h>  
+#include <soc/oppo/device_info.h>
 #include <soc/oppo/oppo_project.h>
 #endif /* VENDOR_EDIT */
 
@@ -282,7 +282,7 @@ static struct notifier_block wnb = {
 #define WCNSS_RESP_FAIL      0
 #ifdef VENDOR_EDIT
 //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for distinguish the type of wcnss
-static unsigned char   wcn_chip_type[WCNSS_MAX_BUILD_VER_LEN];    
+static unsigned char   wcn_chip_type[WCNSS_MAX_BUILD_VER_LEN];
 static unsigned char manufacture[] = "Qualcomm";
 static const unsigned char CHIP_WCN3660[] = "WCN3660";
 static const unsigned char CHIP_WCN3660A[] = "WCN3660A";
@@ -563,7 +563,7 @@ static DEVICE_ATTR(thermal_mitigation, S_IRUSR | S_IWUSR,
 	wcnss_thermal_mitigation_show, wcnss_thermal_mitigation_store);
 
 #ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
+//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for
 /* distinguish the type of wcnss and show firmware version */
 static ssize_t wcnss_buld_version_show(struct device *dev,
             struct device_attribute *attr, char *buf)
@@ -584,7 +584,7 @@ static ssize_t wcnss_chip_type_show(struct device *dev,
     return scnprintf(buf, PAGE_SIZE, "%s\n", wcn_chip_type);
 }
 static DEVICE_ATTR(wcnss_chip_type, S_IRUSR,
-        wcnss_chip_type_show, NULL);        
+        wcnss_chip_type_show, NULL);
 #endif /* VENDOR_EDIT */
 
 static ssize_t wcnss_version_show(struct device *dev,
@@ -1211,7 +1211,7 @@ static int wcnss_create_sysfs(struct device *dev)
 		goto remove_version;
 
     #ifdef VENDOR_EDIT
-    //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
+    //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for
     /* distinguish the type of wcnss and show firmware version */
     ret = device_create_file(dev, &dev_attr_wcnss_build_version);
     if (ret)
@@ -1240,11 +1240,11 @@ static void wcnss_remove_sysfs(struct device *dev)
 		device_remove_file(dev, &dev_attr_wcnss_version);
 		device_remove_file(dev, &dev_attr_wcnss_mac_addr);
         #ifdef VENDOR_EDIT
-        //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
+        //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for
         /* distinguish the type of wcnss and show firmware version */
         device_remove_file(dev, &dev_attr_wcnss_build_version);
         device_remove_file(dev, &dev_attr_wcnss_chip_type);
-        #endif /* VENDOR_EDIT */		
+        #endif /* VENDOR_EDIT */
 	}
 }
 
@@ -1639,7 +1639,7 @@ int wcnss_wlan_get_dxe_rx_irq(struct device *dev)
 }
 EXPORT_SYMBOL(wcnss_wlan_get_dxe_rx_irq);
 #ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
+//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for
 /* distinguish the type of wcnss */
 void set_wcnss_chip_type(u32 chip_id) {
 	int iris_id;
@@ -1667,9 +1667,9 @@ void set_wcnss_chip_type(u32 chip_id) {
 	default:
 	    strcpy(wcn_chip_type, "null");
 	    break;
-	}	
+	}
 }
-EXPORT_SYMBOL(set_wcnss_chip_type);    
+EXPORT_SYMBOL(set_wcnss_chip_type);
 #endif /* VENDOR_EDIT */
 
 void wcnss_wlan_register_pm_ops(struct device *dev,
@@ -2180,7 +2180,7 @@ static void wcnssctrl_rx_handler(struct work_struct *worker)
 	unsigned char fw_status = 0;
     #ifdef VENDOR_EDIT
     //hedong.liu@Connectivity, 2014/07/03, Add for wcnss firmware version show
-    int i = 0 ; 
+    int i = 0 ;
     #endif /* VENDOR_EDIT */
 	len = smd_read_avail(penv->smd_ch);
 	if (len > WCNSS_MAX_FRAME_SIZE) {
@@ -2272,7 +2272,7 @@ static void wcnssctrl_rx_handler(struct work_struct *worker)
         //hedong.liu@Connectivity, 2014/07/03, Add for wcnss firmware version show
         for (i = 0 ; i <= len ; i ++)
             penv->wcnss_build_version[i] = build[i];
-        #endif /* VENDOR_EDIT */		
+        #endif /* VENDOR_EDIT */
 		pr_info("wcnss: build version %s\n", build);
 		break;
 
@@ -2390,16 +2390,12 @@ static void wcnss_nvbin_dnld(void)
 	struct device *dev = &penv->pdev->dev;
 
 	down_read(&wcnss_pm_sem);
-	
+
 	#ifndef VENDOR_EDIT
 	ret = request_firmware(&nv, NVBIN_FILE, dev);
 	#else /* VENDOR_EDIT */
     //TangYuanliu@PSW.WCN.Wifi, 2015/12/29, Modify for change resource
-	pr_err("wcnss: PCB Version is %d \n", get_PCB_Version());	
-    if (is_project(OPPO_15022) && get_PCB_Version() == HW_VERSION__13) {
-        pr_err("wcnss: using nv file %s \n", NVBIN_FILE_c1);			
-        ret = request_firmware(&nv, NVBIN_FILE_c1, dev);
-    } else {
+	pr_err("wcnss: PCB Version is %d \n", get_PCB_Version());
         pr_err("wcnss: using nv file %s \n", NVBIN_FILE);
 	    ret = request_firmware(&nv, NVBIN_FILE, dev);
 	}
@@ -2412,8 +2408,8 @@ static void wcnss_nvbin_dnld(void)
             pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
     			__func__, NVBIN_FILE_c1, ret);
         } else {
-            pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
-    			__func__, NVBIN_FILE, ret);
+		pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
+			__func__, NVBIN_FILE, ret);
     	}
 		
 		goto out;
@@ -3365,7 +3361,7 @@ wcnss_wlan_probe(struct platform_device *pdev)
 	misc_register(&wcnss_usr_ctrl);
 	//#ifdef VENDOR_EDIT
 	//Yadong.Hu@Prd.Svc.Wifi, 2015/05/21, Add for distinguish the type of wcnss
-    register_device_proc("wcn", wcn_chip_type, manufacture);	    
+    register_device_proc("wcn", wcn_chip_type, manufacture);
 	//#endif /* VENDOR_EDIT */
 
 	return misc_register(&wcnss_misc);

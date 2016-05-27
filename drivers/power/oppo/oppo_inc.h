@@ -163,7 +163,7 @@
 
 #ifdef OPPO_USE_QCOMM
 #undef pr_debug
-#define pr_debug(fmt, ...) printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)	
+#define pr_debug(fmt, ...) printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
 //#define pr_err(fmt, ...) printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
 
 #undef dev_dbg
@@ -171,20 +171,20 @@
 
 
 #ifndef OPCHARGER_DEBUG_ENABLE
-//#define OPCHARGER_DEBUG_ENABLE 
+//#define OPCHARGER_DEBUG_ENABLE
 #endif
 
 #ifndef OPCHARGER_DEBUG_FOR_FAST_CHARGER
-//#define OPCHARGER_DEBUG_FOR_FAST_CHARGER 
+//#define OPCHARGER_DEBUG_FOR_FAST_CHARGER
 #endif
 
 
 #ifndef OPCHARGER_DEBUG_FOR_SOC
-//#define OPCHARGER_DEBUG_FOR_SOC 
+//#define OPCHARGER_DEBUG_FOR_SOC
 #endif
 
 #ifndef OPCHG_VOOC_WATCHDOG
-#define OPCHG_VOOC_WATCHDOG 
+#define OPCHG_VOOC_WATCHDOG
 #endif
 #elif defined(OPPO_USE_MTK)
 //

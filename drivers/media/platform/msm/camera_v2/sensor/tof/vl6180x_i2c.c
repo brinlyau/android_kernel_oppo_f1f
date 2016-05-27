@@ -102,8 +102,8 @@ int VL6180x_WrWord(VL6180xDev_t dev, uint16_t index, uint16_t data){
     buffer[3]=data&0xFF;
 
    // status=VL6180x_I2CWrite(dev, buffer,(uint8_t)4);
-   	status = dev->i2c_func_tbl->i2c_write(dev, index,data,2);
-   	if(status <0)
+	status = dev->i2c_func_tbl->i2c_write(dev, index,data,2);
+	if(status <0)
 	{
 		pr_err("%s:%d failed status=%d\n", __func__, __LINE__, status);
 	}
@@ -179,27 +179,27 @@ int VL6180x_RdByte(VL6180xDev_t dev, uint16_t index, uint8_t *data){
     buffer=VL6180x_GetI2cBuffer(dev,2);
     buffer[0]=index>>8;
     buffer[1]=index&0xFF;
-    
+
     if( 1){
        // status=VL6180x_I2CRead(dev, buffer,1);
-        if(dev != NULL) 
+        if(dev != NULL)
 		{
-			if(dev->i2c_func_tbl != NULL) 
+			if(dev->i2c_func_tbl != NULL)
 			{
-				if(dev->i2c_func_tbl->i2c_read_seq != NULL) 
+				if(dev->i2c_func_tbl->i2c_read_seq != NULL)
 				{
 		              status = dev->i2c_func_tbl->i2c_read_seq(dev, index, data,MSM_CAMERA_I2C_BYTE_DATA);
-				} else 
-				{ 
+				} else
+				{
 					pr_err("dev->i2c_func_tbl->i2c_read_seq is null");
 				}
 			}
-			else 
+			else
 			{
 				pr_err("dev->i2c_func_tbl is null");
 			}
         }
-		else 
+		else
 		{
 			pr_err("dev is null");
 		}
@@ -223,7 +223,7 @@ int VL6180x_RdWord(VL6180xDev_t dev, uint16_t index, uint16_t *data){
     buffer[1]=index&0xFF;
 
     //status=VL6180x_I2CWrite(dev, buffer, (uint8_t)2);
-    
+
     if( 1){
         //status=VL6180x_I2CRead(dev, buffer,2);
         status = dev->i2c_func_tbl->i2c_read_seq(dev, index, buffer,MSM_CAMERA_I2C_WORD_DATA);

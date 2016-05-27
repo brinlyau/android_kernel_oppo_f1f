@@ -319,7 +319,7 @@ static int remote_rmit_set_page(unsigned int address){
 	if (retry == 2) {
 		return -EIO;
 	}
-	
+
 	return 0;
 }
 
@@ -349,7 +349,7 @@ static int remote_rmit_put_page(void)
 	if (retry == 2) {
 		return -EIO;
 	}
-	
+
 	return 0;
 }
 
@@ -603,7 +603,7 @@ static ssize_t rmidev_write(struct file *filp, const char __user *buf,
 
 	mutex_unlock(&(dev_data->file_mutex));
 	mutex_unlock(dev_data->pdata->pmutex);
-	
+
 	return retval;
 }
 
@@ -611,7 +611,7 @@ static int rmidev_create_attr(bool create) {
 	int retval = 0;
 	unsigned char attr_count;
 	struct input_dev *input_dev = remote_rmi4_get_input();
-	
+
 	if(!create)
 		goto err_sysfs_attrs ;
 
@@ -633,7 +633,7 @@ static int rmidev_create_attr(bool create) {
 			dev_err(device_ptr,
 					"%s Failed to create gpio symlink\n",
 					__func__);
-		} 
+		}
 	}
 	*/
 	rmidev->sysfs_dir = kobject_create_and_add("rmidev",
@@ -669,7 +669,7 @@ static int rmidev_create_attr(bool create) {
 	}
 
 	return 0 ;
-	
+
 err_sysfs_attrs:
 	if(!rmidev->sysfs_dir)
 		return 0 ;
@@ -852,7 +852,7 @@ int register_remote_device(struct remotepanel_data *pdata)
 	{
 		printk("%s:remote device has register already null\n",__func__);
 		return -1;
-	}	
+	}
 	rmidev = kzalloc(sizeof(*rmidev), GFP_KERNEL);
 	if (!rmidev) {
 		retval = -ENOMEM;
@@ -883,7 +883,7 @@ int register_remote_device(struct remotepanel_data *pdata)
 		retval = -ENOMEM;
 		goto err_dev_data;
 	}
-	
+
 	dev_data->pdata = pdata;
 
 	mutex_init(&dev_data->file_mutex);
@@ -913,9 +913,9 @@ int register_remote_device(struct remotepanel_data *pdata)
 
 	INIT_DELAYED_WORK(&delay_work, remote_rmi4_delay_work);
 	schedule_delayed_work(&delay_work, msecs_to_jiffies(8*1000));
-	
+
 	return 0;
-	
+
 err_char_device:
 	remote_free_panel_data(dev_data->pdata);
 	rmidev_device_cleanup(dev_data);
@@ -969,7 +969,7 @@ static int __init rmidev_module_init(void)
 static void __exit rmidev_module_exit(void)
 {
 	rmidev_remove_device();
-	
+
 	return;
 }
 
@@ -980,4 +980,3 @@ MODULE_AUTHOR("Synaptics, Inc.");
 MODULE_DESCRIPTION("Synaptics DSX RMI Dev Module");
 MODULE_LICENSE("GPL v2");
 */
-

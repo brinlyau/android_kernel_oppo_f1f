@@ -463,14 +463,14 @@ static int32_t msm_cci_i2c_read(struct v4l2_subdev *sd,
 				__func__, __LINE__, irq_status);
 			rc = 1;
 		} else {
-			pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
-				__func__, __LINE__, irq_status);
-			msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
-				cci_clock_enabled, cci_clock_rates);
-			for (i = 0; i < cci_dev->num_clk; i++) {
-				pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
-					cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
-			}
+		pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
+			__func__, __LINE__, irq_status);
+		msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
+			cci_clock_enabled, cci_clock_rates);
+		for (i = 0; i < cci_dev->num_clk; i++) {
+			pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
+				cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
+		}
 		}
 #endif
 		if (rc == 0)
@@ -805,19 +805,19 @@ static int32_t msm_cci_init(struct v4l2_subdev *sd,
 #else
 			if (rc <= 0) {
 				irq_status = msm_camera_io_r_mb(cci_dev->base + CCI_IRQ_STATUS_0_ADDR);
-				if (irq_status & CCI_IRQ_STATUS_0_RST_DONE_ACK_BMSK) {
-					pr_err("%s %d:irq_status = 0x%X, consider as right\n",
-						__func__, __LINE__, irq_status);
-					rc = 1;
-				} else {
-					pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
-						__func__, __LINE__, irq_status);
-					msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
-						cci_clock_enabled, cci_clock_rates);
-					for (i = 0; i < cci_dev->num_clk; i++) {
-						pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
-							cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
-					}
+			if (irq_status & CCI_IRQ_STATUS_0_RST_DONE_ACK_BMSK) {
+				pr_err("%s %d:irq_status = 0x%X, consider as right\n",
+					__func__, __LINE__, irq_status);
+				rc = 1;
+			} else {
+				pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
+					__func__, __LINE__, irq_status);
+				msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
+					cci_clock_enabled, cci_clock_rates);
+				for (i = 0; i < cci_dev->num_clk; i++) {
+					pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
+						cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
+				}
 				}
 			}
 #endif
@@ -892,13 +892,13 @@ static int32_t msm_cci_init(struct v4l2_subdev *sd,
 				__func__, __LINE__, irq_status);
 			rc = 1;
 		} else {
-			pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
-				__func__, __LINE__, irq_status);
-			msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
-				cci_clock_enabled, cci_clock_rates);
-			for (i = 0; i < cci_dev->num_clk; i++) {
-				pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
-					cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
+		pr_err("%s %d: wait_for_completion_timeout,irq_status = 0x%X\n",
+			__func__, __LINE__, irq_status);
+		msm_cam_clk_getinfo(cci_dev->cci_clk, cci_dev->num_clk,
+			cci_clock_enabled, cci_clock_rates);
+		for (i = 0; i < cci_dev->num_clk; i++) {
+			pr_err("%s %d: the rate of %s is %ld, enable %d\n", __func__, __LINE__,
+				cci_clk_info[i].clk_name, cci_clock_rates[i], cci_clock_enabled[i]);
 			}
 		}
 		if (rc == 0) {
@@ -997,31 +997,31 @@ static int32_t msm_cci_config(struct v4l2_subdev *sd,
 	mutex_lock(&cci_dev->mutex);
 
 	while (retry--) {
-		switch (cci_ctrl->cmd) {
-			case MSM_CCI_INIT:
-				rc = msm_cci_init(sd, cci_ctrl);
+	switch (cci_ctrl->cmd) {
+	case MSM_CCI_INIT:
+		rc = msm_cci_init(sd, cci_ctrl);
+		break;
+	case MSM_CCI_RELEASE:
+		rc = msm_cci_release(sd);
+		break;
+	case MSM_CCI_I2C_READ:
+		if (cci_dev->cci_state == CCI_STATE_DISABLED) {
+			pr_err("%s %d: CCI_STATE_DISABLED\n", __func__, __LINE__);
 				break;
-			case MSM_CCI_RELEASE:
-				rc = msm_cci_release(sd);
+			}
+			rc = msm_cci_i2c_read_bytes(sd, cci_ctrl);
+			break;
+		case MSM_CCI_I2C_WRITE:
+			if (cci_dev->cci_state == CCI_STATE_DISABLED) {
+				pr_err("%s %d: CCI_STATE_DISABLED\n", __func__, __LINE__);
 				break;
-			case MSM_CCI_I2C_READ:
-				if (cci_dev->cci_state == CCI_STATE_DISABLED) {
-					pr_err("%s %d: CCI_STATE_DISABLED\n", __func__, __LINE__);
-					break;
-				}
-				rc = msm_cci_i2c_read_bytes(sd, cci_ctrl);
-				break;
-			case MSM_CCI_I2C_WRITE:
-				if (cci_dev->cci_state == CCI_STATE_DISABLED) {
-					pr_err("%s %d: CCI_STATE_DISABLED\n", __func__, __LINE__);
-					break;
-				}
-				rc = msm_cci_i2c_write(sd, cci_ctrl);
-				break;
-			case MSM_CCI_GPIO_WRITE:
-				break;
-			default:
-				rc = -ENOIOCTLCMD;
+			}
+			rc = msm_cci_i2c_write(sd, cci_ctrl);
+			break;
+		case MSM_CCI_GPIO_WRITE:
+			break;
+		default:
+			rc = -ENOIOCTLCMD;
 		}
 		if (rc >= 0) {
 			break ;

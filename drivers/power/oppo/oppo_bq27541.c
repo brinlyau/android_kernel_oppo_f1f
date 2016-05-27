@@ -341,7 +341,7 @@ static int bq27541_soc_calibrate(struct opchg_bms_charger *di, int soc)
 	//stap1: get init soc
 	if(!di->batt_psy){
 		di->batt_psy = power_supply_get_by_name("battery");
-		
+
 		// get pmic soc
 		soc_load = opchg_get_pmic_soc_memory();
 		if(soc_load == 0xFF)

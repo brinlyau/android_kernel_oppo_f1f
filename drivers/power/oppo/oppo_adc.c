@@ -34,7 +34,7 @@ int opchg_get_prop_charger_voltage_now(struct opchg_charger *chip)
 				break;
 			}
 	   case OPCHG_SMB1357_ID:
-	   		{
+			{
 				// board version_B
 			    rc = qpnp_vadc_read(chip->vadc_dev, USBIN, &results);
 			    if (rc) {
@@ -77,9 +77,9 @@ int opchg_get_prop_charger_voltage_now(struct opchg_charger *chip)
 			    V_charger = (int)results.physical/1000;
 				break;
 			}
-	   
+
 	   case OPCHG_BQ24157_ID:
-	   		{
+			{
 				// board version_B
 			    rc = qpnp_vadc_read(chip->vadc_dev, USBIN, &results);
 			    if (rc) {
@@ -91,7 +91,7 @@ int opchg_get_prop_charger_voltage_now(struct opchg_charger *chip)
 			}
 
 	   case OPCHG_BQ24188_ID:
-	   		{
+			{
 				rc = qpnp_vadc_read(chip->vadc_dev, USBIN, &results);
 			    if (rc) {
 			        pr_err("Unable to read vchg rc=%d\n", rc);
@@ -99,14 +99,14 @@ int opchg_get_prop_charger_voltage_now(struct opchg_charger *chip)
 			    }
 			    V_charger = (int)results.physical/1000;
 				V_charger = V_charger * 2;
-				
+
 				//Charger voltage sampling Compensation for bq24188
 				V_charger += 400;
 				break;
 			}
-	   
+
 		default:
-        	break;
+		break;
 	}
     return V_charger;//return (int)results.physical/1000;
 }
@@ -121,7 +121,7 @@ int opchg_get_prop_low_battery_voltage(struct opchg_charger *chip)
 	switch (chip->driver_id) {
 	  case OPCHG_SMB358_ID:
 			if(is_project(OPPO_14043) || is_project(OPPO_15005) || is_project(OPPO_15025)){
-				V_low_battery = 0;	
+				V_low_battery = 0;
 			}
 			break;
 	   case OPCHG_SMB1357_ID:
@@ -131,14 +131,12 @@ int opchg_get_prop_low_battery_voltage(struct opchg_charger *chip)
 				return 0;
 			}
 			mpp_uV =results.physical*34;
-			V_low_battery = (int)mpp_uV/10000;	
+			V_low_battery = (int)mpp_uV/10000;
 			break;
-			
 	   case OPCHG_BQ24196_ID:
+
 	   /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
-	   		if( is_project(OPPO_14037) || is_project(OPPO_14051) || is_project(OPPO_15057) ||
-				is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15085) || 
-				is_project(OPPO_15029) || is_project(OPPO_15035) || is_project(OPPO_15109))
+			if(is_project(OPPO_14037) || is_project(OPPO_14051) || is_project(OPPO_15057) ||is_project(OPPO_15009) || is_project(OPPO_15037)|| is_project(OPPO_15085) || is_project(OPPO_15109))
 			{
 				return 0;
 			}
@@ -162,7 +160,7 @@ int opchg_get_prop_low_battery_voltage(struct opchg_charger *chip)
 						V_low_battery = (int)mpp_uV/1000;
 					}
 				}
-				else if(is_project(OPPO_14045))	
+				else if(is_project(OPPO_14045))
 				{
 					if(get_PCB_Version()== HW_VERSION__10)
 					{
@@ -175,8 +173,7 @@ int opchg_get_prop_low_battery_voltage(struct opchg_charger *chip)
 						V_low_battery = (int)mpp_uV/1000;
 					}
 				}
-				else if(is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022)||  /*#hanqing.wang@EXP.BasicDrv.Audio add for clone 15089 and add the macor MSM_15062 and OPPO_15011 = OPPO_15018*/
-					    is_project(OPPO_15043))	
+				else if(is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022)) /*#hanqing.wang@EXP.BasicDrv.Audio add for clone 15089 and add the macor MSM_15062 and OPPO_15011 = OPPO_15018*/
 				{
 					mpp_uV =results.physical*4;
 					V_low_battery = (int)mpp_uV/1000;
@@ -189,7 +186,7 @@ int opchg_get_prop_low_battery_voltage(struct opchg_charger *chip)
 			}
 			break;
 		default:
-        	break;
+		break;
 	}
 	return V_low_battery;
 }
@@ -213,27 +210,24 @@ int opchg_get_prop_battery_voltage_now(struct opchg_charger *chip)
 	int rc = 0;
 	struct qpnp_vadc_result results;
 	int V_battery = 0;
-	/*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
-	if( is_project(OPPO_14043)|| is_project(OPPO_14037) || is_project(OPPO_14051)|| 
-		is_project(OPPO_15005)|| is_project(OPPO_15057) || is_project(OPPO_15025)|| 
-		is_project(OPPO_15009)|| is_project(OPPO_15037) || is_project(OPPO_15035)||
-		is_project(OPPO_15029)|| is_project(OPPO_15085) || is_project(OPPO_15109)||
-        is_project(OPPO_16000)){
+/*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
+	if(is_project(OPPO_14043) || is_project(OPPO_14037) || is_project(OPPO_14051)
+		|| is_project(OPPO_15005) || is_project(OPPO_15057) || is_project(OPPO_15009)|| is_project(OPPO_15037)|| is_project(OPPO_15085) || is_project(OPPO_15109)){
 		rc = qpnp_vadc_read(chip->vadc_dev, VBAT_SNS, &results);
 		if (rc) {
 			pr_err("Unable to read vbat rc=%d\n", rc);
 			return 0;
 		}
 		V_battery =(int)results.physical;
-		
 		//battery voltage sampling Compensation
-		if(is_project(OPPO_15035)|| is_project(OPPO_15109))
+		if(is_project(OPPO_15109))
 		{
 				V_battery += 20*1000;
 		}
-	} 
-	else if(is_project(OPPO_14005) || is_project(OPPO_14023)|| is_project(OPPO_14045)|| 
-		    is_project(OPPO_15011) || is_project(OPPO_15018)|| is_project(OPPO_15022)|| is_project(OPPO_15043))
+	}
+
+	else if(is_project(OPPO_14005) || is_project(OPPO_14023)|| is_project(OPPO_14045)||is_project(OPPO_15011)|| is_project(OPPO_15018) || is_project(OPPO_15022))
+
 	{
 		if (qpnp_batt_gauge && qpnp_batt_gauge->get_battery_mvolts)
 			V_battery =qpnp_batt_gauge->get_battery_mvolts();
@@ -241,7 +235,7 @@ int opchg_get_prop_battery_voltage_now(struct opchg_charger *chip)
 			pr_err("qpnp-charger no batt gauge assuming 3.5V\n");
 			V_battery =3500*1000;
 		}
-	}	
+	}
 	else {
 		if (qpnp_batt_gauge && qpnp_batt_gauge->get_battery_mvolts)
 			V_battery =qpnp_batt_gauge->get_battery_mvolts();
@@ -259,13 +253,12 @@ int opchg_get_prop_batt_temp(struct opchg_charger *chip)
 	int rc = 0;
 	struct qpnp_vadc_result results;
 	int T_battery = 0;
-    
-	/*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
-	if( is_project(OPPO_14043) || is_project(OPPO_14037) ||is_project(OPPO_14051)||
-		is_project(OPPO_15005) || is_project(OPPO_15057) ||is_project(OPPO_15025)||
-		is_project(OPPO_15009) || is_project(OPPO_15037) ||is_project(OPPO_15029)||
-		is_project(OPPO_15035) || is_project(OPPO_15085) || is_project(OPPO_15109)||
-        is_project(OPPO_16000)){
+
+/*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
+	if(is_project(OPPO_14043) || is_project(OPPO_14037) ||is_project(OPPO_14051) ||
+		is_project(OPPO_15005) || is_project(OPPO_15057) || is_project(OPPO_15025)||
+		is_project(OPPO_15009)|| is_project(OPPO_15037)| is_project(OPPO_15035)
+        || is_project(OPPO_15085) || is_project(OPPO_15109)){
 		rc = qpnp_vadc_read(chip->vadc_dev, LR_MUX1_BATT_THERM, &results);
 		if (rc) {
 			pr_err("Unable to read batt temperature rc=%d\n", rc);
@@ -274,8 +267,7 @@ int opchg_get_prop_batt_temp(struct opchg_charger *chip)
 		T_battery = (int)results.physical;
 	}
 	/*#hanqing.wang@EXP.BasicDrv.Audio add for clone 15089 and add the macor MSM_15062 and OPPO_15011 = OPPO_15018*/
-	else if(is_project(OPPO_14005)|| is_project(OPPO_14023)|| is_project(OPPO_14045)|| 
-		    is_project(OPPO_15011)|| is_project(OPPO_15018)|| is_project(OPPO_15022)|| is_project(OPPO_15043))
+	else if(is_project(OPPO_14005) || is_project(OPPO_14023)|| is_project(OPPO_14045)|| is_project(OPPO_15011)|| is_project(OPPO_15018) || is_project(OPPO_15022))
 	{
 		if (qpnp_batt_gauge && qpnp_batt_gauge->get_battery_temperature) {
 			T_battery =qpnp_batt_gauge->get_battery_temperature();
@@ -287,7 +279,7 @@ int opchg_get_prop_batt_temp(struct opchg_charger *chip)
 			pr_err("qpnp-charger no batt gauge assuming 35 deg G\n");
 			T_battery = -400;
 		}
-	}	
+	}
 	else {
 		if (qpnp_batt_gauge && qpnp_batt_gauge->get_battery_temperature) {
 			T_battery =qpnp_batt_gauge->get_battery_temperature();

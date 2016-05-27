@@ -46,4 +46,3 @@ typedef enum {
 } fpc1020_chip_t;
 
 #endif
-

@@ -27,20 +27,20 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     int rc;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     if (!node) {
         dev_dbg(chip->dev, "device tree info. missing\n");
         return -EINVAL;
     }
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     chip->charging_disabled = of_property_read_bool(node, "qcom,charging-disabled");
     #elif defined(OPPO_USE_MTK)
     chip->charging_disabled = false;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     chip->chg_autonomous_mode = of_property_read_bool(node, "qcom,chg-autonomous-mode");
     #elif defined(OPPO_USE_MTK)
@@ -60,13 +60,13 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#elif defined(OPPO_USE_MTK)
     chip->using_pmic_therm = false;
 	#endif
-	
+
     #ifdef OPPO_USE_QCOMM
     chip->disable_apsd = of_property_read_bool(node, "qcom,disable-apsd");
     #elif defined(OPPO_USE_MTK)
     chip->disable_apsd = true;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_string(node, "qcom,bms-psy-name", &chip->bms_psy_name);
     if (rc) {
@@ -75,7 +75,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->bms_psy_name = "bms";
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     chip->chg_valid_gpio = of_get_named_gpio_flags(node, "qcom,chg-valid-gpio", 0, &gpio_flags);
     if (!gpio_is_valid(chip->chg_valid_gpio)) {
@@ -87,7 +87,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     //
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     chip->irq_gpio = of_get_named_gpio_flags(node, "qcom,irq-gpio", 0, &gpio_flags);
     if (!gpio_is_valid(chip->irq_gpio)) {
@@ -126,13 +126,13 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     //
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
     chip->charger_inhibit_disabled = of_property_read_bool(node, "qcom,charger-inhibit-disabled");
 	#elif defined(OPPO_USE_MTK)
     chip->charger_inhibit_disabled = true;
 	#endif
-	
+
 //    #ifdef OPPO_USE_QCOMM
 //    chip->usbphy_on_gpio = of_get_named_gpio_flags(node, "qcom,usbphy_on-gpio", 0, &gpio_flags);
 //    if (!gpio_is_valid(chip->usbphy_on_gpio)) {
@@ -141,9 +141,9 @@ int opchg_parse_dt(struct opchg_charger *chip)
 //    #elif defined(OPPO_USE_MTK)
 //    //
 //    #endif
-    
-	
-#if 1   
+
+
+#if 1
     #ifdef OPPO_USE_QCOMM
 	rc = of_property_read_u32(node, "qcom,faster-normal-limit-current-max-ma", &chip->faster_normal_limit_current_max_ma);
     if (rc) {
@@ -152,13 +152,13 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->faster_normal_limit_current_max_ma = OPCHG_IMPUT_CURRENT_LIMIT_MAX_MA;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     chip->iterm_disabled = of_property_read_bool(node, "qcom,iterm-disabled");
     #elif defined(OPPO_USE_MTK)
     chip->iterm_disabled = false;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,taper-float-voltage-mv", &chip->taper_vfloat_mv);
     if (rc < 0) {
@@ -167,7 +167,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->taper_vfloat_mv = 4320;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,opchg-fast-taper-fastchg-current-ma", &chip->fast_taper_fastchg_current_ma);
     if (rc < 0) {
@@ -176,7 +176,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->fast_taper_fastchg_current_ma = 2100;
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,float-compensation-mv", &chip->float_compensation_mv);
     if (rc < 0) {
@@ -187,9 +187,9 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#endif
  #endif
 
- 	//======================================================
- 	// step1: get charger_ic_chip_id and  bms_ic_chip_id and  fast_charging_sign
- 	//======================================================
+	//======================================================
+	// step1: get charger_ic_chip_id and  bms_ic_chip_id and  fast_charging_sign
+	//======================================================
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,fast-charger-project-sign", &chip->fast_charge_project);
     if (rc) {
@@ -207,20 +207,20 @@ int opchg_parse_dt(struct opchg_charger *chip)
     chip->fast_charge_project = 0;
     #endif
 
- 
+
 
 	//======================================================
- 	// step2: Get charging control parameters
- 	//======================================================
+	// step2: Get charging control parameters
+	//======================================================
 	#ifdef OPPO_USE_QCOMM
- 	rc = of_property_read_u32(node, "qcom,iterm-ma", &chip->iterm_ma);
- 	if (rc < 0) {
+	rc = of_property_read_u32(node, "qcom,iterm-ma", &chip->iterm_ma);
+	if (rc < 0) {
 		 chip->iterm_ma = -EINVAL;
 	}
 	#elif defined(OPPO_USE_MTK)
- 	chip->iterm_ma = 150;
+	chip->iterm_ma = 150;
 	#endif
- 	
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,recharge-mv", &chip->recharge_mv);
     if (rc < 0) {
@@ -230,7 +230,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     chip->recharge_mv = 200;
     #endif
 
-	
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,fastchg-current-max-ma", &chip->fastchg_current_max_ma);
     if (rc) {
@@ -240,7 +240,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->fastchg_current_max_ma = OPCHG_FAST_CHG_MAX_MA;
     #endif
-    
+
 	#ifdef OPPO_USE_QCOMM
 	rc = of_property_read_u32(node, "qcom,input-current-max-ma", &chip->limit_current_max_ma);
     if (rc) {
@@ -249,19 +249,19 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->limit_current_max_ma = OPCHG_IMPUT_CURRENT_LIMIT_MAX_MA;
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
- 	rc = of_property_read_u32(node, "qcom,float-voltage-mv", &chip->vfloat_mv);
- 	if (rc < 0) {
+	rc = of_property_read_u32(node, "qcom,float-voltage-mv", &chip->vfloat_mv);
+	if (rc < 0) {
 		chip->vfloat_mv = -EINVAL;
- 	}
+	}
 	#elif defined(OPPO_USE_MTK)
- 	chip->vfloat_mv = 4320;
+	chip->vfloat_mv = 4320;
 	#endif
 
 	//======================================================
- 	// step3: Get charging temperature range of control parameters
- 	//======================================================
+	// step3: Get charging temperature range of control parameters
+	//======================================================
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,hot_bat_decidegc", &chip->hot_bat_decidegc);
     if (rc < 0) {
@@ -270,7 +270,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->hot_bat_decidegc = 550;
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_hot_vfloat_mv", &chip->temp_hot_vfloat_mv);
     if (rc < 0) {
@@ -279,7 +279,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#elif defined(OPPO_USE_MTK)
     chip->temp_hot_vfloat_mv = 4100;
 	#endif
-    
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_hot_fastchg_current_ma",
                             &chip->temp_hot_fastchg_current_ma);
@@ -289,7 +289,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#elif defined(OPPO_USE_MTK)
     chip->temp_hot_fastchg_current_ma = 750;
 	#endif
-	
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,warm_bat_decidegc", &chip->warm_bat_decidegc);
     if (rc < 0) {
@@ -298,7 +298,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->warm_bat_decidegc = 450;
     #endif
-	
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_warm_vfloat_mv", &chip->temp_warm_vfloat_mv);
     if (rc < 0) {
@@ -307,7 +307,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->temp_warm_vfloat_mv = 4320;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_warm_fastchg_current_ma",
                             &chip->temp_warm_fastchg_current_ma);
@@ -317,7 +317,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->temp_warm_fastchg_current_ma = 1500;
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,pre_normal_bat_decidegc", &chip->pre_normal_bat_decidegc);
     if (rc < 0) {
@@ -326,7 +326,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->pre_normal_bat_decidegc = 150;
     #endif
-	
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_normal_vfloat_mv", &chip->temp_pre_normal_vfloat_mv);
     if (rc < 0) {
@@ -335,7 +335,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#elif defined(OPPO_USE_MTK)
     chip->temp_pre_normal_vfloat_mv = 4320;
 	#endif
-    
+
 	#ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_normal_fastchg_current_ma",
                             &chip->temp_pre_normal_fastchg_current_ma);
@@ -345,7 +345,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#elif defined(OPPO_USE_MTK)
     chip->temp_pre_normal_fastchg_current_ma = 750;
 	#endif
-	
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,pre_cool_bat_decidegc", &chip->pre_cool_bat_decidegc);
     if (rc < 0) {
@@ -354,7 +354,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->pre_cool_bat_decidegc = 100;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_cool_vfloat_mv", &chip->temp_pre_cool_vfloat_mv);
     if (rc < 0) {
@@ -363,7 +363,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->temp_pre_cool_vfloat_mv = 4320;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_cool_fastchg_current_ma",
                             &chip->temp_pre_cool_fastchg_current_ma);
@@ -374,21 +374,21 @@ int opchg_parse_dt(struct opchg_charger *chip)
     chip->temp_pre_cool_fastchg_current_ma = 750;
     #endif
 
-	
+
 #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,pre_cool1_bat_decidegc", &chip->pre_cool1_bat_decidegc);
     if (rc < 0) {
         chip->pre_cool1_bat_decidegc = -EINVAL;
     }
 #endif
-    
+
 #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_cool1_vfloat_mv", &chip->temp_pre_cool1_vfloat_mv);
     if (rc < 0) {
         chip->temp_pre_cool1_vfloat_mv = -EINVAL;
     }
 #endif
-    
+
 #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_pre_cool1_fastchg_current_ma",
                             &chip->temp_pre_cool1_fastchg_current_ma);
@@ -405,7 +405,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->cool_bat_decidegc = 0;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_cool_vfloat_mv", &chip->temp_cool_vfloat_mv);
     if (rc < 0) {
@@ -414,7 +414,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->temp_cool_vfloat_mv = 4000;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,temp_cool_fastchg_current_ma", &chip->temp_cool_fastchg_current_ma);
     if (rc < 0) {
@@ -423,7 +423,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->temp_cool_fastchg_current_ma = 250;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,cold_bat_decidegc", &batt_cold_degree_negative);
 	if (rc < 0) {
@@ -435,7 +435,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->cold_bat_decidegc = -100;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
     rc = of_property_read_u32(node, "qcom,bat_present_decidegc", &batt_present_degree_negative);
     if (rc < 0) {
@@ -447,7 +447,7 @@ int opchg_parse_dt(struct opchg_charger *chip)
     #elif defined(OPPO_USE_MTK)
     chip->bat_present_decidegc = -200;
     #endif
-    
+
     #ifdef OPPO_USE_QCOMM
 	rc = of_property_read_u32(node, "qcom,non_standard_vfloat_mv",
 						&chip->non_standard_vfloat_mv);
@@ -467,20 +467,20 @@ int opchg_parse_dt(struct opchg_charger *chip)
 	#endif
 
     pr_debug("chip->charging_disabled= %d,chip->irq_gpio= %d,chip->fast_charge_project= %d,\
-		chip->iterm_ma= %d,chip->recharge_mv= %d,chip->limit_current_max_ma= %d,chip->vfloat_mv= %d,chip->fastchg_current_max_ma= %d,\n", 
+		chip->iterm_ma= %d,chip->recharge_mv= %d,chip->limit_current_max_ma= %d,chip->vfloat_mv= %d,chip->fastchg_current_max_ma= %d,\n",
 		chip->charging_disabled,chip->irq_gpio,chip->fast_charge_project,
 		chip->iterm_ma,chip->recharge_mv,chip->limit_current_max_ma,chip->vfloat_mv,chip->fastchg_current_max_ma);
     pr_debug("chip->hot_bat_decidegc= %d,chip->temp_hot_vfloat_mv= %d,chip->temp_hot_fastchg_current_ma= %d,\
 		chip->warm_bat_decidegc= %d,chip->temp_warm_vfloat_mv= %d,chip->temp_warm_fastchg_current_ma= %d,\
 		chip->pre_normal_bat_decidegc= %d,chip->temp_pre_normal_vfloat_mv= %d,chip->temp_pre_normal_fastchg_current_ma= %d,\
 		chip->pre_cool_bat_decidegc= %d,chip->temp_pre_cool_vfloat_mv= %d,chip->temp_pre_cool_fastchg_current_ma= %d,\
-		chip->cool_bat_decidegc= %d,chip->temp_cool_vfloat_mv= %d,chip->temp_cool_fastchg_current_ma= %d,\n", 
+		chip->cool_bat_decidegc= %d,chip->temp_cool_vfloat_mv= %d,chip->temp_cool_fastchg_current_ma= %d,\n",
 		chip->hot_bat_decidegc,chip->temp_hot_vfloat_mv,chip->temp_hot_fastchg_current_ma,
 		chip->warm_bat_decidegc,chip->temp_warm_vfloat_mv,chip->temp_warm_fastchg_current_ma,
 		chip->pre_normal_bat_decidegc,chip->temp_pre_normal_vfloat_mv,chip->temp_pre_normal_fastchg_current_ma,
 		chip->pre_cool_bat_decidegc,chip->temp_pre_cool_vfloat_mv,chip->temp_pre_cool_fastchg_current_ma,
 		chip->cool_bat_decidegc,chip->temp_cool_vfloat_mv,chip->temp_cool_fastchg_current_ma);
-    pr_debug("chip->cold_bat_decidegc= %d,chip->bat_present_decidegc= %d,chip->non_standard_vfloat_mv= %d,chip->non_standard_fastchg_current_ma= %d\n", 
+    pr_debug("chip->cold_bat_decidegc= %d,chip->bat_present_decidegc= %d,chip->non_standard_vfloat_mv= %d,chip->non_standard_fastchg_current_ma= %d\n",
 		chip->cold_bat_decidegc,chip->bat_present_decidegc,chip->non_standard_vfloat_mv,chip->non_standard_fastchg_current_ma);
 
     return 0;
@@ -510,24 +510,25 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
     struct power_supply *usb_psy;
     u8 reg = 0;
     int retval;
-    
+
 	pr_debug("opcharger start==================================\n");
     usb_psy = power_supply_get_by_name("usb");
     if (!usb_psy) {
         dev_dbg(&client->dev, "USB psy not found; deferring probe\n");
         return -EPROBE_DEFER;
     }
-    
+
     chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
     if (!chip) {
         dev_dbg(&client->dev, "Couldn't allocate memory\n");
         return -ENOMEM;
     }
-    
+
     chip->client = client;
     chip->dev = &client->dev;
     chip->usb_psy = usb_psy;
     chip->fake_battery_soc = -EINVAL;
+
 	chip->boot_mode = get_boot_mode();
 	chip->driver_id = id->driver_data;
 
@@ -539,24 +540,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 	}
 
     /* probe the device to check if its actually connected */
-	if(is_project(OPPO_15005)){
-		if(get_PCB_Version() == 6 && chip->driver_id == OPCHG_SMB358_ID){
-			pr_err("15005 no smb358 device\n");
-			return -ENODEV;
-		} else if(get_PCB_Version() != 6 && chip->driver_id == OPCHG_BQ24188_ID){
-			pr_err("15005 no bq24188 device\n");
-			return -ENODEV;
-		}
-	} else if(is_project(OPPO_15025)){
-		if(get_PCB_Version() <= 5 && chip->driver_id == OPCHG_SMB358_ID){
-			pr_err("15025 no smb358 device\n");
-			return -ENODEV;
-		} else if(get_PCB_Version() > 5 && chip->driver_id == OPCHG_BQ24157_ID){
-			pr_err("15025 no bq24157 device\n");
-			return -ENODEV;
-		}
-	}
-	else if(is_project(OPPO_15109)){
+	if(is_project(OPPO_15109)){
 		// 15109 TO/EVT use bq24196 15109 DVT use bq24188
 		if((get_PCB_Version() == HW_VERSION__10||get_PCB_Version() == HW_VERSION__12||get_PCB_Version() == HW_VERSION__14||get_PCB_Version() == HW_VERSION__15) && chip->driver_id == OPCHG_BQ24188_ID){
 			pr_err("15109 no bq24188 device\n");
@@ -567,15 +551,15 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 		}
 	}
 
-	if( is_project(OPPO_15005) || is_project(OPPO_15025)|| is_project(OPPO_15035)|| 
-		is_project(OPPO_15109)|| is_project(OPPO_16000))
+	if( is_project(OPPO_15005) || is_project(OPPO_15025)|| is_project(OPPO_15035)||
+		is_project(OPPO_15109))
 	{
 		// do noting
 	} else {
 		opchg_chip = chip;
 	}
     dev_dbg(chip->dev, "opcharger_i2c_id=%d,boot_mode =%d\n",chip->driver_id,chip->boot_mode);
-    
+
     /* early for VADC get, defer probe if needed */
     chip->vadc_dev = qpnp_get_vadc(chip->dev, "chg");
     if (IS_ERR(chip->vadc_dev)) {
@@ -585,7 +569,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
         }
         return rc;
     }
-    
+
     chip->adc_tm_dev = qpnp_get_adc_tm(chip->dev, "chg");
     if(IS_ERR(chip->adc_tm_dev)) {
         rc = PTR_ERR(chip->adc_tm_dev);
@@ -594,7 +578,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
         }
         return rc;
 	}
-	
+
     /* i2c pull up Regulator configuration */
     chip->vcc_i2c = regulator_get(&client->dev, "vcc_i2c_opcharger");
     if (IS_ERR(chip->vcc_i2c)) {
@@ -602,7 +586,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
         retval = PTR_ERR(chip->vcc_i2c);
         return -1;//retval;
     }
-    
+
     if (regulator_count_voltages(chip->vcc_i2c) > 0) {
         retval = regulator_set_voltage(chip->vcc_i2c, OPCHARGER_I2C_VTG_MIN_UV, OPCHARGER_I2C_VTG_MAX_UV);
         if (retval) {
@@ -610,13 +594,13 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
             goto err_set_vtg_i2c;
         }
     }
-    
+
     retval = regulator_enable(chip->vcc_i2c);
     if (retval) {
         dev_err(&client->dev,"Regulator vcc_i2c enable failed " "rc=%d\n", retval);
         return retval;
     }
-    
+
     mutex_init(&chip->read_write_lock);
     mutex_init(&chip->usbin_lock);/*chaoying.chen@EXP.BaseDrv.charge,2015/08/10 add for USB recognition */
 
@@ -624,27 +608,27 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 	{
 		opchg_chip = chip;
 	}
-	
+
 	rc = opchg_read_reg(chip, 0x00, &reg);
 	if (rc) {
 		pr_debug("Failed to detect OPCHARGER, device may be absent\n");
 		return -ENODEV;
 	}
-	
+
     rc = opchg_parse_dt(chip);
     if (rc) {
         dev_err(&client->dev, "Couldn't parse DT nodes rc=%d\n", rc);
         return rc;
     }
-    
+
 	opchg_init_charge_parameters(chip);
 
 
 /*chaoying.chen@EXP.BaseDrv.charge,2015/07/02  modify  for 15085*/
-	if(is_project(OPPO_14043)  || is_project(OPPO_14037) || is_project(OPPO_14051)|| 
-		is_project(OPPO_15005) || is_project(OPPO_15057) || is_project(OPPO_15025)|| 
-		is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15085)||  
-		is_project(OPPO_15109) || (is_project(OPPO_15029) && get_PCB_Version() != HW_VERSION__10)) {
+	if(is_project(OPPO_14043)  || is_project(OPPO_14037) || is_project(OPPO_14051)||
+		is_project(OPPO_15005) || is_project(OPPO_15057) || is_project(OPPO_15025)||
+		is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15085)||
+		is_project(OPPO_15109) || && get_PCB_Version() != HW_VERSION__10)) {
 		if(gpio_is_valid(chip->usbin_switch_gpio)){
 			rc = gpio_request(chip->usbin_switch_gpio,"opcharger_usbin_switch");
 			if(rc)
@@ -656,8 +640,8 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 			else
 				dev_err(&client->dev, "usbin_switch:%d\n",gpio_get_value(chip->usbin_switch_gpio));
 		}
-	}	
-	
+	}
+
 	i2c_set_clientdata(client, chip);
 
 	rc = opchg_hw_init(chip);
@@ -667,7 +651,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
     }
 	if(is_project(OPPO_15025) || is_project(OPPO_15005))
 		opchg_dump_regs(chip);
-	
+
 	opchg_dc_property_config(chip);
 	rc = power_supply_register(chip->dev, &chip->dc_psy);
 	if (rc < 0) {
@@ -676,9 +660,9 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 	}
 
 	opchg_property_config(chip);
-	
+
     wakeup_source_init(&chip->source, "opcharger_wake");
-	
+
     rc = power_supply_register(chip->dev, &chip->batt_psy);
     if (rc < 0) {
         dev_err(&client->dev, "Couldn't register batt psy rc=%d\n", rc);
@@ -690,15 +674,15 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
         dev_err(&client->dev, "Couldn't initialize OPCHARGER ragulator rc=%d\n", rc);
         return rc;
     }
-    
+
     opchg_works_init(chip);
-	
+
     rc = opchg_get_initial_state(chip);
     if (rc) {
         dev_err(&client->dev, "Couldn't determine initial state rc=%d\n", rc);
         goto fail_opchg_hw_init;
-    }	
-    
+    }
+
     /* STAT irq configuration */
     if ((gpio_is_valid(chip->irq_gpio) && (chip->driver_id == OPCHG_SMB358_ID)) || (gpio_is_valid(chip->irq_gpio) && is_project(OPPO_15029) && get_PCB_Version() == HW_VERSION__10)) {
         rc = gpio_request(chip->irq_gpio, "opcharger_stat");
@@ -726,7 +710,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
         }
         enable_irq_wake(client->irq);
     }
-    
+
 //    /* usbphy_on-gpio configuration */
 //    if (gpio_is_valid(chip->usbphy_on_gpio)) {
 //        rc = gpio_request(chip->usbphy_on_gpio, "usbphy_on");
@@ -738,7 +722,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 //            rc = gpio_tlmm_config(GPIO_CFG(chip->usbphy_on_gpio, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 //        }
 //    }
-    
+
     #ifdef OPPO_USE_ADC_TM_IRQ
     /* add hot/cold temperature monitor */
     chip->charging_opchg_temp_statu = OPCHG_CHG_TEMP_NORMAL;
@@ -763,31 +747,29 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
     chip->adc_param.high_temp = chip->warm_bat_decidegc;
     chip->adc_param.state_request = ADC_TM_HIGH_LOW_THR_ENABLE;
     #endif
-    
+
     opchg_debugfs_create(chip);
 	//opchg_dump_regs(chip);
-	
+
     #ifdef VENDOR_EDIT
 	/////////////////////////////////////////////////
-	//solve the problems for into the RF mode Usb charging  
-	if((get_boot_mode() == MSM_BOOT_MODE__RF) || (get_boot_mode() == MSM_BOOT_MODE__WLAN)) 
+	//solve the problems for into the RF mode Usb charging
+	if((get_boot_mode() == MSM_BOOT_MODE__RF) || (get_boot_mode() == MSM_BOOT_MODE__WLAN))
 	{
-		chip->multiple_test = 1; 
-		//rc = opchg_masked_write(chip, CMD_A_REG, CMD_A_CHG_SUSP_EN_MASK, CMD_A_CHG_SUSP_EN_BIT); 
+		chip->multiple_test = 1;
+		//rc = opchg_masked_write(chip, CMD_A_REG, CMD_A_CHG_SUSP_EN_MASK, CMD_A_CHG_SUSP_EN_BIT);
 		opchg_config_suspend_enable(chip, FACTORY_ENABLE, 1);
-		opchg_set_suspend_enable(chip, !!chip->suspend_status);  
-		chip->g_is_changed = false;    
+		opchg_set_suspend_enable(chip, !!chip->suspend_status);
+		chip->g_is_changed = false;
 	}
-	else 
+	else
 	{
 		chip->multiple_test = 0;
-		opchg_config_suspend_enable(chip, FACTORY_ENABLE, 0); 
-	}  
+		opchg_config_suspend_enable(chip, FACTORY_ENABLE, 0);
+	}
     #endif
 
-	if( is_project(OPPO_14043) || is_project(OPPO_14037) || is_project(OPPO_15057) || 
-		is_project(OPPO_15025) || is_project(OPPO_15035) || is_project(OPPO_16000))
-	{
+	if(is_project(OPPO_14043) || is_project(OPPO_14037) || is_project(OPPO_15057) || is_project(OPPO_15025)){
 		if(gpio_is_valid(chip->batt_id_gpio)){
 			rc = gpio_request(chip->batt_id_gpio,"opcharger_batt_id");
 			if(rc)
@@ -808,7 +790,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 	} else {
 		chip->batt_authen = 1;
 	}
-	
+
 	if(chip->driver_id == OPCHG_BQ24196_ID)
 	{
 		register_device_proc("charger_ic", DEVICE_CHARGER_IC_VERSION, DEVICE_CHARGER_IC_TYPE_BQ24196);
@@ -835,7 +817,7 @@ static int opcharger_charger_probe(struct i2c_client *client, const struct i2c_d
 	}
 	pr_debug("opcharger end========================= success,charger_present:%d\n",chip->chg_present);
     return 0;
-	
+
 err_set_vtg_i2c:
     if (regulator_count_voltages(chip->vcc_i2c) > 0) {
         regulator_set_voltage(chip->vcc_i2c, 0, OPCHARGER_I2C_VTG_MAX_UV);
@@ -853,12 +835,12 @@ fail_opchg_hw_init:
 static int opcharger_charger_remove(struct i2c_client *client)
 {
     struct opchg_charger *chip = i2c_get_clientdata(client);
-    
+
     power_supply_unregister(&chip->batt_psy);
     if (gpio_is_valid(chip->chg_valid_gpio)) {
         gpio_free(chip->chg_valid_gpio);
     }
-    
+
     regulator_disable(chip->vcc_i2c);
     mutex_destroy(&chip->read_write_lock);
     debugfs_remove_recursive(chip->debug_root);
@@ -870,20 +852,20 @@ static int opcharger_suspend(struct device *dev)
     struct i2c_client *client = to_i2c_client(dev);
     struct opchg_charger *chip = i2c_get_clientdata(client);
     int rc;
-    
+
     cancel_delayed_work_sync(&chip->update_opchg_thread_work);
-    
+
     chip->suspending = true;
 	//Fuchun.Liao 2014-11-11 add for bq24196 wakeup AP frequently by wdt timeout
 	opchg_set_wdt_timer(chip,false);
 	chip->wdt_enable = false;
     disable_irq(client->irq);
 	if(chip->vcc_i2c){
-    	rc = regulator_disable(chip->vcc_i2c);
-    	if (rc) {
-        	dev_err(chip->dev, "Regulator vcc_i2c disable failed rc=%d\n", rc);
-        	return rc;
-    	}
+	rc = regulator_disable(chip->vcc_i2c);
+	if (rc) {
+		dev_err(chip->dev, "Regulator vcc_i2c disable failed rc=%d\n", rc);
+		return rc;
+	}
 	}
     atomic_set(&chip->bms_suspended, 1);
     return 0;
@@ -897,39 +879,39 @@ static int opcharger_resume(struct device *dev)
     //union power_supply_propval ret = {0, };
 
 	if(chip->vcc_i2c){
-    	rc = regulator_enable(chip->vcc_i2c);
-    	if (rc) {
-        	dev_err(chip->dev, "Regulator vcc_i2c enable failed rc=%d\n", rc);
-        	return rc;
-    	}
+	rc = regulator_enable(chip->vcc_i2c);
+	if (rc) {
+		dev_err(chip->dev, "Regulator vcc_i2c enable failed rc=%d\n", rc);
+		return rc;
+	}
 	}
     chip->suspending = false;
     enable_irq(client->irq);
-	
+
     #if 0
-    if (opchg_chip->otg_enable_pending) {	
+    if (opchg_chip->otg_enable_pending) {
         opchg_chip->otg_enable_pending = false;
         smb358_chg_otg_enable();
     }
-	
-    if (opchg_chip->otg_disable_pending) {		
+
+    if (opchg_chip->otg_disable_pending) {
         opchg_chip->otg_disable_pending = false;
         smb358_chg_otg_disable();
     }
     #endif
-	
+
     #ifdef VENDOR_EDIT
     if (chip->bms_psy)
     {
         opchg_get_prop_batt_capacity(chip);
-        power_supply_changed(&chip->batt_psy);	
+        power_supply_changed(&chip->batt_psy);
     }
     #endif
 	atomic_set(&chip->bms_suspended, 0);
     schedule_delayed_work(&chip->update_opchg_thread_work,
                             round_jiffies_relative(msecs_to_jiffies
                             (OPCHG_THREAD_INTERVAL)));
-	
+
     return 0;
 }
 
@@ -943,7 +925,7 @@ static void opcharger_charger_shutdown(struct i2c_client *client)
 			msleep(20);
 			pr_err("%s 15025 reset charger\n",__func__);
 		}
-	} 
+	}
 	else if(is_project(OPPO_15005)||is_project(OPPO_15035)||
 	         (is_project(OPPO_15109)&&(get_PCB_Version() == HW_VERSION__11||get_PCB_Version() == HW_VERSION__13)) ||
              is_project(OPPO_16000) ){

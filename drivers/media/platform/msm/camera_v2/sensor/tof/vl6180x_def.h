@@ -73,8 +73,8 @@
 #endif
 
 #ifndef  VL6180x_WRAP_AROUND_FILTER_SUPPORT
-#error "VL6180x_WRAP_AROUND_FILTER_SUPPORT not defined, likely old vl61870x_cfg.h file ?" 
-/* TODO you may remove or comment these #error and keep the default below to keep compatibilty 
+#error "VL6180x_WRAP_AROUND_FILTER_SUPPORT not defined, likely old vl61870x_cfg.h file ?"
+/* TODO you may remove or comment these #error and keep the default below to keep compatibilty
    or update your vl6180x_cfg.h file */
 /**
  * force VL6180x_WRAP_AROUND_FILTER_SUPPORT to not supported when not part of cfg file

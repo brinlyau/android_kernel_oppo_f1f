@@ -19,7 +19,7 @@
 
 #ifdef VENDOR_EDIT
 /* xianglie.liu 2014-09-05 add for add project name */
-//#include <mach/oppo_project.h> 
+//#include <mach/oppo_project.h>
 /*hufeng 2014-11-03 add foraviod led off twice*/
 static struct mutex flash_mode_lock_lm3643;
 /*OPPO 2014-08-01 hufeng add for flash engineer mode test*/
@@ -259,15 +259,15 @@ static int msm_led_cci_test_init(void)
 	{
 		msm_camera_config_single_vreg(&fctrl_lm3643.pdev->dev,
 			power_info->cam_vreg,
-			&vreg_lm3643,1);	
+			&vreg_lm3643,1);
 	}
-	else 
+	else
 	{
 		gpio_set_value_cansleep(
 			power_info->gpio_conf->gpio_num_info->
 			gpio_num[SENSOR_GPIO_VIO],
 			GPIO_OUT_HIGH);
-        
+
         LM3643_DBG("%s SENSOR_GPIO_VIO\n", __func__);
 	}
 #endif
@@ -300,7 +300,7 @@ static int msm_led_cci_test_torch(struct msm_led_flash_ctrl_t *fctrl)
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 	}
 
-	return rc;	
+	return rc;
 }
 
 static int msm_led_cci_test_off(void)
@@ -313,7 +313,7 @@ static int msm_led_cci_test_off(void)
 	LM3643_DBG("%s:%d called\n", __func__, __LINE__);
 	//if (led_test_mode_lm3643 == 2)
 	//	cancel_delayed_work_sync(&led_blink_work_lm3643);
-	if (fctrl_lm3643.flash_i2c_client && fctrl_lm3643.reg_setting) 
+	if (fctrl_lm3643.flash_i2c_client && fctrl_lm3643.reg_setting)
 	{
 		rc = fctrl_lm3643.flash_i2c_client->i2c_func_tbl->i2c_write_table(
 			fctrl_lm3643.flash_i2c_client,
@@ -336,13 +336,13 @@ static int msm_led_cci_test_off(void)
 		LM3643_DBG("%s:%d camera already power up\n", __func__, __LINE__);
 		return rc;
 	}
-	if (power_info->cam_vreg != NULL && power_info->num_vreg>0) 
+	if (power_info->cam_vreg != NULL && power_info->num_vreg>0)
 	{
 		msm_camera_config_single_vreg(&fctrl_lm3643.pdev->dev,
 			power_info->cam_vreg,
 			&vreg_lm3643,0);
 	}
-	
+
 	rc = msm_camera_request_gpio_table(
 		power_info->gpio_conf->cam_gpio_req_tbl,
 		power_info->gpio_conf->cam_gpio_req_tbl_size, 0);
@@ -380,7 +380,7 @@ static void msm_led_cci_test_blink_work(struct work_struct *work)
 
 /* zhengrong.zhang 2014-11-08 Add for flash proc read */
 static ssize_t flash_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
@@ -389,20 +389,20 @@ static ssize_t flash_proc_read(struct file *filp, char __user *buff,
 }
 
 static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
 	char buf[8] = {0};
 	int new_mode = 0;
 	int i = 0;
 	if (len > 8)
 		len = 8;
-	if (copy_from_user(buf, buff, len)) 
+	if (copy_from_user(buf, buff, len))
 	{
 		pr_err("proc write error.\n");
 		return -EFAULT;
 	}
 	new_mode = simple_strtoul(buf, NULL, 10);
-	if (new_mode == led_test_mode_lm3643) 
+	if (new_mode == led_test_mode_lm3643)
 	{
 		pr_err("the same mode as old\n");
 		return len;
@@ -430,7 +430,7 @@ static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
 		mutex_lock(&flash_mode_lock_lm3643);
 		if (led_test_mode_lm3643 > 0 && led_test_mode_lm3643 <= 3) {
 			msm_led_cci_test_off();
-			led_test_mode_lm3643 = 0;
+		led_test_mode_lm3643 = 0;
 		}
 
 		if (blink_work_lm3643) {
@@ -451,10 +451,10 @@ static ssize_t flash_proc_write(struct file *filp, const char __user *buff,
 	case 2:
 		mutex_lock(&flash_mode_lock_lm3643);
 		if (!blink_work_lm3643) {
-			msm_led_cci_test_init();
-			schedule_delayed_work(&led_blink_work_lm3643, msecs_to_jiffies(50));
-			blink_work_lm3643 = true;
-			led_test_mode_lm3643 = 2;
+		msm_led_cci_test_init();
+		schedule_delayed_work(&led_blink_work_lm3643, msecs_to_jiffies(50));
+		blink_work_lm3643 = true;
+		led_test_mode_lm3643 = 2;
 		}
 		mutex_unlock(&flash_mode_lock_lm3643);
 		break;
@@ -486,13 +486,13 @@ static int flash_proc_init(struct msm_led_flash_ctrl_t *flash_ctl)
 {
 	int ret=0;
 	struct proc_dir_entry *proc_entry;
-	
+
 	INIT_DELAYED_WORK(&led_blink_work_lm3643, msm_led_cci_test_blink_work);
 	proc_entry = proc_create_data( "qcom_flash", 0666, NULL,&led_test_fops, (void*)&fctrl_lm3643);
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create qcom_flash proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create qcom_flash proc entry\n", __func__);
 	}
 	return ret;
 }
@@ -579,7 +579,7 @@ static struct i2c_driver lm3643_i2c_driver = {
 };
 #ifdef VENDOR_EDIT
 /*OPPO hufeng 2014-07-24 add for flash cci driver*/
-static const struct of_device_id lm3643_trigger_dt_match[] = 
+static const struct of_device_id lm3643_trigger_dt_match[] =
 {
 	{.compatible = FLASH_NAME, .data = &fctrl_lm3643},
 	{}
@@ -610,26 +610,26 @@ static int msm_flash_lm3643_platform_probe(struct platform_device *pdev)
 /*OPPO 2014-11-11 zhengrong.zhang add for torch can't use when open subcamera after boot*/
 	power_info = &fctrl_lm3643.flashdata->power_info;
 	rc = msm_camera_request_gpio_table(
-    	power_info->gpio_conf->cam_gpio_req_tbl,
-    	power_info->gpio_conf->cam_gpio_req_tbl_size, 1);
+	power_info->gpio_conf->cam_gpio_req_tbl,
+	power_info->gpio_conf->cam_gpio_req_tbl_size, 1);
 	if (rc < 0) {
 		pr_err("%s: request gpio failed\n", __func__);
 	}
 	rc = msm_camera_request_gpio_table(
-    	power_info->gpio_conf->cam_gpio_req_tbl,
-    	power_info->gpio_conf->cam_gpio_req_tbl_size, 0);
+	power_info->gpio_conf->cam_gpio_req_tbl,
+	power_info->gpio_conf->cam_gpio_req_tbl_size, 0);
 	if (rc < 0) {
 		pr_err("%s: request gpio failed\n", __func__);
 	}
 #endif
-    
+
 	return rc;
 }
 
-static struct platform_driver lm3643_platform_driver = 
+static struct platform_driver lm3643_platform_driver =
 {
 	.probe = msm_flash_lm3643_platform_probe,
-	.driver = 
+	.driver =
 	{
 		.name = FLASH_NAME,
 		.owner = THIS_MODULE,

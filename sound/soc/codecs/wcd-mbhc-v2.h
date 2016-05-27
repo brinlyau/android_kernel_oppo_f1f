@@ -150,10 +150,8 @@ struct wcd_mbhc_config {
 	/*OPPO	2015-12-18, zhangping add for  dump log*/
     #ifdef VENDOR_EDIT
     int dump_status;
-	#endif
+    #endif
 	/*OPPO	2015-12-18, zhangping add for  dump log end*/
-
-
 
 };
 

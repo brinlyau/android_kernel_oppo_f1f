@@ -879,10 +879,10 @@ static void wcd9xxx_report_plug(struct wcd9xxx_mbhc *mbhc, int insertion,
 		if (wcd9xxx_cancel_btn_work(mbhc))
 			pr_debug("%s: button press is canceled\n", __func__);
 		else if (mbhc->buttons_pressed) {
-			pr_debug("%s: release of button press%d\n",
-				 __func__, jack_type);
-			wcd9xxx_jack_report(mbhc, &mbhc->button_jack, 0,
-					    mbhc->buttons_pressed);
+				pr_debug("%s: release of button press%d\n",
+					__func__, jack_type);
+				wcd9xxx_jack_report(mbhc, &mbhc->button_jack, 0,
+						mbhc->buttons_pressed);
 			mbhc->buttons_pressed &=
 				~WCD9XXX_JACK_BUTTON_MASK;
 		}
@@ -2432,9 +2432,8 @@ static void wcd9xxx_find_plug_and_report(struct wcd9xxx_mbhc *mbhc,
 			wcd9xxx_cleanup_hs_polling(mbhc);
 			pr_debug("setup mic trigger for further detection\n");
 			mbhc->lpi_enabled = true;
-			wcd9xxx_enable_hs_detect(mbhc, 1, MBHC_USE_MB_TRIGGER |
-							  MBHC_USE_HPHL_TRIGGER,
-						 false);
+				wcd9xxx_enable_hs_detect(mbhc, 1, MBHC_USE_MB_TRIGGER |
+							MBHC_USE_HPHL_TRIGGER, false);
 		}
 	} else {
 		WARN(1, "Unexpected current plug_type %d, plug_type %d\n",
@@ -2490,7 +2489,7 @@ static void wcd9xxx_mbhc_decide_swch_plug(struct wcd9xxx_mbhc *mbhc)
 		wcd9xxx_schedule_hs_detect_plug(mbhc,
 						&mbhc->correct_plug_swch);
 	} else if (plug_type == PLUG_TYPE_HEADPHONE) {
-		wcd9xxx_report_plug(mbhc, 1, SND_JACK_HEADPHONE);
+			wcd9xxx_report_plug(mbhc, 1, SND_JACK_HEADPHONE);
 		wcd9xxx_cleanup_hs_polling(mbhc);
 		wcd9xxx_schedule_hs_detect_plug(mbhc,
 						&mbhc->correct_plug_swch);
@@ -4278,6 +4277,7 @@ static int wcd9xxx_setup_jack_detect_irq(struct wcd9xxx_mbhc *mbhc)
 					  wcd9xxx_mech_plug_detect_irq,
 					  "Jack Detect",
 					  mbhc);
+
 		if (ret)
 			pr_err("%s: Failed to request insert detect irq %d\n",
 				__func__, mbhc->intr_ids->hs_jack_switch);

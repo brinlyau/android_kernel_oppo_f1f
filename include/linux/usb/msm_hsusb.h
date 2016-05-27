@@ -546,7 +546,7 @@ struct msm_otg {
 	struct qpnp_vadc_chip	*vadc_dev;
 	int ext_id_irq;
 	#if 0//def VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
-	struct mutex *inputbits_mutex; 
+	struct mutex *inputbits_mutex;
 	#endif
 	#ifdef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 	wait_queue_head_t      host_suspend_wait;

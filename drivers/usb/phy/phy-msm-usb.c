@@ -52,7 +52,7 @@
 
 #include <linux/msm-bus.h>
 
-#ifdef VENDOR_EDIT     //Fuchun.Liao 2014-09-19 add
+#ifdef VENDOR_EDIT	//Fuchun.Liao 2014-09-19 add
 #include <soc/oppo/oppo_project.h>
 #endif
 #define MSM_USB_BASE	(motg->regs)
@@ -814,7 +814,7 @@ static int msm_otg_start_hnp(struct usb_otg *otg)
 	clear_bit(A_BUS_REQ, &motg->inputs);
 	#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 	queue_work(system_nrt_wq, &motg->sm_work);
-	#else	
+	#else
 	queue_work(motg->otg_wq, &motg->sm_work);
 	#endif
 	return 0;
@@ -910,12 +910,12 @@ static int msm_otg_set_suspend(struct usb_phy *phy, int suspend)
 			#if 0//def VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 			mutex_lock(motg->inputbits_mutex);
 			#endif
-			
+
 			if (!atomic_read(&motg->in_lpm) &&
 					!test_bit(ID, &motg->inputs)) {
 				#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 				queue_work(system_nrt_wq, &motg->sm_work);
-				#else	
+				#else
 				queue_work(motg->otg_wq, &motg->sm_work);
 				#endif
 
@@ -925,7 +925,7 @@ static int msm_otg_set_suspend(struct usb_phy *phy, int suspend)
 				 */
 				flush_work(&motg->sm_work);
 				#else
-				wait_event_interruptible_timeout(
+					wait_event_interruptible_timeout(
 					motg->host_suspend_wait,
 					(atomic_read(&motg->in_lpm)|| test_bit(ID, &motg->inputs)),
 					HOST_SUSPEND_WQ_TIMEOUT_MS);
@@ -943,8 +943,8 @@ static int msm_otg_set_suspend(struct usb_phy *phy, int suspend)
 			if (!atomic_read(&motg->in_lpm))
 				#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 				queue_delayed_work(system_nrt_wq,
-				#else	
-				queue_delayed_work(motg->otg_wq,				
+				#else
+				queue_delayed_work(motg->otg_wq,
 				#endif
 					&motg->suspend_work,
 					USB_SUSPEND_DELAY_TIME);
@@ -2202,7 +2202,7 @@ static int msm_otg_set_peripheral(struct usb_otg *otg,
 			queue_work(system_nrt_wq, &motg->sm_work);
 			#else
 			queue_work(motg->otg_wq, &motg->sm_work);
-			#endif			 
+			#endif
 		} else {
 			otg->gadget = NULL;
 		}
@@ -4008,7 +4008,7 @@ static irqreturn_t msm_id_irq(int irq, void *data)
 		queue_delayed_work(system_nrt_wq, &motg->id_status_work,
 				msecs_to_jiffies(MSM_ID_STATUS_DELAY));
 	#else
-	 	queue_delayed_work(motg->otg_wq, &motg->id_status_work,  
+		queue_delayed_work(motg->otg_wq, &motg->id_status_work,
 			msecs_to_jiffies(MSM_ID_STATUS_DELAY));
 	#endif
 	return IRQ_HANDLED;

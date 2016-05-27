@@ -70,9 +70,9 @@ static int dload_set(const char *val, struct kernel_param *kp);
 
 #ifdef VENDOR_EDIT //Tong.han@BSP.group.TP, Modify for selct dump config for diffrent sw version,2015/06/28
 #if defined(CONFIG_OPPO_DAILY_BUILD)
-	static int download_mode = 1;
+static int download_mode = 1;
 #else
-	static int download_mode = 0;
+static int download_mode = 0;
 #endif
 #endif/*VENDOR_EDIT*/
 
@@ -262,7 +262,6 @@ static void msm_restart_prepare(const char *cmd)
 		/* Set warm reset as true when device is in dload mode
 		 *  or device doesn't boot up into recovery, bootloader or rtc.
 		 */
-
 		if (get_dload_mode() ||
 			((cmd != NULL && cmd[0] != '\0') &&
 			strcmp(cmd, "recovery") &&
@@ -334,13 +333,13 @@ static void msm_restart_prepare(const char *cmd)
 /* OPPO 2013.07.09 hewei modify begin for restart mode*/
 	if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
-			qpnp_pon_set_restart_reason(
-				PON_RESTART_REASON_BOOTLOADER);
-			__raw_writel(0x77665500, restart_reason);
+				qpnp_pon_set_restart_reason(
+					PON_RESTART_REASON_BOOTLOADER);
+				__raw_writel(0x77665500, restart_reason);
 		} else if (!strncmp(cmd, "recovery", 8)) {
-			qpnp_pon_set_restart_reason(
-				PON_RESTART_REASON_RECOVERY);
-			__raw_writel(0x77665502, restart_reason);
+				qpnp_pon_set_restart_reason(
+					PON_RESTART_REASON_RECOVERY);
+				__raw_writel(0x77665502, restart_reason);
 		} else if (!strcmp(cmd, "rtc")) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_RTC);
@@ -552,11 +551,11 @@ static int msm_restart_probe(struct platform_device *pdev)
 	msm_ps_hold = devm_ioremap_resource(dev, mem);
 	if (IS_ERR(msm_ps_hold))
 		return PTR_ERR(msm_ps_hold);
+
 #ifdef VENDOR_EDIT
-/* OPPO 2013.07.09 hewei added begin for default restart reason*/
 	__raw_writel(0x7766550a, restart_reason);
-/* OPPO 2013.07.09 hewei added end for default restart reason*/
-#endif //VENDOR_EDIT
+#endif
+
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	if (mem)
 		tcsr_boot_misc_detect = mem->start;

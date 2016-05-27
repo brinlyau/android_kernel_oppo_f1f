@@ -41,10 +41,6 @@
 #endif /* VENDOR_EDIT */
 
 #include "f_fs.c"
-#ifdef VENDOR_EDIT
-//Zhilong.Zhang@OnlineRd.Driver, 2014/02/10, Add for support ADB and ODB
-#include "f_odb.c"
-#endif /* VENDOR_EDIT */
 #ifdef CONFIG_SND_PCM
 #include "f_audio_source.c"
 #endif
@@ -729,124 +725,6 @@ static void functionfs_release_dev_callback(struct ffs_data *ffs_data)
 {
 }
 
-#ifdef VENDOR_EDIT
-//LinJie.Xu@Prd.Android.USB, 2014/06/12, Add for Support odb 
-/*-------------------------------------------------------------------------*/
-/* Supported functions initialization */
-
-struct odb_data {
-	bool opened;
-	bool enabled;
-	struct android_dev *dev;
-};
-
-static void odb_function_cleanup(struct android_usb_function *f)
-{
-	pr_err("%s: odb_function_cleanup OK\n", __func__);
-	odb_cleanup();
-	kfree(f->config);
-}
-
-static int
-odb_function_bind_config(struct android_usb_function *f,
-		struct usb_configuration *c)
-{
-	pr_err("%s: odb_function_bind_config OK\n", __func__);
-	return odb_bind_config(c);
-}
-
-static void odb_android_function_enable(struct android_usb_function *f)
-{
-	struct android_dev *dev = f->android_dev;
-	struct odb_data *data = f->config;
-	pr_err("%s: odb_android_function_enable OK\n", __func__);
-	data->enabled = true;
-
-
-	/* Disable the gadget until adbd is ready */
-	if (!data->opened)
-		android_disable(dev);
-}
-
-static int
-odb_function_init(struct android_usb_function *f,
-		struct usb_composite_dev *cdev)
-{
-	pr_err("%s: odb_function_init OK\n", __func__);
-	f->config = kzalloc(sizeof(struct odb_data), GFP_KERNEL);
-	if (!f->config)
-		return -ENOMEM;
-
-	return odb_setup();
-}
-
-static void odb_android_function_disable(struct android_usb_function *f)
-{
-	struct android_dev *dev = f->android_dev;
-	struct odb_data *data = f->config;
-	pr_err("%s: odb_android_function_disable OK\n", __func__);
-	data->enabled = false;
-
-	/* Balance the disable that was called in closed_callback */
-	if (!data->opened)
-		android_enable(dev);
-}
-
-static struct android_usb_function odb_function = {
-	.name		= "odb",
-	.enable		= odb_android_function_enable,
-	.disable	= odb_android_function_disable,
-	.init		= odb_function_init,
-	.cleanup	= odb_function_cleanup,
-	.bind_config	= odb_function_bind_config,
-};
-
-static void odb_ready_callback(void)
-{
-	struct android_dev *dev = odb_function.android_dev;
-	struct odb_data *data = odb_function.config;
-
-	/* dev is null in case ADB is not in the composition */
-	if (dev)
-		mutex_lock(&dev->mutex);
-
-	/* Save dev in case the adb function will get disabled */
-	data->dev = dev;
-	data->opened = true;
-
-	if (data->enabled && dev)
-		android_enable(dev);
-
-	if (dev)
-		mutex_unlock(&dev->mutex);
-}
-
-static void odb_closed_callback(void)
-{
-	struct odb_data *data = odb_function.config;
-	struct android_dev *dev = odb_function.android_dev;
-
-	/* In case new composition is without ODB, use saved one */
-	if (!dev)
-		dev = data->dev;
-
-	if (!dev)
-		pr_err("odb_closed_callback: data->dev is NULL");
-
-	if (dev)
-		mutex_lock(&dev->mutex);
-
-	data->opened = false;
-
-	if (data->enabled && dev)
-		android_disable(dev);
-
-	data->dev = NULL;
-
-	if (dev)
-		mutex_unlock(&dev->mutex);
-}
-#endif /* VENDOR_EDIT */
 /* ACM */
 static char acm_transports[32];	/*enabled ACM ports - "tty[,sdio]"*/
 #define MAX_ACM_INSTANCES 4
@@ -2939,10 +2817,6 @@ static struct android_usb_function uasp_function = {
 
 static struct android_usb_function *supported_functions[] = {
 	&ffs_function,
-#ifdef VENDOR_EDIT
-//Zhilong.Zhang@OnlineRd.Driver, 2014/02/10, Add for support ADB and ODB		
-	&odb_function,
-#endif /* VENDOR_EDIT */	
 	&mbim_function,
 	&ecm_qc_function,
 #ifdef CONFIG_SND_PCM
@@ -3555,7 +3429,7 @@ static ssize_t
 iSerial_store(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t size)
 {
- 	int boot_mode = get_boot_mode();
+	int boot_mode = get_boot_mode();
 	if(boot_mode == MSM_BOOT_MODE__RF || boot_mode == MSM_BOOT_MODE__WLAN)
 		return -EINVAL;
 	if (size >= sizeof(serial_string))
@@ -3677,7 +3551,7 @@ static int android_bind(struct usb_composite_dev *cdev)
 		sizeof(manufacturer_string) - 1);
 	strlcpy(product_string, "Android", sizeof(product_string) - 1);
 #ifndef VENDOR_EDIT
-//Xinhua.Song@BSP.Driver, 2015/04/02, Modify for disable usb serial number in RF or WLAN mode	
+//Xinhua.Song@BSP.Driver, 2015/04/02, Modify for disable usb serial number in RF or WLAN mode
 	strlcpy(serial_string, "0123456789ABCDEF", sizeof(serial_string) - 1);
 #else /* VENDOR_EDIT */
 	if(get_boot_mode() != MSM_BOOT_MODE__RF && get_boot_mode() != MSM_BOOT_MODE__WLAN)
@@ -3688,7 +3562,7 @@ static int android_bind(struct usb_composite_dev *cdev)
 	if (id < 0)
 		return id;
 #ifndef VENDOR_EDIT
-//Xinhua.Song@BSP.Driver, 2015/04/02, Modify for disable usb serial number in RF or WLAN mode	
+//Xinhua.Song@BSP.Driver, 2015/04/02, Modify for disable usb serial number in RF or WLAN mode
 	strings_dev[STRING_SERIAL_IDX].id = id;
 	device_desc.iSerialNumber = id;
 #else /* VENDOR_EDIT */

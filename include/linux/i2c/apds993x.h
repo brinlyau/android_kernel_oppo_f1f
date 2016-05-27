@@ -121,7 +121,6 @@ struct apds993x_platform_data {
 
 	unsigned int irq_gpio;
 	u32 irq_gpio_flags;
-
 	int panel_id[3];
 };
 

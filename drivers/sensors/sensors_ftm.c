@@ -1,11 +1,11 @@
 /*************************************************************
- ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd 
+ ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd
  ** VENDOR_EDIT
  ** File        : sensors_ftm.c
- ** Description : 
+ ** Description :
  ** Date        : 2014-10-31
  ** Author      : BSP.Sensor
- ** 
+ **
  ** ------------------ Revision History: ---------------------
  **      <author>        <date>          <desc>
  *************************************************************/
@@ -31,7 +31,7 @@ static struct ftm_srv* find_srv_by_name(const char* name)
 	struct list_head *temp_list;
 	struct ftm_srv *temp_ftm;
 	temp_list  = oppo_ftm_list.next;
-	
+
 	while(temp_list != NULL)
 	{
 		temp_ftm = container_of(temp_list, struct ftm_srv, node);
@@ -52,7 +52,7 @@ static ssize_t set_dev_reg_store(struct kobject *kobj, struct kobj_attribute *at
 	uint32_t data[2];
 	struct ftm_srv *dev_srv;
 	s32 ret;
-	
+
 	ftm_debug("name:%s\n",kobj->name);
 	dev_srv = find_srv_by_name(kobj->name);
 	if (dev_srv != NULL)
@@ -77,7 +77,7 @@ static struct kobj_attribute set_dev_reg = {
 
 static ssize_t get_dev_reg_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
-	
+
 	uint32_t addr = 0;
 	uint8_t data = 0;
 	struct ftm_srv *dev_srv;
@@ -87,7 +87,7 @@ static ssize_t get_dev_reg_store(struct kobject *kobj, struct kobj_attribute *at
 	{
 		ftm_debug("dev_srv->name = %s\n", dev_srv->p_dev_ftm->name);
 		sscanf(buf, "%x",&addr);
-		
+
 		data = i2c_smbus_read_byte_data(dev_srv->p_dev_ftm->i2c_client, addr);
 		ftm_debug("GET_REG : 0x%x  0x%x\n",addr, data);
 	}
@@ -99,7 +99,7 @@ static struct kobj_attribute get_dev_reg = {
 	//.show = get_dev_reg_show,
 	.store = get_dev_reg_store,
 };
-static  const struct attribute *ftm_def_attrs[] = 
+static  const struct attribute *ftm_def_attrs[] =
 {
 	&set_dev_reg.attr,
 	&get_dev_reg.attr,
@@ -111,7 +111,7 @@ int register_single_dev_ftm(struct dev_ftm *client)
 	int ret = 0;
 	int i = 0;
 	struct ftm_srv *dev_dir;
-	
+
 	if (client == NULL){
 		ftm_debug("client param is NULL\n");
 		return -EINVAL;
@@ -123,7 +123,7 @@ int register_single_dev_ftm(struct dev_ftm *client)
 		ftm_debug("kzalloc dev_dir fail\n");
 		return -EINVAL;
 	}
-	
+
 	dev_dir->pkobj = kobject_create_and_add(client->name, &oppo_ftm_kset->kobj);
 	if (IS_ERR(dev_dir->pkobj))
 	{
@@ -131,13 +131,13 @@ int register_single_dev_ftm(struct dev_ftm *client)
 		kfree(dev_dir);
 		return -EINVAL;
 	}
-	
+
 	dev_dir->p_dev_ftm = client;
-	
+
 	down_write(&oppo_ftm_list_lock);
 	list_add_tail(&dev_dir->node, &oppo_ftm_list);
 	up_write(&oppo_ftm_list_lock);
-	
+
 	if (client->attrs != NULL)
 	{
 		for (i = 0; client->attrs[i] != NULL; i++)
@@ -182,13 +182,13 @@ static int __init oppo_ftm_dir_init(void)
 {
 	int ret = 0;
 	oppo_ftm_kset = kset_create_and_add(OPPO_FTM_NAME, NULL, NULL);
-	
+
 	if (IS_ERR(oppo_ftm_kset))
 	{
 		ftm_debug("Create oppo ftm kset fail\n");
 		ret = -EINVAL;
 	}
-	
+
 	return ret;
 }
 subsys_initcall(oppo_ftm_dir_init);

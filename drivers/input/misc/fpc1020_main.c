@@ -353,7 +353,7 @@ static int fpc1020_nav_switch_show(struct seq_file *seq, void *offset)
 {
 	fpc1020_data_t *fpc1020 = seq->private;
 
- 	seq_printf(seq, "nav_switch:%d\n", fpc1020->nav.enabled);
+	seq_printf(seq, "nav_switch:%d\n", fpc1020->nav.enabled);
 	return 0;
 }
 
@@ -369,13 +369,13 @@ static int fpc1020_nav_switch_open(struct inode *inode, struct file *file)
 static ssize_t fpc1020_nav_switch_write(struct file *file, const char __user *buffer, size_t count, loff_t *pos)
 {
 	fpc1020_data_t *fpc1020 = (fpc1020_data_t*)PDE(file->f_path.dentry->d_inode)->data;
-	unsigned int nav_switch; 
+	unsigned int nav_switch;
 
 	if (!fpc1020) {
 		return -EFAULT;
 	}
 
-	if (copy_from_user(&nav_switch, buffer, sizeof(nav_switch))) 
+	if (copy_from_user(&nav_switch, buffer, sizeof(nav_switch)))
 		return -EFAULT;
 
 	dev_dbg(&fpc1020->spi->dev, "nav_switch change to %d\n", nav_switch);
@@ -402,8 +402,8 @@ static const struct file_operations nav_switch_proc_fops = {
 };
 #endif /* VENDOR_EDIT */
 
-//TODO lycan add for 
-static ssize_t fpc1020_state_store(struct device *dev, struct device_attribute *attr, 
+//TODO lycan add for
+static ssize_t fpc1020_state_store(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
 {
 	printk("fpc irq abort \n");
@@ -629,10 +629,10 @@ static int fpc1020_probe(struct spi_device *spi)
 	if (!proc_create_data("nav_switch", 0666, NULL, &nav_switch_proc_fops, fpc1020)) {
 		error = -ENOMEM;
 	}
-	//Lycan.Wang@Prd.BasicDrv, 2014-11-03 Add for go to idle 
+	//Lycan.Wang@Prd.BasicDrv, 2014-11-03 Add for go to idle
 	dev_set_drvdata(fpc1020->device, fpc1020);
 #endif /* VENDOR_EDIT */
-	} 
+	}
 
 
 	fpc1020->core_clk = clk_get(&spi->dev, "core_clk");
@@ -925,7 +925,7 @@ static int fpc1020_release(struct inode *inode, struct file *file)
 
 
 		up(&fpc1020->mutex);
-	} else { 
+	} else {
 		if (wake_lock_active(&fpc1020->wakelock)) {
 			wake_unlock(&fpc1020->wakelock);
 		}
@@ -1016,9 +1016,9 @@ static long fpc1020_ioctl(struct file *file,
 		case FPC_HW_RESET:
 			dev_dbg(&fpc1020->spi->dev, "FPC_HW_RESET ");
 			if (!gpio_is_valid(fpc1020->reset_gpio))
-			{	
+			{
 				dev_dbg(&fpc1020->spi->dev, "fpc Reset pin was not assigned properly %d", fpc1020->reset_gpio);
-			}		
+			}
 
 			fpc1020_gpio_reset(fpc1020);
 			break;
@@ -1089,7 +1089,7 @@ static long fpc1020_ioctl(struct file *file,
 				}
 
 				if (!gpio_is_valid(fpc1020->irq_gpio))
-				{	
+				{
 					dev_dbg(&fpc1020->spi->dev, "fpc irq_gpio was not assigned properly %d", fpc1020->irq_gpio);
 				}
 
@@ -1146,7 +1146,7 @@ static long fpc1020_ioctl(struct file *file,
 
 				break;
 
-			}	
+			}
 #endif
 		case FPC_REG_READALL:
 			//fpc1020_read_all
@@ -1346,6 +1346,7 @@ static int fpc1020_reset_init(fpc1020_data_t *fpc1020,
 
 	return error;
 }
+
 
 /* -------------------------------------------------------------------- */
 static int fpc1020_irq_init(fpc1020_data_t *fpc1020,
@@ -1570,7 +1571,7 @@ of_err:
 //	pdata->vdden_gpio = of_get_named_gpio(node, "fpc,gpio_envdd", 0);
 //	if ((!gpio_is_valid(pdata->vdden_gpio)))
 //		return -EINVAL;
-		
+
 	pdata->external_supply_mv = 1;
 	pdata->txout_boost = 0;
 
@@ -2068,7 +2069,7 @@ static int fpc1020_check_for_deadPixels(fpc1020_data_t *fpc1020, u8* ripPixels, 
 	kfree(p1);
 	kfree(p2);
 
-	dev_info(&fpc1020->spi->dev, 
+	dev_info(&fpc1020->spi->dev,
 		"%s: Average (median) pixel values = %d (%d) and %d (%d)\n", __func__, sum1, m1, sum2, m2);
 
 	if (bCB) {
@@ -2158,11 +2159,11 @@ static int CheckDeadPixelInDetectZone(fpc1020_data_t *fpc1020, int index)
 	int xp_1020[] = { 16, 64, 120, 168 }, yp_1020[] = { 28, 92, 156 };
 	int xp_1021[] = { 16, 56, 88, 128 }, yp_1021[] = { 20, 76, 132 };
 	int error = -1;
-	
+
 	int* xp;
 	int* yp;
 	int x = 0, y = 0;
-	
+
 	if (fpc1020->chip.type == FPC1020_CHIP_1021A) {
 
 		ypos = index / 192;
@@ -2170,7 +2171,7 @@ static int CheckDeadPixelInDetectZone(fpc1020_data_t *fpc1020, int index)
 		xp = xp_1020;
 		yp = yp_1020;
 
-	} else if (fpc1020->chip.type == FPC1020_CHIP_1021A || 
+	} else if (fpc1020->chip.type == FPC1020_CHIP_1021A ||
 			fpc1020->chip.type == FPC1020_CHIP_1021B) {
 
 		ypos = index / 160;
@@ -2183,11 +2184,11 @@ static int CheckDeadPixelInDetectZone(fpc1020_data_t *fpc1020, int index)
 		return 0;
 
 	}
-	
-	
+
+
 	for (x = 0; x < 4; x++) {
 		for (y = 0; y < 3; y++) {
-			if (xpos >= xp[x] && xpos < (xp[x] + 8) && 
+			if (xpos >= xp[x] && xpos < (xp[x] + 8) &&
 				ypos >= yp[y] && ypos < (yp[y] + 8)) {
 				return error;
 			}
@@ -2227,7 +2228,7 @@ static int fpc1020_test_deadpixels(fpc1020_data_t *fpc1020)
 
 	ripPixels = (u8 *)kmalloc(sizeof(u8)*buffersize, GFP_KERNEL);
 	memset(ripPixels, 0, buffersize);
-	
+
 	error = fpc1020_check_for_deadPixels(fpc1020, ripPixels, true);
 	if (error)
 		goto out;
@@ -2241,7 +2242,7 @@ static int fpc1020_test_deadpixels(fpc1020_data_t *fpc1020)
 			}
 		}
 	}
-		
+
 	// INV Checkerboard Test
 	fpc1020->setup.capture_mode = FPC1020_MODE_CHECKERBOARD_TEST_INV;
 	error = fpc1020_start_capture(fpc1020);
@@ -2275,7 +2276,7 @@ static int fpc1020_test_deadpixels(fpc1020_data_t *fpc1020)
 			}
 		}
 	}
-		
+
 out:
 	kfree(ripPixels);
 	//up(&fpc1020->mutex);
@@ -2476,7 +2477,7 @@ static int fpc1020_worker_goto_idle(fpc1020_data_t *fpc1020)
 	return 0;
 }
 
- 
+
 /* -------------------------------------------------------------------- */
 static int fpc1020_new_job(fpc1020_data_t *fpc1020, int new_job)
 {
@@ -2769,5 +2770,3 @@ static int fpc1020_start_navigation(fpc1020_data_t *fpc1020)
 
 
 /* -------------------------------------------------------------------- */
-
-

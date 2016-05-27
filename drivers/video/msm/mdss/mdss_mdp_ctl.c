@@ -696,14 +696,14 @@ static void mdss_mdp_perf_calc_mixer(struct mdss_mdp_mixer *mixer,
 #else /*VENDOR_EDIT*/
 		else if (pinfo->type == MIPI_CMD_PANEL) {
 			u32 dsi_transfer_rate = mixer->width * v_total;
- 
+
 			/* adjust transfer time from micro seconds */
 			dsi_transfer_rate = mult_frac(dsi_transfer_rate,
 				1000000, pinfo->mdp_transfer_time_us);
- 
+
 			if (dsi_transfer_rate > perf->mdp_clk_rate)
 				perf->mdp_clk_rate = dsi_transfer_rate;
- 		}
+		}
 #endif /*VENDOR_EDIT*/
 	}
 

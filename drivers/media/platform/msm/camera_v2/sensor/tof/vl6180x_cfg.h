@@ -124,7 +124,7 @@
  *
  * Value __1__ =>  Single device capable.
  * Configure optimized API for single device driver with static data and minimal use of ref pointer. \n
- * 				Limited to single device driver or application in non multi thread/core environment. \n
+ *				Limited to single device driver or application in non multi thread/core environment. \n
  *
  * Value __0__ =>  Multiple device capable. User must review "device" structure and type in porting files.
  * @ingroup Configuration
@@ -136,12 +136,12 @@
  *
  * @brief Configure  low level device register to I2C access translation required buffer implementation.
  *
- * __0__ On GLOBAL buffer 	Use one global buffer of MAX_I2C_XFER_SIZE byte in data space. \n
- *                     		This solution is not multi-device compliant nor multi-thread cpu safe. \n
- *                     		It can be the best option for small 8/16 bit MCU without stack and limited ram  (STM8s, 80C51 ...).
+ * __0__ On GLOBAL buffer	Use one global buffer of MAX_I2C_XFER_SIZE byte in data space. \n
+ *				This solution is not multi-device compliant nor multi-thread cpu safe. \n
+ *				It can be the best option for small 8/16 bit MCU without stack and limited ram  (STM8s, 80C51 ...).
  *
  *  __1__ ON_STACK/local    Use local variable (on stack) buffer \n
- *                     	   This solution is multi-thread with use of i2c resource lock or mutex see @a VL6180x_GetI2CAccess().
+ *			   This solution is multi-thread with use of i2c resource lock or mutex see @a VL6180x_GetI2CAccess().
  *
  * __2__ User defined\n		Per device potentially dynamic allocated requires @a VL6180x_GetI2cBuffer() user porting.
  * @ingroup Configuration

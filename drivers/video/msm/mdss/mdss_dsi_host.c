@@ -404,11 +404,7 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 	/* turn esc, byte, dsi, pclk, sclk, hclk on */
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x11c,
 					0x23f); /* DSI_CLK_CTRL */
-	#ifdef VENDOR_EDIT
-	//lile@EXP.BasicDrv.LCD, 2015-12-04, reset to solve 15099 LCD WIFI display blank screen
-	if (is_project(OPPO_15029))
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xac, 0x0); //RESET LANE_CTRL 
-	#endif
+
 	dsi_ctrl |= BIT(0);	/* enable dsi */
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x0004, dsi_ctrl);
 
@@ -535,20 +531,15 @@ static void mdss_dsi_wait_clk_lane_to_stop(struct mdss_dsi_ctrl_pdata *ctrl)
 #else /*VENDOR_EDIT*/
 	if (mdss_dsi_poll_clk_lane(ctrl) == false)
 		pr_err("%s: clk lane recovery failed\n", __func__);
-	else 
-	 	ctrl->clk_lane_cnt = 0; 
+	else
+		ctrl->clk_lane_cnt = 0;
 #endif /*VENDOR_EDIT*/
 
 	/* clear clk lane tx stop -- bit 20 */
 	mdss_dsi_cfg_lane_ctrl(ctrl, BIT(20), 0);
 }
 
-
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
 static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl);
-#endif /*VENDOR_EDIT*/
-
 
 /*
  * mdss_dsi_start_hs_clk_lane:
@@ -558,13 +549,8 @@ static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl);
 static void mdss_dsi_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
 {
 
-
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
 	/* make sure clk lane is stopped */
 	mdss_dsi_stop_hs_clk_lane(ctrl);
-#endif /*VENDOR_EDIT*/
-
 
 	mutex_lock(&ctrl->clk_lane_mutex);
 #ifdef VENDOR_EDIT
@@ -598,7 +584,6 @@ static void mdss_dsi_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
  * this function is work around solution for 8994 dsi clk lane
  * may stuck at HS problem
  */
-
 #ifndef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Modify for display dump and stuck */
 static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl,
@@ -689,7 +674,7 @@ release:
 	MDSS_XLOG(ctrl->ndx, ctrl->clk_lane_cnt,
 			current->pid, XLOG_FUNC_EXIT);
 	mutex_unlock(&ctrl->clk_lane_mutex);
-}	
+}
 #endif /*VENDOR_EDIT*/
 
 static void mdss_dsi_cmd_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
@@ -1222,7 +1207,7 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 			bpp = 3;	/* Default format set to RGB888 */
 
 		ystride = width * bpp + 1;
-		
+
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Modify for display dump and stuck */
 		/* Enable frame transfer in burst mode */
@@ -2589,7 +2574,7 @@ static int dsi_event_thread(void *data)
 			mdss_dsi_stop_hs_clk_lane(ctrl, arg);
 #else /*VENDOR_EDIT*/
 		if (todo & DSI_EV_STOP_HS_CLK_LANE)
-			mdss_dsi_stop_hs_clk_lane(ctrl);	
+			mdss_dsi_stop_hs_clk_lane(ctrl);
 #endif /*VENDOR_EDIT*/
 
 		if (todo & DSI_EV_LP_RX_TIMEOUT) {
@@ -2615,7 +2600,7 @@ void mdss_dsi_ack_err_status(struct mdss_dsi_ctrl_pdata *ctrl)
 		MIPI_OUTP(base + 0x0068, status);
 		/* Writing of an extra 0 needed to clear error bits */
 		MIPI_OUTP(base + 0x0068, 0);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 	}
 }
 
@@ -2632,7 +2617,7 @@ void mdss_dsi_timeout_status(struct mdss_dsi_ctrl_pdata *ctrl)
 		MIPI_OUTP(base + 0x00c0, status);
 		if (status & 0x0110)
 			dsi_send_events(ctrl, DSI_EV_LP_RX_TIMEOUT, 0);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 	}
 }
 
@@ -2663,7 +2648,7 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 	/* fifo underflow, overflow and empty*/
 	if (status & 0xcccc4489) {
 		MIPI_OUTP(base + 0x000c, status);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 
 #ifndef VENDOR_EDIT
 		if (status & 0x44440000) {/* DLNx_HS_FIFO_OVERFLOW */
