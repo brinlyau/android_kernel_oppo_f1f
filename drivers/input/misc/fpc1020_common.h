@@ -79,7 +79,7 @@ extern const bool target_little_endian;
 #define FPC1020_RESET_HIGH1_US			100
 #define FPC1020_RESET_HIGH2_US			1250
 
-#define FPC1020_CAPTURE_WAIT_FINGER_DELAY_MS 	20
+#define FPC1020_CAPTURE_WAIT_FINGER_DELAY_MS	20
 
 #define NAV_IMAGE_WIDTH 128
 #define NAV_IMAGE_HEIGHT 8
@@ -170,7 +170,7 @@ typedef struct fpc1020_nav_struct {
 	u8 input_mode;
 	int nav_sum_x;
 	int nav_sum_y;
-	
+
 	u8 p_multiplier_x;
 	u8 p_multiplier_y;
 	u8 p_sensitivity_key;
@@ -271,22 +271,22 @@ typedef struct {
 	u8* cur_img_buf;
 #ifdef VENDOR_EDIT
 	//Lycan.Wang@Prd.BasicDrv, 2014-09-29 Add for navigation move event
-	unsigned long 		touch_time;
-	int 				move_distance;	
-	unsigned int 		moving_key;
+	unsigned long		touch_time;
+	int				move_distance;
+	unsigned int		moving_key;
 #endif /* VENDOR_EDIT */
 #endif
 #ifdef FPC_TEE_INTERRUPT_ONLY
-	wait_queue_head_t 		g_irq_event;
+	wait_queue_head_t		g_irq_event;
 	bool                    tee_interrupt_done;
-	bool 					tee_int_enable;
+	bool					tee_int_enable;
 	bool                    wait_abort;
 	bool                    wake_irq_state;
-	int 					irq_enabled;
+	int					irq_enabled;
 #endif
-	bool  				clk_enable;
-	struct clk 			*iface_clk;
-	struct clk 			*core_clk;
+	bool				clk_enable;
+	struct clk			*iface_clk;
+	struct clk			*core_clk;
 	struct wake_lock    wakelock;
 	struct wake_lock    irq_wakelock;
 } fpc1020_data_t;

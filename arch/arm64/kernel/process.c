@@ -97,7 +97,7 @@ static void null_restart(enum reboot_mode reboot_mode, const char *cmd)
 {
 #ifdef USE_PS_HOLD_RESART
 	void __iomem *msm_ps_hold;
-	
+
 	pr_crit("Calling PS_HOLD to reboot\n");
 	msm_ps_hold = ioremap(0x4ab000, 0x4);
 	mb();
@@ -129,12 +129,12 @@ static void null_restart(enum reboot_mode reboot_mode, const char *cmd)
 		mb();
 		__raw_writel(1, msm_wdog + 0x04);
 		mb();
-	} 
+	}
 	mb();
-	
+
 	pr_err("Powering off has failed\n");
 	while(1);
-#endif	
+#endif
 }
 #endif
 
@@ -334,13 +334,9 @@ void __show_regs(struct pt_regs *regs)
 		if (i % 2 == 0)
 			printk("\n");
 	}
-	#ifndef VENDOR_EDIT //yixue.ge@bsp.drv add for feedback log
 	/* Dump only kernel mode */
 	if (get_fs() == get_ds())
 		show_extra_register_data(regs, 256);
-	#else
-	show_extra_register_data(regs, 256);
-	#endif
 	printk("\n");
 }
 

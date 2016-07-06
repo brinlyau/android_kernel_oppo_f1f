@@ -3320,7 +3320,7 @@ static int mmc_blk_probe(struct mmc_card *card)
 		return -ENODEV;
 #endif
 
-	#ifdef VENDOR_EDIT
+#ifdef VENDOR_EDIT
 //Zhilong.Zhang@OnlineRd.Driver, 2013/10/24, Add for eMMC and DDR device information
 	switch (card->cid.manfid) {
 		case  0x11:
@@ -3346,10 +3346,6 @@ static int mmc_blk_probe(struct mmc_card *card)
 		sprintf(temp_version,"0x%x",card->cid.prv);
 		register_device_proc("emmc", mmc_card_name(card), manufacturerid);
 		register_device_proc("emmc_version", mmc_card_name(card), temp_version);
-		//if (get_PCB_Version() < HW_VERSION__20)
-		//	register_device_proc("ddr", ddr_info_1.version, ddr_info_1.manufacture);
-		//else
-		//	register_device_proc("ddr", ddr_info_2.version, ddr_info_2.manufacture);
 	}
 #endif /* VENDOR_EDIT */
 

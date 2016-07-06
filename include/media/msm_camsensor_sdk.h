@@ -151,7 +151,7 @@ enum actuator_type {
 	ACTUATOR_HVCM,
 #ifdef VENDOR_EDIT
 /*zhengrong.zhang 2015-01-23 Add for VCM */
-	ACTUATOR_HALL_EFFECT, 
+	ACTUATOR_HALL_EFFECT,
 #endif
 };
 

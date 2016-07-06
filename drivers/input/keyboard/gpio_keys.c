@@ -854,7 +854,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
                         printk(KERN_ERR" create proc/%s fail\n", hall_node_name);
                     }
               }
-#endif   
+#endif
 #endif /*VENDOR_EDIT*/
 		if (button->wakeup)
 			wakeup = 1;

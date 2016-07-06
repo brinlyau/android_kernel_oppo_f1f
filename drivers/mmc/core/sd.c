@@ -1398,12 +1398,12 @@ int mmc_attach_sd(struct mmc_host *host)
 #ifdef CONFIG_MMC_PARANOID_SD_INIT
 #ifndef VENDOR_EDIT
     //Lycan.Wang@Prd.BasicDrv, 2014-07-10 Modify for init retry only once when have init error before
-    retries = 5;
+	retries = 5;
 #else /* VENDOR_EDIT */
     if (host->detect_change_retry < 5) 
-        retries = 1;
+	retries = 1;
     else
-        retries = 5;
+	retries = 5;
 #endif /* VENDOR_EDIT */
 
 	/*
