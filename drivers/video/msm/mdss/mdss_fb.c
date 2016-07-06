@@ -971,27 +971,10 @@ static int mdss_fb_probe(struct platform_device *pdev)
 #endif /*VENDOR_EDIT*/
 
 #ifdef VENDOR_EDIT
-/* YongPeng.Yi@SWDP.MultiMedia, 2015/03/12  Add for 15009 15035 clear power by android START */
-#ifndef OPPO_CMCC_MP /*YongPeng.Yi@SWDP.MultiMedia, 2015/11/04  Add for 15035 CMCC MP*/
-#ifndef OPPO_CMCC_TEST 
-	#ifndef OPPO_CU_TEST
-		if(is_project(OPPO_15009)){
-			memset(phys_to_virt(0x83200000 + 1080*720*3), 0x00, 200*720*3);
-		}else if(is_project(OPPO_15035) || is_project(OPPO_16000)){
-			memset(phys_to_virt(0x83200000 + 800*540*3), 0x00, 160*540*3);
-		}	
-		if(is_project(OPPO_15022) && (mfd->index==0) && (MSM_BOOT_MODE__NORMAL==get_boot_mode())){		
-			struct mdss_overlay_private * mdp5_data = mfd_to_mdp5_data(mfd);
-			if(mdp5_data){
-				struct mdss_mdp_ctl *ctl = mdp5_data->ctl;
-				pr_err("15022 erase Powerd by android\n");
-				memset(phys_to_virt(0x83200000 + 1520*1080*3), 0x00, 300*1080*3);
-				mdss_mdp_ctl_write(ctl, MDSS_MDP_REG_CTL_START, 1);
-			}
-		}
-	#endif
-#endif
-#endif
+/* YongPeng.Yi@SWDP.MultiMedia, 2015/03/12  Add for 15009 START */
+	if(is_project(OPPO_15009)){
+		memset(phys_to_virt(0x83200000 + 1080*720*3), 0x00, 200*720*3);
+	}
 /* YongPeng.Yi@SWDP.MultiMedia END */
 #endif /*VENDOR_EDIT*/
 

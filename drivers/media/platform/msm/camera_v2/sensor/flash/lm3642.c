@@ -94,22 +94,13 @@ static struct msm_camera_i2c_reg_array lm3642_off_array[] = {
 static struct msm_camera_i2c_reg_array lm3642_release_array[] = {
 	{0x0A, 0x00},
 };
-#ifdef OPPO_CMCC_TEST
-/* xianglie.liu add for cmcc */
-static struct msm_camera_i2c_reg_array lm3642_low_array[] = {
-	{0x0A, 0x12},
-	{0x08, 0x04},
-	{0x09, 0x0A},
-	{0x06, 0x00},
-};
-#else
+
 static struct msm_camera_i2c_reg_array lm3642_low_array[] = {
 	{0x0A, 0x12},
 	{0x08, 0x04},
 	{0x09, 0x1A},
 	{0x06, 0x00}, /*add for torch ramp time too long*/
 };
-#endif
 
 #if 0
 static struct msm_camera_i2c_reg_array lm3642_torch_array[] = {
