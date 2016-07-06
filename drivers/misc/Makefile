@@ -71,8 +71,4 @@ obj-$(CONFIG_QPNP_MISC) += qpnp-misc.o
 obj-$(CONFIG_QCOM_LIQUID_DOCK)	+= qcom_liquid_dock.o
 obj-y				+= qcom/
 obj-y += remote/
-# ifdef VENDOR_EDIT //Jianfeng.Qiu@BSP.Driver, 2014/09/11, Add for breath led
-obj-$(CONFIG_SN3193_SLED)  += shineled/
-# endif
 obj-$(CONFIG_UID_CPUTIME) += uid_cputime.o
-
