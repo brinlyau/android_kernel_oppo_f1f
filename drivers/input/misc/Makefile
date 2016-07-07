@@ -88,12 +88,4 @@ ifeq ($(CONFIG_BOSCH_BMA2X2_ENABLE_INT2),y)
 	EXTRA_CFLAGS += -DBMA2X2_ENABLE_INT2
 endif
 
-obj-$(CONFIG_SENSORS_YAS533)  += yas_mag_drv-yas532.o
-obj-$(CONFIG_SENSORS_YAS533)  += yas_mag_drv-yas537.o
-obj-$(CONFIG_SENSORS_YAS533)  += yas_mag_kernel.o
-
-#ifdef VENDOR_EDIT
-#Lycan.Wang@Prd.BasicDrv, 2015-04-11 Add for fingerprint driver
 obj-$(CONFIG_BTP_FPC1021)  += fpc1020_main.o fpc1020_capture.o fpc1020_common.o fpc1020_regulator.o fpc1020_nav.o
-#endif /* VENDOR_EDIT */
-
