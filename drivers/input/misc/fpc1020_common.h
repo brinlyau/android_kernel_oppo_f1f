@@ -282,7 +282,7 @@ typedef struct {
 	bool					tee_int_enable;
 	bool                    wait_abort;
 	bool                    wake_irq_state;
-	int					irq_enabled;
+	bool					init_done;
 #endif
 	bool				clk_enable;
 	struct clk			*iface_clk;
@@ -393,4 +393,3 @@ extern int fpc1020_set_finger_detect_threshold(fpc1020_data_t *fpc1020,
 #define FPC_DISABLE_SPI_CLK		_IOR('K', 8, int)
 
 #endif /* LINUX_SPI_FPC1020_COMMON_H */
-

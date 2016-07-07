@@ -423,30 +423,6 @@ static ssize_t fpc1020_state_show(struct device *dev, struct device_attribute *a
 static struct device_attribute fpc1020_state_attr =
     __ATTR(state, 0660, fpc1020_state_show, fpc1020_state_store);
 
-static DEFINE_SPINLOCK(fpc1020_lock);
-
-static int fpc1020_enable_irq(fpc1020_data_t *fpc1020, int enable)
-{
-	spin_lock_irq(&fpc1020_lock);
-	if (enable) {
-		if (!fpc1020->irq_enabled) {
-			enable_irq(fpc1020->irq);
-			fpc1020->irq_enabled = 1;
-		} else {
-			printk(KERN_EMERG "%s no need enable\n", __func__);
-		}
-	} else {
-		if (fpc1020->irq_enabled) {
-			disable_irq_nosync(fpc1020->irq);
-			fpc1020->irq_enabled = 0;
-		} else {
-			printk(KERN_EMERG "%s no need disable\n", __func__);
-		}
-	}
-	spin_unlock_irq(&fpc1020_lock);
-
-	return 0;
-}
 
 /* -------------------------------------------------------------------- */
 static int fpc1020_probe(struct spi_device *spi)
@@ -514,6 +490,7 @@ static int fpc1020_probe(struct spi_device *spi)
 	fpc1020->tee_interrupt_done = true;
 	fpc1020->wait_abort = false;
 	fpc1020->wake_irq_state = false;
+	fpc1020->init_done = false;
 #endif
 
 	error = fpc1020_init_capture(fpc1020);
@@ -652,6 +629,7 @@ static int fpc1020_probe(struct spi_device *spi)
 	//lycan test
 	g_fpc1020 = fpc1020;
 	error =	sysfs_create_file(&fpc1020->device->kobj, &fpc1020_state_attr.attr);
+	fpc1020->init_done = true;
 
 	up(&fpc1020->mutex);
 
@@ -1044,8 +1022,8 @@ static long fpc1020_ioctl(struct file *file,
 				dev_dbg(&fpc1020->spi->dev, "FPC_GET_INTERRUPT:  waiting irq....\n");
 				if (fpc1020->tee_interrupt_done) {
 					fpc1020->tee_interrupt_done = false;
+					enable_irq(fpc1020->irq);
 					dev_dbg(&fpc1020->spi->dev, "FPC_GET_INTERRUPT: enable_irq\n");
-					fpc1020_enable_irq(fpc1020, 1);
 				}
 #ifdef FPC_TEE_INTERRUPT_ONLY
 				//wait_event_interruptible_timeout(fpc1020->g_irq_event, fpc1020->tee_interrupt_done, 100);
@@ -1154,8 +1132,9 @@ static long fpc1020_ioctl(struct file *file,
 
 		case FPC_ABORT:
 			dev_dbg(&fpc1020->spi->dev, "FPC_ABORT \n");
-			wake_up_interruptible(&fpc1020->g_irq_event);
 			fpc1020->tee_interrupt_done = true;
+			fpc1020->wait_abort = true;
+			wake_up_interruptible(&fpc1020->g_irq_event);
 			break;
 
 		case FPC_ENABLE_SPI_CLK:
@@ -1394,9 +1373,8 @@ static int fpc1020_irq_init(fpc1020_data_t *fpc1020,
 		return error;
 	}
 
-	fpc1020->irq_enabled = 1;
 	error = request_irq(fpc1020->irq, fpc1020_interrupt,
-			IRQF_TRIGGER_HIGH, "fpc1020", fpc1020);
+			IRQF_TRIGGER_RISING, "fpc1020", fpc1020);
 
 	if (error) {
 		dev_err(&fpc1020->spi->dev,
@@ -1407,7 +1385,7 @@ static int fpc1020_irq_init(fpc1020_data_t *fpc1020,
 
 		return error;
 	}
-	fpc1020_enable_irq(fpc1020, 0);
+	disable_irq(fpc1020->irq);
 
 	return error;
 }
@@ -1697,7 +1675,10 @@ irqreturn_t fpc1020_interrupt(int irq, void *_fpc1020)
 		fpc1020->interrupt_done = true;
 		wake_up_interruptible(&fpc1020->wq_irq_return);
 #ifdef FPC_TEE_INTERRUPT_ONLY
-		fpc1020_enable_irq(fpc1020, 0);
+		if (fpc1020->init_done)
+			disable_irq_nosync(irq);
+		else
+			dev_dbg(&fpc1020->spi->dev, "interrupt occurs when no init !!\n");
 
 		if (!fpc1020->tee_interrupt_done) {
 			fpc1020->tee_interrupt_done = true;
@@ -2164,7 +2145,7 @@ static int CheckDeadPixelInDetectZone(fpc1020_data_t *fpc1020, int index)
 	int* yp;
 	int x = 0, y = 0;
 
-	if (fpc1020->chip.type == FPC1020_CHIP_1021A) {
+	if (fpc1020->chip.type == FPC1020_CHIP_1020A) {
 
 		ypos = index / 192;
 		xpos = index % 192;
@@ -2172,7 +2153,8 @@ static int CheckDeadPixelInDetectZone(fpc1020_data_t *fpc1020, int index)
 		yp = yp_1020;
 
 	} else if (fpc1020->chip.type == FPC1020_CHIP_1021A ||
-			fpc1020->chip.type == FPC1020_CHIP_1021B) {
+			fpc1020->chip.type == FPC1020_CHIP_1021B ||
+			fpc1020->chip.type == FPC1020_CHIP_1021F) {
 
 		ypos = index / 160;
 		xpos = index % 160;
