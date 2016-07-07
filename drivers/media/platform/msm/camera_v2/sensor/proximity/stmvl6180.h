@@ -32,8 +32,8 @@
 #include "msm_camera_dt_util.h"
 #include "msm_camera_io_util.h"
 
- 
-#define STMVL6180_DRV_NAME	"stmvl6180" 
+
+#define STMVL6180_DRV_NAME	"stmvl6180"
 
 
 #define DRIVER_VERSION		"1.1"
@@ -66,15 +66,15 @@
 /**
  * range data structure
  */
- 
+
 /*
  * Global data
  */
 //******************************** IOCTL definitions
-#define VL6180_IOCTL_INIT 		_IO('p', 0x01)
-#define VL6180_IOCTL_GETDATA 		_IO('p', 0x02)
-#define VL6180_IOCTL_GETDATAS 		_IO('p', 0x03)
-#define VL6180_IOCTL_CONFIG 		_IO('p', 0x04)
+#define VL6180_IOCTL_INIT		_IO('p', 0x01)
+#define VL6180_IOCTL_GETDATA		_IO('p', 0x02)
+#define VL6180_IOCTL_GETDATAS		_IO('p', 0x03)
+#define VL6180_IOCTL_CONFIG		_IO('p', 0x04)
 //******************************** VL6180 registers
 #define IDENTIFICATION__MODEL_ID				0x000
 #define IDENTIFICATION__REVISION_ID				0x002
@@ -154,7 +154,7 @@ struct stmvl6180_data {
 
 	int subdev_id;
 
-	unsigned int is_6180; 
+	unsigned int is_6180;
 	unsigned int enable;
 	/* Range Data */
 	RangeData rangeData;
@@ -195,4 +195,3 @@ typedef struct
 	unsigned int size;
 	uint16_t data;
 }RegisterInfo;
-

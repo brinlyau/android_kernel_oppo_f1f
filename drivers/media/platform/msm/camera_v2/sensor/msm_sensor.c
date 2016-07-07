@@ -562,19 +562,19 @@ static int get_imx214_vendor_info(struct msm_sensor_ctrl_t *s_ctrl)
             //read otp
             //set nvm page
             rc = sensor_i2c_client->i2c_func_tbl->i2c_write(
-                           		s_ctrl->sensor_i2c_client,
-                           		0x0A02,
-                           		i, MSM_CAMERA_I2C_BYTE_DATA);
+					s_ctrl->sensor_i2c_client,
+					0x0A02,
+					i, MSM_CAMERA_I2C_BYTE_DATA);
             if (rc < 0) {
                 pr_err("%s: write 0x0a02 failed\n", __func__);
                 return rc;
             }
-            
+
             //set read mode
             rc = sensor_i2c_client->i2c_func_tbl->i2c_write(
-                           		s_ctrl->sensor_i2c_client,
-                           		0x0A00,
-                           		0x01, MSM_CAMERA_I2C_BYTE_DATA);
+					s_ctrl->sensor_i2c_client,
+					0x0A00,
+					0x01, MSM_CAMERA_I2C_BYTE_DATA);
             if (rc < 0) {
                 pr_err("%s: write 0x0a00 failed\n", __func__);
                 return rc;
@@ -583,22 +583,22 @@ static int get_imx214_vendor_info(struct msm_sensor_ctrl_t *s_ctrl)
             //read NVM status register,
             //0x0 progress; 0x1 completed; 0x5 failed
             rc = sensor_i2c_client->i2c_func_tbl->i2c_read(
-        		sensor_i2c_client, 0x0A01,
-        		&chipid, MSM_CAMERA_I2C_BYTE_DATA);
+			sensor_i2c_client, 0x0A01,
+			&chipid, MSM_CAMERA_I2C_BYTE_DATA);
             if (rc < 0) {
                 pr_err("%s: read 0x0A01 failed\n", __func__);
                 return rc;
             }
             pr_err("%s: read  0x0A01 id: 0x%x\n", __func__, chipid);
 
-            if (0x01 == chipid) {       
+            if (0x01 == chipid) {
                 //read module ID
                 rc = sensor_i2c_client->i2c_func_tbl->i2c_read(
-            		sensor_i2c_client, 0x0A0A,
-            		&chipid, MSM_CAMERA_I2C_BYTE_DATA);
+			sensor_i2c_client, 0x0A0A,
+			&chipid, MSM_CAMERA_I2C_BYTE_DATA);
                 if (rc < 0) {
-            		pr_err("%s: read module id failed\n", __func__);
-            		return rc;
+			pr_err("%s: read module id failed\n", __func__);
+			return rc;
                 }
                 pr_err("%s: read page[%d] module id: 0x%x\n", __func__, i, chipid);
 
@@ -831,12 +831,12 @@ static long msm_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 	}
 #ifdef VENDOR_EDIT
 /* OPPO 2014-08-14 hufeng merge from 8928 for at test */
-	if (cmd == 0 && arg == NULL) 
+	if (cmd == 0 && arg == NULL)
 	{
 		at_msm_sensor_power_down(s_ctrl);
 		return 0;
 	}
-	else if (cmd ==1 && arg == NULL) 
+	else if (cmd ==1 && arg == NULL)
 	{
 		at_msm_sensor_power_up(s_ctrl);
 		return 0;

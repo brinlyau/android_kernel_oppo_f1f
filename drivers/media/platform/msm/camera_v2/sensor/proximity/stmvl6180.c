@@ -20,7 +20,7 @@
 #include <asm/uaccess.h>
 #include <linux/module.h>
 #include <linux/init.h>
-#include <linux/slab.h>	
+#include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/mutex.h>
 #include <linux/delay.h>
@@ -55,11 +55,11 @@ struct mutex	  vl6180_mutex;
 
 #ifdef DISTANCE_FILTER
 void VL6180_InitDistanceFilter(struct stmvl6180_data *vl6180_data);
-uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, 
-	uint16_t m_trueRange_mm, uint16_t m_rawRange_mm, 
+uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data,
+	uint16_t m_trueRange_mm, uint16_t m_rawRange_mm,
 	uint32_t m_rtnSignalRate, uint32_t m_rtnAmbientRate, uint16_t errorCode);
-uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate, 
-	uint32_t StdDevLimitLowLight, uint32_t StdDevLimitLowLightSNR, 
+uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate,
+	uint32_t StdDevLimitLowLight, uint32_t StdDevLimitLowLightSNR,
 	uint32_t StdDevLimitHighLight, uint32_t StdDevLimitHighLightSNR);
 #endif
 
@@ -67,10 +67,10 @@ uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate,
  * Communication functions
  */
 #if 0
-static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_addr, 
-							unsigned int reg_bytes, unsigned int reg_data) 
+static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_addr,
+							unsigned int reg_bytes, unsigned int reg_data)
 {
-	int err=0;	
+	int err=0;
 	unsigned char write_buffer[6] = { 0, 0, 0, 0, 0,0 };
 
 	unsigned int i=0;
@@ -81,7 +81,7 @@ static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_
 #ifdef DEBUG_I2C_LOG
 	vl6180_dbgmsg("WRITE REG: 0x%x , VAL: 0x%x \n", reg_addr, reg_data);
 #endif
- 	//set register address
+	//set register address
 	write_buffer[i++]=reg_addr >> 8;
 	write_buffer[i++]=reg_addr;
 
@@ -94,10 +94,10 @@ static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_
 		break;
 	case 2:
 		write_buffer[i++] = (unsigned char)(reg_data >> 8);
-		write_buffer[i++] = (unsigned char)(reg_data);		  
+		write_buffer[i++] = (unsigned char)(reg_data);
 		break;
 	case 1:
-		write_buffer[i++] = (unsigned char)(reg_data);		  
+		write_buffer[i++] = (unsigned char)(reg_data);
 		break;
 	default:
 		return -1;
@@ -107,7 +107,7 @@ static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_
 	msg[0].flags = I2C_M_WR;
 	msg[0].buf= &write_buffer[0];
 	msg[0].len=i;
-	
+
 	err = i2c_transfer(client->adapter,msg,1); //return the actual messages transfer
 	if(err != 1) {
 		pr_err("%s: i2c_transfer err:%d, addr:0x%x, reg:0x%x\n", __func__, err, client->addr, reg_addr);
@@ -117,17 +117,17 @@ static int stmvl6180_write(struct stmvl6180_data *vl6180_data, unsigned int reg_
 }
 #endif
 
-static int stmvl6180_read(struct stmvl6180_data *vl6180_data, unsigned int reg_addr, 
+static int stmvl6180_read(struct stmvl6180_data *vl6180_data, unsigned int reg_addr,
 					unsigned int reg_bytes, unsigned int *reg_data, unsigned int bitMask)
 {
-	int err=0;	
+	int err=0;
 	unsigned char read_buffer[4] = { 0, 0, 0, 0 };
 
 
 
 	err = vl6180_data->i2c_client.i2c_func_tbl->i2c_read_seq(
 		&vl6180_data->i2c_client, reg_addr, read_buffer, reg_bytes);
-	
+
 	if(err < 0) {
 		pr_err("%s: i2c_transfer err:%d, addr:0x%x, reg:0x%x\n", __func__, err, reg_addr, reg_addr);
 		return -1;
@@ -141,7 +141,7 @@ static int stmvl6180_read(struct stmvl6180_data *vl6180_data, unsigned int reg_a
 		break;
 	case 2:
 		*reg_data = (unsigned int)(  (unsigned int)(read_buffer[0]<<8)
-					 | (unsigned int)(read_buffer[1]) );	  
+					 | (unsigned int)(read_buffer[1]) );
 		break;
 	case 1:
 		*reg_data = (unsigned int)(read_buffer[0]);
@@ -152,7 +152,7 @@ static int stmvl6180_read(struct stmvl6180_data *vl6180_data, unsigned int reg_a
 #ifdef DEBUG_I2C_LOG
 	vl6180_dbgmsg("READ REG: 0x%x , VAL: 0x%x BITMASK:0x%x\n", reg_addr, *reg_data, bitMask);
 #endif
-	*reg_data &= bitMask;	  
+	*reg_data &= bitMask;
 	return 0;
 }
 // 8 bits cci read
@@ -170,7 +170,7 @@ int vl6180_i2c_read_8bits(struct stmvl6180_data *vl6180_data, unsigned int addr,
 }
 // 8 bits cci write
 int vl6180_i2c_write_8bits(struct stmvl6180_data *vl6180_data, uint32_t addr,  uint16_t data)
-{	
+{
 	int rc = 0;
 	rc = vl6180_data->i2c_client.i2c_func_tbl->i2c_write(
 		&vl6180_data->i2c_client, addr, data, MSM_CAMERA_I2C_BYTE_DATA);
@@ -193,10 +193,10 @@ int vl6180_i2c_write_16bits(struct stmvl6180_data *vl6180_data, uint32_t addr,  
 
 // 32 bits cci read
 int vl6180_i2c_read_32bits(struct stmvl6180_data *vl6180_data, unsigned int addr,  unsigned int *pdata)
-{	
+{
 	unsigned char read_buffer[4] = { 0, 0, 0, 0 };
 	int rc = 0;
-	
+
 	rc = vl6180_data->i2c_client.i2c_func_tbl->i2c_read_seq(
 		&vl6180_data->i2c_client, addr,read_buffer, 4);
 
@@ -206,14 +206,14 @@ int vl6180_i2c_read_32bits(struct stmvl6180_data *vl6180_data, unsigned int addr
 				 | (unsigned int)(read_buffer[3]) );
 
 	return rc;
-} 
+}
 
 int stmvl6180_power_enable(struct stmvl6180_data *vl6180_data, unsigned int enable)
 {
 	int rc = 0;
 
 	printk("%s %d\n",__func__, enable);
-	
+
 	if(enable) {
 		if(vl6180_data->enable == 0) {
 			if (regulator_count_voltages(vl6180_data->vdd_regulator) > 0) {
@@ -225,7 +225,7 @@ int stmvl6180_power_enable(struct stmvl6180_data *vl6180_data, unsigned int enab
 			}
 			rc = regulator_enable(vl6180_data->vdd_regulator);
 			printk("stmvl6180 power on vdd regulator %d\n", rc);
-	
+
 			if (regulator_count_voltages(vl6180_data->vdd_regulator_i2c) > 0) {
 				rc = regulator_set_voltage(vl6180_data->vdd_regulator_i2c, 1800000, 1800000);
 				if (rc) {
@@ -239,11 +239,11 @@ int stmvl6180_power_enable(struct stmvl6180_data *vl6180_data, unsigned int enab
 
 			vl6180_data->enable = 1;
 		}
-		
+
 		msleep(20);
-		
+
 		gpio_direction_output(vl6180_data->ce_gpio,1);
-		
+
 		if (vl6180_data->act_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
 			rc = vl6180_data->i2c_client.i2c_func_tbl->i2c_util(
 				&vl6180_data->i2c_client, MSM_CCI_INIT);
@@ -355,7 +355,7 @@ int vl6180_init(struct stmvl6180_data *vl6180_data)
 			vl6180_i2c_write_8bits(vl6180_data, 0xDD, 0xF8);
 		}
 	}
-	
+
 	vl6180_i2c_write_8bits(vl6180_data, 0x009f, 0x00);
 	vl6180_i2c_write_8bits(vl6180_data, 0x00a3, 0x28);
 	vl6180_i2c_write_8bits(vl6180_data, 0x00b7, 0x00);
@@ -388,7 +388,7 @@ int vl6180_init(struct stmvl6180_data *vl6180_data)
 	// RangeSetMaxConvergenceTime
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__MAX_CONVERGENCE_TIME, 0x3F);
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__MAX_AMBIENT_LEVEL_MULT, 0xFF);//SNR
-	
+
 	vl6180_i2c_read_8bits(vl6180_data, SYSTEM__FRESH_OUT_OF_RESET, &dataByte);
 	if(dataByte==0x01) {
 		//readRangeOffset
@@ -403,32 +403,32 @@ int vl6180_init(struct stmvl6180_data *vl6180_data)
 		offsetByte = *((u8*)(&rangeTemp)); // round
 		vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__PART_TO_PART_RANGE_OFFSET,(u8)offsetByte);
 	}
-	
+
 	// ClearSystemFreshOutofReset
 	vl6180_i2c_write_8bits(vl6180_data, SYSTEM__FRESH_OUT_OF_RESET, 0x0);
-	
+
 	// VL6180 CrossTalk
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__CROSSTALK_COMPENSATION_RATE,
 										(DEFAULT_CROSSTALK>>8)&0xFF);
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__CROSSTALK_COMPENSATION_RATE+1,
 										DEFAULT_CROSSTALK&0xFF);
-	
+
 	CrosstalkHeight = 40;
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__CROSSTALK_VALID_HEIGHT,CrosstalkHeight&0xFF);
-	
-	
+
+
 	// Will ignore all low distances (<100mm) with a low return rate
 	IgnoreThreshold = 64; // 64 = 0.5Mcps
 	IgnoreThresholdHeight = 33; // 33 * scaler3 = 99mm
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__RANGE_IGNORE_THRESHOLD, (IgnoreThreshold>>8)&0xFF);
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__RANGE_IGNORE_THRESHOLD+1,IgnoreThreshold&0xFF);
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__RANGE_IGNORE_VALID_HEIGHT,IgnoreThresholdHeight&0xFF);
-	
+
 	vl6180_i2c_read_8bits(vl6180_data, SYSRANGE__RANGE_CHECK_ENABLES, &dataByte);
 	dataByte = dataByte & 0xFE; // off ECE
 	dataByte = dataByte | 0x02; // on ignore thr
 	vl6180_i2c_write_8bits(vl6180_data, SYSRANGE__RANGE_CHECK_ENABLES, dataByte);
-	
+
 	// Init of Averaging samples
 	for(i=0; i<8;i++) {
 		vl6180_data->LastMeasurements[i]=65535; // 65535 means no valid data
@@ -485,7 +485,7 @@ uint16_t vl6180_getDistance(struct stmvl6180_data *vl6180_data)
 	uint16_t m_rangeOffset;
 	unsigned int m_crossTalk;
 
-	
+
 	vl6180_i2c_read_8bits(vl6180_data, SYSRANGE__START, &chipidRangeStart);
 	//Read Error Code
 	vl6180_i2c_read_8bits(vl6180_data, RESULT__RANGE_STATUS, &statusCode);
@@ -494,7 +494,7 @@ uint16_t vl6180_getDistance(struct stmvl6180_data *vl6180_data)
 	printk("status code 0x%x, chipidRangeStart %x\n",statusCode,chipidRangeStart);
 
 	if(((statusCode&0x01)==0x01)&&(chipidRangeStart==0x00)){
-				
+
 		vl6180_i2c_read_8bits(vl6180_data, RESULT__RANGE_VAL, &dist);
 
 		dist *= 3;
@@ -534,7 +534,7 @@ uint16_t vl6180_getDistance(struct stmvl6180_data *vl6180_data)
 		m_refAmbientRate = (m_rtnAmbientCount * cDllPeriods*1000)/calcConvTime;
 		//printk("m_rtnSignalRate is %d, m_rtnAmbientRate is %d\n",m_rtnSignalRate,m_rtnAmbientRate);
 #ifdef DISTANCE_FILTER
-		dist = VL6180_DistanceFilter(vl6180_data, dist, m_rawRange_mm*3, 
+		dist = VL6180_DistanceFilter(vl6180_data, dist, m_rawRange_mm*3,
 						m_rtnSignalRate, m_rtnAmbientRate, errorCode);
 #endif
 
@@ -594,8 +594,8 @@ void VL6180_InitDistanceFilter(struct stmvl6180_data *vl6180_data)
 	}
 }
 
-uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate, 
-			uint32_t StdDevLimitLowLight, uint32_t StdDevLimitLowLightSNR, 
+uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate,
+			uint32_t StdDevLimitLowLight, uint32_t StdDevLimitLowLightSNR,
 			uint32_t StdDevLimitHighLight, uint32_t StdDevLimitHighLightSNR)
 {
 	uint32_t newStdDev;
@@ -613,7 +613,7 @@ uint32_t VL6180_StdDevDamper(uint32_t AmbientRate, uint32_t SignalRate,
 		if (SNR <= StdDevLimitHighLightSNR)
 			newStdDev = StdDevLimitHighLight;
 		else{
-			newStdDev = (uint32_t)(StdDevLimitHighLight + 
+			newStdDev = (uint32_t)(StdDevLimitHighLight +
 					(SNR - StdDevLimitHighLightSNR) * (int)(StdDevLimitLowLight - StdDevLimitHighLight) /
 					(StdDevLimitLowLightSNR - StdDevLimitHighLightSNR));
 		}
@@ -722,13 +722,13 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 	m_newTrueRange_mm = m_trueRange_mm;
 
 	// Checks on low range data
-	if ((m_rawRange_mm < WrapAroundLowRawRangeLimit) && 
+	if ((m_rawRange_mm < WrapAroundLowRawRangeLimit) &&
 		(m_rtnSignalRate < WrapAroundLowReturnRateLimit)){
 		//Not Valid distance
 		m_newTrueRange_mm = MaxOrInvalidDistance;
 		bypassFilter = 1;
 	}
-	if ((m_rawRange_mm < WrapAroundLowRawRangeLimit2) && 
+	if ((m_rawRange_mm < WrapAroundLowRawRangeLimit2) &&
 		(m_rtnSignalRate < WrapAroundLowReturnRateLimit2)){
 		//Not Valid distance
 		m_newTrueRange_mm = MaxOrInvalidDistance;
@@ -749,10 +749,10 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 	}
 	if (vl6180_data->LastReturnRates[0] != 0){
 		if (m_rtnSignalRate > vl6180_data->LastReturnRates[0])
-			RateChange = (100 * (m_rtnSignalRate - vl6180_data->LastReturnRates[0])) / 
+			RateChange = (100 * (m_rtnSignalRate - vl6180_data->LastReturnRates[0])) /
 						vl6180_data->LastReturnRates[0];
 		else
-			RateChange = (100 * (vl6180_data->LastReturnRates[0] - m_rtnSignalRate)) / 
+			RateChange = (100 * (vl6180_data->LastReturnRates[0] - m_rtnSignalRate)) /
 						vl6180_data->LastReturnRates[0];
 	}
 	else
@@ -781,9 +781,9 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 	vl6180_data->LastReturnRates[0] = m_rtnSignalRate;
 
 	// Check if we need to go through the filter or not
-	if (!(((m_rawRange_mm < WrapAroundHighRawRangeFilterLimit) && 
+	if (!(((m_rawRange_mm < WrapAroundHighRawRangeFilterLimit) &&
 		(m_rtnSignalRate < WrapAroundLowReturnRateFilterLimit)) ||
-		((m_rawRange_mm >= WrapAroundHighRawRangeFilterLimit) && 
+		((m_rawRange_mm >= WrapAroundHighRawRangeFilterLimit) &&
 		(m_rtnSignalRate < WrapAroundHighReturnRateFilterLimit))))
 		bypassFilter = 1;
 
@@ -852,7 +852,7 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 		// Go through filtering check
 
 		// StdDevLimit Damper on SNR
-		StdDevLimit = VL6180_StdDevDamper(m_rtnAmbientRate, m_rtnSignalRate, 
+		StdDevLimit = VL6180_StdDevDamper(m_rtnAmbientRate, m_rtnSignalRate,
 								StdDevLimitLowLight, StdDevLimitLowLightSNR,
 								StdDevLimitHighLight, StdDevLimitHighLightSNR);
 
@@ -881,10 +881,10 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 		for (i = 0; (i < FILTERNBOFSAMPLES) && (StdDevSamples < FILTERSTDDEVSAMPLES); i++){
 			if (vl6180_data->LastTrueRange[i] != FILTERINVALIDDISTANCE){
 				StdDevSamples = (uint16_t)(StdDevSamples + 1);
-				StdDevDistanceSum = (uint32_t)(StdDevDistanceSum + 
-					(int)(vl6180_data->LastTrueRange[i] - StdDevDistanceMean) * 
+				StdDevDistanceSum = (uint32_t)(StdDevDistanceSum +
+					(int)(vl6180_data->LastTrueRange[i] - StdDevDistanceMean) *
 					(int)(vl6180_data->LastTrueRange[i] - StdDevDistanceMean));
-				StdDevRateSum = (uint32_t)(StdDevRateSum + (int)(vl6180_data->LastReturnRates[i] - 
+				StdDevRateSum = (uint32_t)(StdDevRateSum + (int)(vl6180_data->LastReturnRates[i] -
 					StdDevRateMean) * (int)(vl6180_data->LastReturnRates[i] - StdDevRateMean));
 			}
 		}
@@ -905,8 +905,8 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 			else{
 				// Check distance standard deviation
 				if (StdDevRate < StdDevMovingTargetReturnRateLimit)
-					StdDevLimitWithTargetMove = StdDevLimit + 
-						(((StdDevMovingTargetStdDevForReturnRateLimit - StdDevLimit) * StdDevRate) / 
+					StdDevLimitWithTargetMove = StdDevLimit +
+						(((StdDevMovingTargetStdDevForReturnRateLimit - StdDevLimit) * StdDevRate) /
 						StdDevMovingTargetReturnRateLimit);
 				else
 					StdDevLimitWithTargetMove = StdDevMovingTargetStdDevForReturnRateLimit;
@@ -941,7 +941,7 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 	else{
 		if (WrapAroundFlag == 1){
 			m_newTrueRange_mm = MaxOrInvalidDistance;
-			vl6180_data->StdFilteredReads = (uint16_t)(vl6180_data->StdFilteredReads + 
+			vl6180_data->StdFilteredReads = (uint16_t)(vl6180_data->StdFilteredReads +
 												StdFilteredReadsIncrement);
 			if (vl6180_data->StdFilteredReads > StdMaxFilteredReads)
 				vl6180_data->StdFilteredReads = StdMaxFilteredReads;
@@ -951,7 +951,7 @@ uint16_t VL6180_DistanceFilter(struct stmvl6180_data *vl6180_data, uint16_t m_tr
 				if (vl6180_data->StdFilteredReads > 0){
 					m_newTrueRange_mm = MaxOrInvalidDistance;
 					if (vl6180_data->StdFilteredReads > StdFilteredReadsIncrement)
-						vl6180_data->StdFilteredReads = (uint16_t)(vl6180_data->StdFilteredReads - 
+						vl6180_data->StdFilteredReads = (uint16_t)(vl6180_data->StdFilteredReads -
 															StdFilteredReadsIncrement);
 					else
 						vl6180_data->StdFilteredReads = 0;
@@ -991,7 +991,7 @@ static int stmvl6180_parse_dt(struct device *dev, struct stmvl6180_data *vl6180_
 		*/
 		vl6180_data->ce_gpio  = of_get_named_gpio(np, "st,standby-gpio", 0);
 		if( vl6180_data->ce_gpio < 0 ) {
-			printk(KERN_ERR"vl6180 ce gpio not specified\n");	
+			printk(KERN_ERR"vl6180 ce gpio not specified\n");
 			return -1;
 		}
 		printk("%s irq_gpio:%d ce_gpio:%d\n", __func__, vl6180_data->irq_gpio, vl6180_data->ce_gpio);
@@ -1002,7 +1002,7 @@ static int stmvl6180_parse_dt(struct device *dev, struct stmvl6180_data *vl6180_
 			return ret;
 		}
         /*
-		ret = gpio_request(vl6180_data->irq_gpio,"vl_6180-int"); 
+		ret = gpio_request(vl6180_data->irq_gpio,"vl_6180-int");
 		if(ret < 0) {
 			printk(KERN_ERR "%s: gpio_request, err=%d", __func__, ret);
 			gpio_free(vl6180_data->ce_gpio);
@@ -1034,7 +1034,7 @@ static int stmvl6180_parse_dt(struct device *dev, struct stmvl6180_data *vl6180_
 /*
  * misc device file operation functions
  */
-static int stmvl6180_ioctl_handler(struct file *file, 
+static int stmvl6180_ioctl_handler(struct file *file,
 				unsigned int cmd, unsigned long arg, void __user *p)
 {
 
@@ -1066,8 +1066,8 @@ static int stmvl6180_ioctl_handler(struct file *file,
 		if (copy_to_user((RangeData *)p, &(vl6180_data->rangeData), sizeof(RangeData))) {
 			printk("error copy to user\n");
 			rc = -EFAULT;
-		}	 
-		return rc;   
+		}
+		return rc;
 	}
 	case VL6180_IOCTL_CONFIG:        /* Get all range data */
        {
@@ -1112,7 +1112,7 @@ static int stmvl6180_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static long stmvl6180_ioctl(struct file *file, 
+static long stmvl6180_ioctl(struct file *file,
 				unsigned int cmd, unsigned long arg)
 {
 	int ret;
@@ -1127,7 +1127,7 @@ static const struct file_operations stmvl6180_ranging_fops = {
 	.owner =			THIS_MODULE,
 	.unlocked_ioctl =	stmvl6180_ioctl,
 	.open =			stmvl6180_open,
-	.release = 	stmvl6180_release,
+	.release =	stmvl6180_release,
 };
 
 static struct miscdevice stmvl6180_ranging_dev = {
@@ -1176,7 +1176,7 @@ static int stmvl6180_init_client(struct stmvl6180_data *vl6180_data)
 						 VL6180_MODEL_ID_REG,
 						 1,
 						 &id,
-						 0xFF); 
+						 0xFF);
 	if (id == 0xb4) {
 		printk("STM VL6180 Found\n");
 	}
@@ -1190,12 +1190,12 @@ static int stmvl6180_init_client(struct stmvl6180_data *vl6180_data)
 						 VL6180_MODEL_REV_MAJOR_REG,
 						 1,
 						 &model_major,
-						 0x07); 
+						 0x07);
 	err = stmvl6180_read(vl6180_data,
 						 VL6180_MODEL_REV_MINOR_REG,
 						 1,
 						 &model_minor,
-						 0x07); 
+						 0x07);
 	printk("STM VL6180 Model Version : %d.%d\n", model_major,model_minor);
 
 	// Read Module Version
@@ -1208,17 +1208,17 @@ static int stmvl6180_init_client(struct stmvl6180_data *vl6180_data)
 						 VL6180_MODULE_REV_MINOR_REG,
 						 1,
 						 &module_minor,
-						 0xFF); 
+						 0xFF);
 	printk("STM VL6180 Module Version : %d.%d\n",module_major,module_minor);
-	
-	// Read Identification 
+
+	// Read Identification
 	printk("STM VL6180 Serial Number: ");
 	for (i=0; i<=(VL6180_FIRMWARE_REVISION_ID_REG-VL6180_REVISION_ID_REG);i++) {
 		err = stmvl6180_read(vl6180_data,
-						 		(VL6180_REVISION_ID_REG+i),
-						 		 1,
-						 		 &val,
-						 		 0xFF);
+								(VL6180_REVISION_ID_REG+i),
+								 1,
+								 &val,
+								 0xFF);
 		printk("0x%x-",val);
 	}
 	printk("\n");
@@ -1414,7 +1414,7 @@ static int32_t stmvl6180_platform_probe(struct platform_device *pdev)
 static int  stmvl6180_remove(struct i2c_client *client)
 {
 	struct stmvl6180_data *vl6180_data = i2c_get_clientdata(client);
-	
+
 	/* Power down the device */
 
 	stmvl6180_power_enable(vl6180_data, 0);
@@ -1424,7 +1424,7 @@ static int  stmvl6180_remove(struct i2c_client *client)
 
 	gpio_free(vl6180_data->ce_gpio);
 	//gpio_free(vl6180_data->irq_gpio);
-	
+
 	misc_deregister(&stmvl6180_ranging_dev);
 
 	kfree(vl6180_data);
@@ -1491,4 +1491,3 @@ MODULE_VERSION(DRIVER_VERSION);
 
 module_init(stmvl6180_init);
 module_exit(stmvl6180_exit);
-

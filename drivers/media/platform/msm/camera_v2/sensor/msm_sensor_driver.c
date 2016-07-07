@@ -142,7 +142,7 @@ static int32_t msm_sensor_driver_create_v4l_subdev
 	s_ctrl->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_SENSOR;
 	s_ctrl->msm_sd.sd.entity.name = s_ctrl->msm_sd.sd.name;
 	s_ctrl->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x3;
-#ifdef VENDOR_EDIT
+
 //LiuBin@Camera, 2015/07/05, Add for AT test
 	if (s_ctrl->sensordata->sensor_info->position == 0) //back sensor
 		s_ctrl->msm_sd.sd.entity.revision = 1;
@@ -151,7 +151,6 @@ static int32_t msm_sensor_driver_create_v4l_subdev
 	else
 		s_ctrl->msm_sd.sd.entity.revision = 0;
 	CDBG("subdev name [%s], revision[%d] \n", s_ctrl->msm_sd.sd.name, s_ctrl->msm_sd.sd.entity.revision);
-#endif /* VENDOR_EDIT */
 	msm_sd_register(&s_ctrl->msm_sd);
 	msm_sensor_v4l2_subdev_fops = v4l2_subdev_fops;
 #ifdef CONFIG_COMPAT
@@ -1237,13 +1236,13 @@ FREE_SENSOR_I2C_CLIENT:
 #ifdef VENDOR_EDIT
 /*zhengrong.zhang, 2015/04/15, add for pdaf engineer mode*/
 static ssize_t pdaf_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
     snprintf(value, sizeof(value), "%d", (is_pdaf_supported << 1 | pdaf_calibration_flag));
 
-    pr_err("%s,is_pdaf_supported=%d,calibration_flag=%d,value=%s\n", __func__, 
+    pr_err("%s,is_pdaf_supported=%d,calibration_flag=%d,value=%s\n", __func__,
         is_pdaf_supported,pdaf_calibration_flag,value);
     return simple_read_from_buffer(buff, len, data, value,1);
 }
@@ -1263,14 +1262,14 @@ static int msm_sensor_driver_pdaf_proc_init(void)
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create pdaf_calibration proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create pdaf_calibration proc entry\n", __func__);
 	}
 	return ret;
 }
 
 /*zhengrong.zhang, 2015/07/08, add for laser*/
 static ssize_t laser_proc_read(struct file *filp, char __user *buff,
-                        	size_t len, loff_t *data)
+				size_t len, loff_t *data)
 {
     char value[2] = {0};
 
@@ -1295,7 +1294,7 @@ static int msm_sensor_driver_laser_proc_init(void)
 	if (proc_entry == NULL)
 	{
 		ret = -ENOMEM;
-	  	pr_err("[%s]: Error! Couldn't create laser proc entry\n", __func__);
+		pr_err("[%s]: Error! Couldn't create laser proc entry\n", __func__);
 	}
 	return ret;
 }

@@ -17,7 +17,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
-NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS ARE DISCLAIMED. 
+NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS ARE DISCLAIMED.
 IN NO EVENT SHALL STMICROELECTRONICS INTERNATIONAL N.V. BE LIABLE FOR ANY
 DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -96,7 +96,7 @@ int VL6180x_WrWord(VL6180xDev_t dev, uint16_t index, uint16_t data){
 	uint8_t write_buffer[2] = { 0, 0};
     	DECL_I2C_BUFFER
     	uint8_t *buffer;
-    	VL6180x_I2C_USER_VAR	
+    	VL6180x_I2C_USER_VAR
 
 	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		write_buffer[1] = (uint8_t)(data & 0xFF);
@@ -126,9 +126,9 @@ int VL6180x_WrDWord(VL6180xDev_t dev, uint16_t index, uint32_t data){
     	DECL_I2C_BUFFER
     	uint8_t *buffer;
 
-	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){	
+	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		write_buffer[3] = (uint8_t)(data & 0xFF);
-		write_buffer[2] = (uint8_t)((data >> 8) & 0xFF);	
+		write_buffer[2] = (uint8_t)((data >> 8) & 0xFF);
 		write_buffer[1] = (uint8_t)((data >> 16) & 0xFF);
 		write_buffer[0] = (uint8_t)((data >> 24) & 0xFF);
 
@@ -159,16 +159,16 @@ int VL6180x_UpdateByte(VL6180xDev_t dev, uint16_t index, uint8_t AndData, uint8_
     	uint8_t *buffer;
     	DECL_I2C_BUFFER
 
-    	VL6180x_GetI2CAccess(dev);	
+    	VL6180x_GetI2CAccess(dev);
 
-	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){	
+	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		rc = vl6180_data_g->i2c_client.i2c_func_tbl->i2c_read(
 			&(vl6180_data_g->i2c_client), index, &tmp, 1);
 		if(rc){
 			pr_err("%s:%d i2c_read failed", __func__, __LINE__);
 			return rc;
 		}
-	
+
 		tmp = (tmp&AndData)|OrData;
 
 		rc = vl6180_data_g->i2c_client.i2c_func_tbl->i2c_write(
@@ -177,7 +177,7 @@ int VL6180x_UpdateByte(VL6180xDev_t dev, uint16_t index, uint8_t AndData, uint8_
 			pr_err("%s:%d i2c_write failed", __func__, __LINE__);
 			return rc;
 		}
-    		return 0;	
+    		return 0;
 	}else{
 	    	buffer=VL6180x_GetI2cBuffer(dev,3);
 	   	buffer[0]=index>>8;
@@ -207,7 +207,7 @@ int VL6180x_RdByte(VL6180xDev_t dev, uint16_t index, uint8_t *data){
     	DECL_I2C_BUFFER
     	VL6180x_GetI2CAccess(dev);
 
-	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){	
+	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		rc = vl6180_data_g->i2c_client.i2c_func_tbl->i2c_read(
 			&(vl6180_data_g->i2c_client), index, &tmp, 1);
 		*data = (uint8_t)tmp;
@@ -237,10 +237,10 @@ int VL6180x_RdWord(VL6180xDev_t dev, uint16_t index, uint16_t *data){
     	uint8_t *buffer;
    	DECL_I2C_BUFFER
 
-	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){	
+	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		rc = vl6180_data_g->i2c_client.i2c_func_tbl->i2c_read_seq(
 			&(vl6180_data_g->i2c_client), index, read_buffer, 2);
-		*data = (uint16_t)( (unsigned int)(read_buffer[0] <<8) |(unsigned int)((read_buffer[1])) );		
+		*data = (uint16_t)( (unsigned int)(read_buffer[0] <<8) |(unsigned int)((read_buffer[1])) );
 
 		return rc;
 	}else{
@@ -259,7 +259,7 @@ int VL6180x_RdWord(VL6180xDev_t dev, uint16_t index, uint16_t *data){
 	        	}
     		}
 	    	VL6180x_DoneI2CAcces(dev);
-	
+
    		return rc;
 	}
 }
@@ -304,12 +304,12 @@ int VL6180x_RdBuffer(VL6180xDev_t dev, uint16_t index, uint8_t *data, uint8_t co
 	int rc;
     	VL6180x_I2C_USER_VAR
     	uint8_t *buffer;
-    	DECL_I2C_BUFFER	
+    	DECL_I2C_BUFFER
 
 	if (vl6180_data_g->act_device_type == MSM_CAMERA_PLATFORM_DEVICE){
 		rc = vl6180_data_g->i2c_client.i2c_func_tbl->i2c_read_seq(
 			&(vl6180_data_g->i2c_client), index, data, count);
-		return rc;	
+		return rc;
 	}else{
 	    	VL6180x_GetI2CAccess(dev);
     		buffer=VL6180x_GetI2cBuffer(dev,4);
@@ -322,7 +322,7 @@ int VL6180x_RdBuffer(VL6180xDev_t dev, uint16_t index, uint8_t *data, uint8_t co
        		 	rc=VL6180x_I2CRead(dev, data,count);
 	    	}
     		VL6180x_DoneI2CAcces(dev);
-	
+
 	    	return rc;
 	}
 }
