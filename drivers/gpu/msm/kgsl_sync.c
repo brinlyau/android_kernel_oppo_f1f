@@ -21,10 +21,7 @@
 #include <asm/current.h>
 
 #include "kgsl_sync.h"
-#ifdef VENDOR_EDIT
-/* xiari.yuan@Mobile Phone Software Dept.Driver, 2015/12/04  Add for except log */	
-#include <soc/oppo/mmkey_log.h>
-#endif /*VENDOR_EDIT*/
+
 static void kgsl_sync_timeline_signal(struct sync_timeline *timeline,
 	unsigned int timestamp);
 
@@ -304,10 +301,6 @@ static void kgsl_sync_pt_log(struct sync_pt *sync_pt)
 {
 	struct kgsl_sync_pt *kpt = (struct kgsl_sync_pt *) sync_pt;
 	pr_info("-----\n");
-#ifdef VENDOR_EDIT
-/* xiari.yuan@Mobile Phone Software Dept.Driver, 2015/12/04  Add for except log */	
-	mm_keylog_write("kgsl fence timeout\n", "GPU FENCE TIMEOUT\n", TYPE_FENCE_TIMEOUT);
-#endif /*VENDOR_EDIT*/
 	kgsl_context_dump(kpt->context);
 	pr_info("-----\n");
 }

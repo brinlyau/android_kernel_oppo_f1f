@@ -33,7 +33,6 @@
 #include "../codecs/msm8x16-wcd.h"
 #include "../codecs/wcd9306.h"
 #include <soc/oppo/oppo_project.h>
-#include <soc/oppo/mmkey_log.h>
 #include <linux/switch.h>
 #define DRV_NAME "msm8x16-asoc-wcd"
 
@@ -2957,11 +2956,6 @@ static int msm8x16_asoc_machine_probe(struct platform_device *pdev)
 	int num_strings;
 	int ret, id, i;
 
-    #ifdef VENDOR_EDIT
-    //John.Xu@PhoneSw.AudioDriver, 2015/10/19, Add for MM Key log
-    char ret_str[30];
-    #endif /* VENDOR_EDIT */
-
 	pdata = devm_kzalloc(&pdev->dev,
 			sizeof(struct msm8916_asoc_mach_data), GFP_KERNEL);
 	if (!pdata) {
@@ -3322,13 +3316,6 @@ static int msm8x16_asoc_machine_probe(struct platform_device *pdev)
 		dev_dbg(&pdev->dev, "snd_soc_register_card failed (%d)\n", ret);
 #endif /* VENDOR_EDIT */
 
-#ifdef VENDOR_EDIT
-//John.Xu@PhoneSw.AudioDriver, 2015/10/20, Add for MM Key log
-        if(ret != -EPROBE_DEFER){
-            snprintf(ret_str, sizeof(ret_str), "%d", ret);
-            mm_keylog_write("register sound card error", ret_str, TYPE_SOUND_CARD_REGISTER_FAIL);
-        }
-#endif /* VENDOR_EDIT */
 		goto err;
 	}
 

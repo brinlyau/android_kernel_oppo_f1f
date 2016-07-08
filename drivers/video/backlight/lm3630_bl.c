@@ -23,8 +23,6 @@
 
 #include <linux/of_gpio.h>
 #include <linux/gpio.h>
-#include <soc/oppo/mmkey_log.h>
-
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2014/08/27  Add for 14045 LCD */
 #include <soc/oppo/device_info.h>
@@ -813,7 +811,6 @@ static int lm3630_probe(struct i2c_client *client,
 	ret = lm3630_chip_init(pchip);
 	if (ret < 0) {
 		dev_err(&client->dev, "fail : init chip\n");
-		mm_keylog_write("No Backlight\n", "Backlight device probe failed\n", TYPE_BL_EXCEPTION);
 		goto err_chip_init;
 	}
 

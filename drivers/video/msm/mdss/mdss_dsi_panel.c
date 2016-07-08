@@ -28,8 +28,6 @@
 /* Xinqin.Yang@PhoneSW.Multimedia, 2014/08/19  Add for 14023 project */
 #include <linux/switch.h>
 #include <soc/oppo/oppo_project.h>
-/* Xinqin.Yang@Mobile Phone Software Dept.Driver, 2015/10/22  Add for except log */
-#include <soc/oppo/mmkey_log.h>
 //#include <soc/oppo/oppo_boot_mode.h>
 #include <soc/oppo/device_info.h>
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/04/01  Add for 15009 close cont splash in factory mode */
@@ -102,7 +100,6 @@ static int operate_display_switch(void)
 {
     int ret = 0;
     printk("%s:state=%d.\n", __func__, te_state);
-	mm_keylog_write("Dispaly Panel Blank and UnBlank\n", "ESD\n", TYPE_ESD_EXCEPTION);
 
     spin_lock_irqsave(&te_state_lock, flags);
     if(te_state)
