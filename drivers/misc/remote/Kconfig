@@ -1,4 +1,0 @@
-config UEI
-	bool "enable or disable uei remote"
-	help
-		say y to support uei remote
