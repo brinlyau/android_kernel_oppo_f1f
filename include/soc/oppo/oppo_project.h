@@ -96,8 +96,6 @@ enum OPPO_OPERATOR {
 	OPERATOR_FOREIGN_WCDMA		= 6,	//qifeng.liu 2014.08.07 FOR MAC
 	OPERATOR_FOREIGN_RESERVED   = 7,	//shaoming 2014/10/04 add for 14085's dual sim version
 	OPERATOR_ALL_CHINA_CARRIER	= 8,    //Tong.han@Bsp.Group.Tp add for all china carrier phone, 2015/03/23
-//#ifdef VENDOR_EDIT
-//lile@EXP.BasicDrv.CDT, 2015-11-06, add for exp sub board test
 	OPERATOR_FOREIGN_4G 		= 101,
 	OPERATOR_FOREIGN_3G 		= 100,
 	OPERATOR_FOREIGN_TAIWAN		= 102,
@@ -105,7 +103,6 @@ enum OPPO_OPERATOR {
 	OPERATOR_FOREIGN_TELECOM	= 104,
 	OPERATOR_FOREIGN_INDIA		= 105,
 	OPERATOR_FOREIGN_ASIA		= 106,
-//#endif
 };
 
 typedef enum OPPO_PROJECT OPPO_PROJECT;

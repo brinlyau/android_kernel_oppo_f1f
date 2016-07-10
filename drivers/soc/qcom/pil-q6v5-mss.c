@@ -45,7 +45,7 @@
 #define subsys_to_drv(d) container_of(d, struct modem_data, subsys_desc)
 
 
-#ifndef VENDOR_EDIT //yixue.ge add for modem subsystem crash 
+#ifndef VENDOR_EDIT //yixue.ge add for modem subsystem crash
 static void log_modem_sfr(void)
 {
 	u32 size;
@@ -86,6 +86,7 @@ static int log_modem_sfr(void)
 		pr_err("modem subsystem failure reason: (unknown, empty string found).\n");
 		return rc;
 	}
+
 	strlcpy(reason, smem_reason, min(size, MAX_SSR_REASON_LEN));
 	mdmreason_set(reason);
 	pr_err("modem subsystem failure reason: %s.\n", reason);
@@ -94,7 +95,7 @@ static int log_modem_sfr(void)
 		pr_err("%s will subsys reset",__func__);
 		rc = 1; //set RELATED reset
 	}
-	
+
 	smem_reason[0] = '\0';
 	wmb();
 	return rc;

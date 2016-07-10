@@ -33,7 +33,7 @@ struct qpnp_battery_gauge {
 	int (*set_switch_to_noraml_false) (void);
 	int (*set_fast_chg_allow) (int enable);
 	int (*get_fast_chg_allow) (void);
-	int (*fast_normal_to_warm)	(void);	
+	int (*fast_normal_to_warm)	(void);
 	int (*set_normal_to_warm_false)	(void);
 	int	(*get_fast_chg_ing)	(void);
 	int	(*get_fast_low_temp_full)	(void);

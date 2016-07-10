@@ -5253,15 +5253,6 @@ static int hci_fm_set_blend_tbl_default(struct radio_hci_dev *hdev,
 	struct iris_device *radio = video_get_drvdata(video_get_dev());
 	__u8 defRmssi = 0;
 
-	if (is_project(OPPO_15035)) {
-		// 15035 -68 dB
-		defRmssi = 256 - 68;
-	}
-	else if(is_project(OPPO_15029) || is_project(OPPO_15109)) //lile@EXP.BasicDrv.Audio, 2015-11-16, add for 15309 FM
-	{
-		defRmssi = 256 - 64;
-	}
-
 	retval = hci_cmd(HCI_FM_GET_BLND_TBL_CMD, radio->fm_hdev);
 	if (retval < 0) {
 		FMDERR("Failed to get blend table  %d", retval);

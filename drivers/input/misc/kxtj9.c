@@ -1,15 +1,3 @@
-/*************************************************************
- ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd 
- ** VENDOR_EDIT
- ** File        : kxtj9.c
- ** Description : 
- ** Date        : 2014-11-04 17:39
- ** Author      : BSP.Sensor
- ** 
- ** ------------------ Revision History: ---------------------
- **      <author>        <date>          <desc>
- *************************************************************/
-
 /*
  * Copyright (C) 2011 Kionix, Inc.
  * Written by Chris Hudson <chudson@kionix.com>
@@ -139,7 +127,6 @@ struct kxtj9_data {
 	struct i2c_client *client;
 	struct kxtj9_platform_data pdata;
 	struct input_dev *input_dev;
-
 	unsigned int last_poll_interval;
 	bool	enable;
 	u8 shift;
@@ -150,14 +137,9 @@ struct kxtj9_data {
 	struct regulator *vdd;
 	struct regulator *vio;
 	struct sensors_classdev cdev;
-
 	struct delayed_work input_work;
-
-	//#ifdef VENDOR_EDIT /* LiuPing@Phone.BSP.Sensor, 2014/07/30, add for gsensor cali */
 	s16   cali_sw[3+1];
-	//#endif /*VENDOR_EDIT*/
 };
-
 
 static int kxtj9_i2c_read(struct kxtj9_data *tj9, u8 addr, u8 *data, int len)
 {
@@ -362,17 +344,17 @@ static void kxtj9_acc_input_work_func(struct work_struct *work)
 static int kxtj9_update_g_range(struct kxtj9_data *tj9, u8 new_g_range)
 {
 	switch (new_g_range) {
-		case KXTJ9_G_2G:
-			tj9->shift = 4;
-			break;
-		case KXTJ9_G_4G:
-			tj9->shift = 3;
-			break;
-		case KXTJ9_G_8G:
-			tj9->shift = 2;
-			break;
-		default:
-			return -EINVAL;
+	case KXTJ9_G_2G:
+		tj9->shift = 4;
+		break;
+	case KXTJ9_G_4G:
+		tj9->shift = 3;
+		break;
+	case KXTJ9_G_8G:
+		tj9->shift = 2;
+		break;
+	default:
+		return -EINVAL;
 	}
 
 	tj9->ctrl_reg1 &= 0xe7;
@@ -415,34 +397,42 @@ static int kxtj9_power_on(struct kxtj9_data *data, bool on)
 	if (!on && data->power_enabled) {
 		rc = regulator_disable(data->vdd);
 		if (rc) {
-			dev_err(&data->client->dev,"Regulator vdd disable failed rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator vdd disable failed rc=%d\n", rc);
 			return rc;
 		}
 
 		rc = regulator_disable(data->vio);
 		if (rc) {
-			dev_err(&data->client->dev,"Regulator vio disable failed rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator vio disable failed rc=%d\n", rc);
 			rc = regulator_enable(data->vdd);
 			if (rc) {
-				dev_err(&data->client->dev,"Regulator vdd enable failed rc=%d\n",rc);
+				dev_err(&data->client->dev,
+					"Regulator vdd enable failed rc=%d\n",
+					rc);
 			}
 		}
 		data->power_enabled = false;
 	} else if (on && !data->power_enabled) {
 		rc = regulator_enable(data->vdd);
 		if (rc) {
-			dev_err(&data->client->dev,"Regulator vdd enable failed rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator vdd enable failed rc=%d\n", rc);
 			return rc;
 		}
 
 		rc = regulator_enable(data->vio);
 		if (rc) {
-			dev_err(&data->client->dev,"Regulator vio enable failed rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator vio enable failed rc=%d\n", rc);
 			regulator_disable(data->vdd);
 		}
 		data->power_enabled = true;
 	} else {
-		dev_warn(&data->client->dev,"Power on=%d. enabled=%d\n",on, data->power_enabled);
+		dev_warn(&data->client->dev,
+				"Power on=%d. enabled=%d\n",
+				on, data->power_enabled);
 	}
 
 	return rc;
@@ -466,14 +456,18 @@ static int kxtj9_power_init(struct kxtj9_data *data, bool on)
 		data->vdd = regulator_get(&data->client->dev, "vdd");
 		if (IS_ERR(data->vdd)) {
 			rc = PTR_ERR(data->vdd);
-			dev_err(&data->client->dev,"Regulator get failed vdd rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator get failed vdd rc=%d\n", rc);
 			return rc;
 		}
 
 		if (regulator_count_voltages(data->vdd) > 0) {
-			rc = regulator_set_voltage(data->vdd, KXTJ9_VDD_MIN_UV,KXTJ9_VDD_MAX_UV);
+			rc = regulator_set_voltage(data->vdd, KXTJ9_VDD_MIN_UV,
+						   KXTJ9_VDD_MAX_UV);
 			if (rc) {
-				dev_err(&data->client->dev,"Regulator set failed vdd rc=%d\n",rc);
+				dev_err(&data->client->dev,
+					"Regulator set failed vdd rc=%d\n",
+					rc);
 				goto reg_vdd_put;
 			}
 		}
@@ -481,14 +475,17 @@ static int kxtj9_power_init(struct kxtj9_data *data, bool on)
 		data->vio = regulator_get(&data->client->dev, "vio");
 		if (IS_ERR(data->vio)) {
 			rc = PTR_ERR(data->vio);
-			dev_err(&data->client->dev,"Regulator get failed vio rc=%d\n", rc);
+			dev_err(&data->client->dev,
+				"Regulator get failed vio rc=%d\n", rc);
 			goto reg_vdd_set;
 		}
 
 		if (regulator_count_voltages(data->vio) > 0) {
-			rc = regulator_set_voltage(data->vio, KXTJ9_VIO_MIN_UV,KXTJ9_VIO_MAX_UV);
+			rc = regulator_set_voltage(data->vio, KXTJ9_VIO_MIN_UV,
+						   KXTJ9_VIO_MAX_UV);
 			if (rc) {
-				dev_err(&data->client->dev,"Regulator set failed vio rc=%d\n", rc);
+				dev_err(&data->client->dev,
+				"Regulator set failed vio rc=%d\n", rc);
 				goto reg_vio_put;
 			}
 		}
@@ -505,18 +502,16 @@ reg_vdd_put:
 	regulator_put(data->vdd);
 	return rc;
 }
-
 static int kxtj9_device_power_on(struct kxtj9_data *tj9)
 {
 	int err = 0;
-	err = kxtj9_power_on(tj9, true);
-	if (err) {
-		dev_err(&tj9->client->dev, "power on failed");
-		goto err_exit;
-	}
-
-	/* Use 80ms as vendor suggested. */
-	msleep(80);
+		err = kxtj9_power_on(tj9, true);
+		if (err) {
+			dev_err(&tj9->client->dev, "power on failed");
+			goto err_exit;
+		}
+		/* Use 80ms as vendor suggested. */
+		msleep(80);
 
 err_exit:
 	dev_dbg(&tj9->client->dev, "soft power on complete err=%d.\n", err);
@@ -580,7 +575,7 @@ static void kxtj9_disable(struct kxtj9_data *tj9)
 
 
 static void kxtj9_init_input_device(struct kxtj9_data *tj9,
-		struct input_dev *input_dev)
+					      struct input_dev *input_dev)
 {
 	__set_bit(EV_ABS, input_dev->evbit);
 	input_set_abs_params(input_dev, ABS_X, -G_MAX, G_MAX, FUZZ, FLAT);
@@ -611,7 +606,9 @@ static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
 
 	err = input_register_device(tj9->input_dev);
 	if (err) {
-		dev_err(&tj9->client->dev,"unable to register input polled device %s: %d\n",tj9->input_dev->name, err);
+		dev_err(&tj9->client->dev,
+			"unable to register input polled device %s: %d\n",
+			tj9->input_dev->name, err);
 		input_free_device(tj9->input_dev);
 		return err;
 	}
@@ -619,9 +616,11 @@ static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
 	return 0;
 }
 
-static int kxtj9_enable_set(struct sensors_classdev *sensors_cdev,unsigned int enabled)
+static int kxtj9_enable_set(struct sensors_classdev *sensors_cdev,
+					unsigned int enabled)
 {
-	struct kxtj9_data *tj9 = container_of(sensors_cdev,struct kxtj9_data, cdev);
+	struct kxtj9_data *tj9 = container_of(sensors_cdev,
+					struct kxtj9_data, cdev);
 	struct input_dev *input_dev = tj9->input_dev;
 
 	printk(KERN_ERR"%s  line:%d \n", __func__, __LINE__); 
@@ -635,7 +634,8 @@ static int kxtj9_enable_set(struct sensors_classdev *sensors_cdev,unsigned int e
 			tj9->enable = true;
 		}
 	} else {
-		dev_err(&tj9->client->dev,"Invalid value of input, input=%d\n", enabled);
+		dev_err(&tj9->client->dev,
+			"Invalid value of input, input=%d\n", enabled);
 		mutex_unlock(&input_dev->mutex);
 		return -EINVAL;
 	}
@@ -646,7 +646,7 @@ static int kxtj9_enable_set(struct sensors_classdev *sensors_cdev,unsigned int e
 }
 
 static ssize_t kxtj9_enable_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
+				struct device_attribute *attr, char *buf)
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
@@ -655,8 +655,8 @@ static ssize_t kxtj9_enable_show(struct device *dev,
 }
 
 static ssize_t kxtj9_enable_store(struct device *dev,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
+					struct device_attribute *attr,
+					const char *buf, size_t count)
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
@@ -674,7 +674,7 @@ static ssize_t kxtj9_enable_store(struct device *dev,
 }
 
 static DEVICE_ATTR(enable, S_IRUGO|S_IWUSR|S_IWGRP,
-		kxtj9_enable_show, kxtj9_enable_store);
+			kxtj9_enable_show, kxtj9_enable_store);
 
 /*
  * When IRQ mode is selected, we need to provide an interface to allow the user
@@ -686,10 +686,11 @@ static DEVICE_ATTR(enable, S_IRUGO|S_IWUSR|S_IWGRP,
  * will be responsible for retrieving data from the input node at the desired
  * interval.
  */
-static int kxtj9_poll_delay_set(struct sensors_classdev *sensors_cdev,unsigned int delay_msec)
+static int kxtj9_poll_delay_set(struct sensors_classdev *sensors_cdev,
+					unsigned int delay_msec)
 {
 	struct kxtj9_data *tj9 = container_of(sensors_cdev,
-			struct kxtj9_data, cdev);
+					struct kxtj9_data, cdev);
 	struct input_dev *input_dev = tj9->input_dev;
 
 	/* Lock the device to prevent races with open/close (and itself) */
@@ -706,7 +707,8 @@ static int kxtj9_poll_delay_set(struct sensors_classdev *sensors_cdev,unsigned i
 }
 
 /* Returns currently selected poll interval (in ms) */
-static ssize_t kxtj9_get_poll_delay(struct device *dev,struct device_attribute *attr, char *buf)
+static ssize_t kxtj9_get_poll_delay(struct device *dev,
+				struct device_attribute *attr, char *buf)
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
@@ -715,7 +717,9 @@ static ssize_t kxtj9_get_poll_delay(struct device *dev,struct device_attribute *
 }
 
 /* Allow users to select a new poll interval (in ms) */
-static ssize_t kxtj9_set_poll_delay(struct device *dev,struct device_attribute *attr,const char *buf, size_t count)
+static ssize_t kxtj9_set_poll_delay(struct device *dev,
+					struct device_attribute *attr,
+					const char *buf, size_t count)
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
@@ -733,14 +737,12 @@ static ssize_t kxtj9_set_poll_delay(struct device *dev,struct device_attribute *
 }
 
 static DEVICE_ATTR(poll_delay, S_IRUGO|S_IWUSR|S_IWGRP,
-		kxtj9_get_poll_delay, kxtj9_set_poll_delay);
+			kxtj9_get_poll_delay, kxtj9_set_poll_delay);
 
 static struct attribute *kxtj9_attributes[] = {
 	&dev_attr_enable.attr,
 	&dev_attr_poll_delay.attr,
-	//#ifdef VENDOR_EDIT /* LiuPing@Phone.BSP.Sensor, 2014/11/06, add for gsensor cali. */
 	&dev_attr_cali.attr,
-	//#endif /*VENDOR_EDIT*/
 	NULL
 };
 
@@ -764,13 +766,15 @@ static int kxtj9_verify(struct kxtj9_data *tj9)
 		g_INT_CTRL1 = 0x1C;
 		return 0;
 	}
-	retval = (retval != 0x05 && retval != 0x07 && retval != 0x08)? -EIO : 0;
+
+	retval = (retval != 0x05 && retval != 0x07 && retval != 0x08)
+			? -EIO : 0;
 
 out:
 	return retval;
 }
-
-static int kxtj9_parse_dt(struct device *dev,struct kxtj9_platform_data *kxtj9_pdata)
+static int kxtj9_parse_dt(struct device *dev,
+				struct kxtj9_platform_data *kxtj9_pdata)
 {
 	struct device_node *np = dev->of_node;
 	u32 temp_val;
@@ -822,18 +826,18 @@ static int kxtj9_parse_dt(struct device *dev,struct kxtj9_platform_data *kxtj9_p
 		return rc;
 	} else {
 		switch (temp_val) {
-			case 2:
-				kxtj9_pdata->g_range = KXTJ9_G_2G;
-				break;
-			case 4:
-				kxtj9_pdata->g_range = KXTJ9_G_4G;
-				break;
-			case 8:
-				kxtj9_pdata->g_range = KXTJ9_G_8G;
-				break;
-			default:
-				kxtj9_pdata->g_range = KXTJ9_G_2G;
-				break;
+		case 2:
+			kxtj9_pdata->g_range = KXTJ9_G_2G;
+			break;
+		case 4:
+			kxtj9_pdata->g_range = KXTJ9_G_4G;
+			break;
+		case 8:
+			kxtj9_pdata->g_range = KXTJ9_G_8G;
+			break;
+		default:
+			kxtj9_pdata->g_range = KXTJ9_G_2G;
+			break;
 		}
 	}
 
@@ -978,20 +982,22 @@ static const struct attribute *kxtj9_ftm_attrs[] =
 static struct dev_ftm kxtj9_ftm;
 /*--------------------------------------------------------------------------*/
 static int kxtj9_probe(struct i2c_client *client,
-		const struct i2c_device_id *id)
+				 const struct i2c_device_id *id)
 {
 	struct kxtj9_data *tj9;
 	int err;
 
 	dev_err(&client->dev, "%s: kxtj9_probe start ...\n", __func__); 
-	if (!i2c_check_functionality(client->adapter,I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE_DATA)) {
+	if (!i2c_check_functionality(client->adapter,
+				I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE_DATA)) {
 		dev_err(&client->dev, "client is not i2c capable\n");
 		return -ENXIO;
 	}
 
 	tj9 = kzalloc(sizeof(*tj9), GFP_KERNEL);
 	if (!tj9) {
-		dev_err(&client->dev,"failed to allocate memory for module data\n");
+		dev_err(&client->dev,
+			"failed to allocate memory for module data\n");
 		return -ENOMEM;
 	}
 
@@ -999,14 +1005,17 @@ static int kxtj9_probe(struct i2c_client *client,
 		memset(&tj9->pdata, 0 , sizeof(tj9->pdata));
 		err = kxtj9_parse_dt(&client->dev, &tj9->pdata);
 		if (err) {
-			dev_err(&client->dev,"Unable to parse platfrom data err=%d\n", err);
+			dev_err(&client->dev,
+				"Unable to parse platfrom data err=%d\n", err);
 			return err;
 		}
 	} else {
 		if (client->dev.platform_data)
-			tj9->pdata = *(struct kxtj9_platform_data *)client->dev.platform_data;
+			tj9->pdata = *(struct kxtj9_platform_data *)
+					client->dev.platform_data;
 		else {
-			dev_err(&client->dev,"platform data is NULL; exiting\n");
+			dev_err(&client->dev,
+				"platform data is NULL; exiting\n");
 			return -EINVAL;
 		}
 	}
@@ -1031,7 +1040,6 @@ static int kxtj9_probe(struct i2c_client *client,
 		dev_err(&client->dev, "power on failed! err=%d\n", err);
 		goto err_power_deinit;
 	}
-
 	err = kxtj9_verify(tj9);
 	if (err < 0) {
 		dev_err(&client->dev, "device not recognized\n");
@@ -1044,7 +1052,6 @@ static int kxtj9_probe(struct i2c_client *client,
 	tj9->last_poll_interval = tj9->pdata.init_interval;
 
 	tj9->cdev = sensors_cdev;
-
 	/* The min_delay is used by userspace and the unit is microsecond. */
 	tj9->cdev.min_delay = tj9->pdata.min_interval * 1000;
 	tj9->cdev.delay_msec = tj9->pdata.init_interval;
@@ -1062,13 +1069,13 @@ static int kxtj9_probe(struct i2c_client *client,
 
 	INIT_DELAYED_WORK(&tj9->input_work, kxtj9_acc_input_work_func);
 
-	err = sysfs_create_group(&client->dev.kobj, &kxtj9_attribute_group);
-	if (err) {
-		dev_err(&client->dev, "sysfs create failed: %d\n", err);
-		goto err_destroy_input;
+		err = sysfs_create_group(&client->dev.kobj, &kxtj9_attribute_group);
+		if (err) {
+			dev_err(&client->dev, "sysfs create failed: %d\n", err);
+			goto err_destroy_input;
 	}
 
-	dev_err(&client->dev, "%s: kxtj9_probe OK.\n", __func__);
+	dev_dbg(&client->dev, "%s: kxtj9_probe OK.\n", __func__);
 	kxtj9_device_power_off(tj9);
 	g_kxtj9_data= tj9;
 	kxtj9_ftm.name = "accel";
@@ -1076,7 +1083,6 @@ static int kxtj9_probe(struct i2c_client *client,
 	kxtj9_ftm.priv_data = tj9;
 	kxtj9_ftm.attrs = kxtj9_ftm_attrs;
 	register_single_dev_ftm(&kxtj9_ftm);
-
 	return 0;
 
 err_destroy_input:

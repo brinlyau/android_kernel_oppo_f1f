@@ -2,7 +2,7 @@
 #include <asm/uaccess.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/proc_fs.h> 
+#include <linux/proc_fs.h>
 #include <linux/fs.h>
 #include <soc/qcom/smem.h>
 #include <soc/oppo/oppo_project.h>
@@ -14,14 +14,14 @@ static struct proc_dir_entry *oppoVersion = NULL;
 static ProjectInfoCDTType *format = NULL;
 
 unsigned int init_project_version(void)
-{	
+{
 	unsigned int len = (sizeof(ProjectInfoCDTType) + 3)&(~0x3);
 
 	format = (ProjectInfoCDTType *)smem_alloc(SMEM_PROJECT,len,0,0);
 
 	if(format)
 		return format->nProject;
-	
+
 	return 0;
 }
 
@@ -31,7 +31,7 @@ unsigned int get_project(void)
 	if(format)
 		return format->nProject;
 	else
-		return init_project_version();	
+		return init_project_version();
 	return 0;
 }
 
@@ -62,18 +62,18 @@ unsigned char get_Operator_Version(void)
 }
 
 //this module just init for creat files to show which version
-static ssize_t prjVersion_read_proc(struct file *file, char __user *buf, 
+static ssize_t prjVersion_read_proc(struct file *file, char __user *buf,
 		size_t count,loff_t *off)
 {
 	char page[256] = {0};
-	int len = 0;	
+	int len = 0;
 	len = sprintf(page,"%d",get_project());
 
 	if(len > *off)
 		len -= *off;
 	else
 		len = 0;
-	
+
 	if(copy_to_user(buf,page,(len < count ? len : count))){
 		return -EFAULT;
 	}
@@ -87,7 +87,7 @@ struct file_operations prjVersion_proc_fops = {
 };
 
 
-static ssize_t pcbVersion_read_proc(struct file *file, char __user *buf, 
+static ssize_t pcbVersion_read_proc(struct file *file, char __user *buf,
 		size_t count,loff_t *off)
 {
 	char page[256] = {0};
@@ -113,7 +113,7 @@ struct file_operations pcbVersion_proc_fops = {
 };
 
 
-static ssize_t operatorName_read_proc(struct file *file, char __user *buf, 
+static ssize_t operatorName_read_proc(struct file *file, char __user *buf,
 		size_t count,loff_t *off)
 {
 	char page[256] = {0};
@@ -139,7 +139,7 @@ struct file_operations operatorName_proc_fops = {
 };
 
 
-static ssize_t modemType_read_proc(struct file *file, char __user *buf, 
+static ssize_t modemType_read_proc(struct file *file, char __user *buf,
 		size_t count,loff_t *off)
 {
 	char page[256] = {0};
@@ -164,7 +164,7 @@ struct file_operations modemType_proc_fops = {
 	.read = modemType_read_proc,
 };
 
-static ssize_t secureType_read_proc(struct file *file, char __user *buf, 
+static ssize_t secureType_read_proc(struct file *file, char __user *buf,
 		size_t count,loff_t *off)
 {
 	char page[256] = {0};
@@ -172,11 +172,11 @@ static ssize_t secureType_read_proc(struct file *file, char __user *buf,
 	void __iomem *oem_config_base;
 	uint32_t secure_oem_config = 0;
 
-	oem_config_base = ioremap(0x58034 , 10); 
-	secure_oem_config = __raw_readl(oem_config_base); 
-	iounmap(oem_config_base); 
+	oem_config_base = ioremap(0x58034 , 10);
+	secure_oem_config = __raw_readl(oem_config_base);
+	iounmap(oem_config_base);
 	printk(KERN_EMERG "lycan test secure_oem_config 0x%x\n", secure_oem_config);
-	
+
 	len = sprintf(page,"%d", secure_oem_config);
 
 	if(len > *off)
@@ -202,7 +202,7 @@ static int __init oppo_project_init(void)
 {
 	int ret = 0;
 	struct proc_dir_entry *pentry;
-	
+
 	oppoVersion =  proc_mkdir("oppoVersion", NULL);
 	if(!oppoVersion) {
 		pr_err("can't create oppoVersion proc\n");

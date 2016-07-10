@@ -151,12 +151,7 @@ enum dsi_pm_type {
 #define DSI_CMD_DST_FORMAT_RGB666	7
 #define DSI_CMD_DST_FORMAT_RGB888	8
 
-
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck*/
 #define DSI_INTR_DESJEW_MASK			BIT(31)
-#endif /*VENDOR_EDIT*/
-
 #define DSI_INTR_DYNAMIC_REFRESH_MASK		BIT(29)
 #define DSI_INTR_DYNAMIC_REFRESH_DONE		BIT(28)
 #define DSI_INTR_ERROR_MASK		BIT(25)
@@ -307,17 +302,12 @@ enum {
 	LCD_15037_TM_OTM9605,
 	LCD_15037_TRULY_HX8389C,
 	LCD_15035_TM_OTM9605,
-	LCD_15035_TRULY_HX8389C,
-	LCD_15029_TRULY_HX8394,
 	LCD_15109_TM_NT35592,
 	LCD_15109_TRULY_HX8394F,
-	LCD_15109_BOE_ILI9881C,
-	LCD_16000_TM_OTM9605,
-	LCD_16000_TRULY_HX8389C,	
+	LCD_15109_BOE_ILI9881C,	
 	LCD_UNKNOW,
 };
 #endif /*VENDOR_EDIT*/
-
 #define DSI_CTRL_LEFT		DSI_CTRL_0
 #define DSI_CTRL_RIGHT		DSI_CTRL_1
 #define DSI_CTRL_CLK_SLAVE	DSI_CTRL_RIGHT
@@ -389,15 +379,9 @@ struct mdss_dsi_ctrl_pdata {
 	bool panel_bias_vreg;
 	bool dsi_irq_line;
 	atomic_t te_irq_ready;
-#ifdef VENDOR_EDIT
-/* lile@EXP.BasicDrv.LCD, 2015-12-33, add for LCD 1.8v power supply change */
 	int lcd_en_gpio;
-#endif /*VENDOR_EDIT*/
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
-	bool cmd_clk_ln_recovery_en;
-#endif /*VENDOR_EDIT*/
 
+	bool cmd_clk_ln_recovery_en;
 	bool cmd_sync_wait_broadcast;
 	bool cmd_sync_wait_trigger;
 

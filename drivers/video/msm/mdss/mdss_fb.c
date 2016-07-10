@@ -865,7 +865,6 @@ static DEVICE_ATTR(closebl, 0664, mdss_get_closebl_flag, mdss_set_closebl_flag);
 #endif /*VENDOR_EDIT*/
 static DEVICE_ATTR(rgb, S_IRUGO | S_IWUSR | S_IWGRP, mdss_get_rgb, mdss_set_rgb);
 
-
 static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_type.attr,
 	&dev_attr_msm_fb_split.attr,
@@ -876,6 +875,7 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_src_split_info.attr,
 	&dev_attr_msm_fb_thermal_level.attr,
 	&dev_attr_always_on.attr,
+	&dev_attr_rgb.attr,
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2014/08/14  Add for ftm mode shut down lcd */
 	&dev_attr_lcdoff.attr,
@@ -887,7 +887,6 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_closebl.attr,
 	&dev_attr_cabc.attr,
 #endif /*VENDOR_EDIT*/
-	&dev_attr_rgb.attr,
 	NULL,
 };
 
@@ -1603,19 +1602,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			complete(&mfd->no_update.comp);
 
 			mfd->op_enable = false;
-#ifndef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/07/03  Modify for 15020 kgsl fence time out */
-			mutex_lock(&mfd->bl_lock);
-			if (mdss_panel_is_power_off(req_power_state)) {
-				/* Stop Display thread */
-				if (mfd->disp_thread)
-					mdss_fb_stop_disp_thread(mfd);
-				mdss_fb_set_backlight(mfd, 0);
-				mfd->bl_updated = 0;
-			}
-			mfd->panel_power_state = req_power_state;
-			mutex_unlock(&mfd->bl_lock);
-#else /*VENDOR_EDIT*/
 			if (mdss_panel_is_power_off(req_power_state)) {
 				/* Stop Display thread */
 				if (mfd->disp_thread)
@@ -1626,7 +1612,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 				mutex_unlock(&mfd->bl_lock);
 			}
 			mfd->panel_power_state = req_power_state;
-#endif /*VENDOR_EDIT*/
 
 			ret = mfd->mdp.off_fnc(mfd);
 			if (ret)
@@ -2568,12 +2553,9 @@ static int mdss_fb_release_all(struct fb_info *info, bool release_all)
 			return ret;
 		}
 
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/08/20  Add for recovery mode shutdown iommu error */
 		if (mfd->fb_ion_handle)
-			mdss_fb_free_fb_ion_memory(mfd); 
-#endif /*VENDOR_EDIT*/
-		
+			mdss_fb_free_fb_ion_memory(mfd);
+
 		atomic_set(&mfd->ioctl_ref_cnt, 0);
 	}
 

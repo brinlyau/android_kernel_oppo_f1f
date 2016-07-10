@@ -52,7 +52,7 @@
 
 #include <linux/msm-bus.h>
 
-#ifdef VENDOR_EDIT     //Fuchun.Liao 2014-09-19 add
+#ifdef VENDOR_EDIT	//Fuchun.Liao 2014-09-19 add
 #include <soc/oppo/oppo_project.h>
 #endif
 #define MSM_USB_BASE	(motg->regs)
@@ -814,7 +814,7 @@ static int msm_otg_start_hnp(struct usb_otg *otg)
 	clear_bit(A_BUS_REQ, &motg->inputs);
 	#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 	queue_work(system_nrt_wq, &motg->sm_work);
-	#else	
+	#else
 	queue_work(motg->otg_wq, &motg->sm_work);
 	#endif
 	return 0;
@@ -910,12 +910,12 @@ static int msm_otg_set_suspend(struct usb_phy *phy, int suspend)
 			#if 0//def VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 			mutex_lock(motg->inputbits_mutex);
 			#endif
-			
+
 			if (!atomic_read(&motg->in_lpm) &&
 					!test_bit(ID, &motg->inputs)) {
 				#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 				queue_work(system_nrt_wq, &motg->sm_work);
-				#else	
+				#else
 				queue_work(motg->otg_wq, &motg->sm_work);
 				#endif
 
@@ -943,8 +943,8 @@ static int msm_otg_set_suspend(struct usb_phy *phy, int suspend)
 			if (!atomic_read(&motg->in_lpm))
 				#ifndef VENDOR_EDIT /*dengnw@BSP.drv add QCOM patch for OTG 20150115*/
 				queue_delayed_work(system_nrt_wq,
-				#else	
-				queue_delayed_work(motg->otg_wq,				
+				#else
+				queue_delayed_work(motg->otg_wq,
 				#endif
 					&motg->suspend_work,
 					USB_SUSPEND_DELAY_TIME);
@@ -2202,7 +2202,7 @@ static int msm_otg_set_peripheral(struct usb_otg *otg,
 			queue_work(system_nrt_wq, &motg->sm_work);
 			#else
 			queue_work(motg->otg_wq, &motg->sm_work);
-			#endif			 
+			#endif
 		} else {
 			otg->gadget = NULL;
 		}
@@ -3132,7 +3132,7 @@ static void msm_otg_sm_work(struct work_struct *w)
 /*hanqing.wang@EXP.BasicDrv.Audio add for clone 15089=15018 and add the macor MSM_15062 and OPPO_15011 = OPPO_15018*/
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 /*chaoying.chen@EXP.BaseDrv.charge,2015/07/06 modify  for 15081*/
-/*chaoying.chen@EXP.BaseDrv.charge,2015/07/23 modify  for 15085*/
+/*chaoying.chen@EXP.BaseDrv.charge,2015/07/10 modify  for 15085*/
 					if (is_project(OPPO_15018)|| is_project(OPPO_15011)|| is_project(OPPO_15022))
 						msm_otg_notify_charger(motg, 2000);
 					else
@@ -3147,7 +3147,7 @@ static void msm_otg_sm_work(struct work_struct *w)
 /*hanqing.wang@EXP.BasicDrv.Audio add for clone 15089=15018 and add the macor MSM_15062 and OPPO_15011 = OPPO_15018*/
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 /*chaoying.chen@EXP.BaseDrv.charge,2015/07/06 modify  for 15081*/
-/*chaoying.chen@EXP.BaseDrv.charge,2015/07/24 modify  for 15085*/
+/*chaoying.chen@EXP.BaseDrv.charge,2015/07/10 modify  for 15085*/
 					if (is_project(OPPO_15018)|| is_project(OPPO_15011)|| is_project(OPPO_15022))
 						msm_otg_notify_charger(motg, 2000);
 					else if (is_project(OPPO_15009) || is_project(OPPO_15037)|| is_project(OPPO_15085) || is_project(OPPO_15109))
@@ -4008,7 +4008,7 @@ static irqreturn_t msm_id_irq(int irq, void *data)
 		queue_delayed_work(system_nrt_wq, &motg->id_status_work,
 				msecs_to_jiffies(MSM_ID_STATUS_DELAY));
 	#else
-	 	queue_delayed_work(motg->otg_wq, &motg->id_status_work,  
+		queue_delayed_work(motg->otg_wq, &motg->id_status_work,
 			msecs_to_jiffies(MSM_ID_STATUS_DELAY));
 	#endif
 	return IRQ_HANDLED;

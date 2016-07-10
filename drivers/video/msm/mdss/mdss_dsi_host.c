@@ -404,11 +404,7 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 	/* turn esc, byte, dsi, pclk, sclk, hclk on */
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x11c,
 					0x23f); /* DSI_CLK_CTRL */
-	#ifdef VENDOR_EDIT
-	//lile@EXP.BasicDrv.LCD, 2015-12-04, reset to solve 15099 LCD WIFI display blank screen
-	if (is_project(OPPO_15029))
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xac, 0x0); //RESET LANE_CTRL 
-	#endif
+
 	dsi_ctrl |= BIT(0);	/* enable dsi */
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x0004, dsi_ctrl);
 
@@ -535,20 +531,15 @@ static void mdss_dsi_wait_clk_lane_to_stop(struct mdss_dsi_ctrl_pdata *ctrl)
 #else /*VENDOR_EDIT*/
 	if (mdss_dsi_poll_clk_lane(ctrl) == false)
 		pr_err("%s: clk lane recovery failed\n", __func__);
-	else 
-	 	ctrl->clk_lane_cnt = 0; 
+	else
+		ctrl->clk_lane_cnt = 0;
 #endif /*VENDOR_EDIT*/
 
 	/* clear clk lane tx stop -- bit 20 */
 	mdss_dsi_cfg_lane_ctrl(ctrl, BIT(20), 0);
 }
 
-
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
 static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl);
-#endif /*VENDOR_EDIT*/
-
 
 /*
  * mdss_dsi_start_hs_clk_lane:
@@ -558,20 +549,10 @@ static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl);
 static void mdss_dsi_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
 {
 
-
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
 	/* make sure clk lane is stopped */
 	mdss_dsi_stop_hs_clk_lane(ctrl);
-#endif /*VENDOR_EDIT*/
-
 
 	mutex_lock(&ctrl->clk_lane_mutex);
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/27  Add for splash screen */
-	MDSS_XLOG(ctrl->ndx, ctrl->clk_lane_cnt, current->pid,
- 		XLOG_FUNC_ENTRY);
-#endif /*VENDOR_EDIT*/
 	mdss_dsi_clk_ctrl(ctrl, DSI_ALL_CLKS, 1);
 	if (ctrl->clk_lane_cnt) {
 		pr_err("%s: ndx=%d do-wait, cnt=%d\n",
@@ -585,11 +566,6 @@ static void mdss_dsi_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
 	pr_debug("%s: ndx=%d, set_hs, cnt=%d\n", __func__,
 				ctrl->ndx, ctrl->clk_lane_cnt);
 	mdss_dsi_clk_ctrl(ctrl, DSI_ALL_CLKS, 0);
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/27  Add for splash screen */
-	MDSS_XLOG(ctrl->ndx, ctrl->clk_lane_cnt,
-			current->pid, XLOG_FUNC_EXIT);
-#endif /*VENDOR_EDIT*/
 	mutex_unlock(&ctrl->clk_lane_mutex);
 }
 
@@ -598,7 +574,6 @@ static void mdss_dsi_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
  * this function is work around solution for 8994 dsi clk lane
  * may stuck at HS problem
  */
-
 #ifndef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Modify for display dump and stuck */
 static void mdss_dsi_stop_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl,
@@ -689,7 +664,7 @@ release:
 	MDSS_XLOG(ctrl->ndx, ctrl->clk_lane_cnt,
 			current->pid, XLOG_FUNC_EXIT);
 	mutex_unlock(&ctrl->clk_lane_mutex);
-}	
+}
 #endif /*VENDOR_EDIT*/
 
 static void mdss_dsi_cmd_start_hs_clk_lane(struct mdss_dsi_ctrl_pdata *ctrl)
@@ -1086,24 +1061,16 @@ static int mdss_dsi_read_status(struct mdss_dsi_ctrl_pdata *ctrl)
  * Return: positive value if the panel is in good state, negative value or
  * zero otherwise.
  */
- #ifdef VENDOR_EDIT
 //lile@EXP.BasicDrv.LCD, 2016-01-04, add reset cmds for Tianma HD LCD ESD blurred
 	extern int lcd_dev; 
-#endif
 int mdss_dsi_reg_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int ret = 0;
-
 
 	if (ctrl_pdata == NULL) {
 		pr_err("%s: Invalid input data\n", __func__);
 		return 0;
 	}
-#ifndef VENDOR_EDIT
-/* YongPeng.Yi@SWDP.MultiMedia, 2015/05/21  Delete for esd debug log */
-	pr_err("Neal %s:  data[0] =%x ; data[1] =%x ; data[2] =%x ; data[3] =%x\n", __func__
-		, ctrl_pdata->status_buf.data[0], ctrl_pdata->status_buf.data[1], ctrl_pdata->status_buf.data[2], ctrl_pdata->status_buf.data[3]);
-#endif /*VENDOR_EDIT*/
 
 	pr_debug("%s: Checking Register status\n", __func__);
 
@@ -1125,19 +1092,11 @@ int mdss_dsi_reg_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	if (ret > 0) {
 		ret = ctrl_pdata->check_read_status(ctrl_pdata);
 	} else {
-#ifdef VENDOR_EDIT
 //lile@EXP.BasicDrv.LCD, 2016-01-04, add reset cmds for Tianma HD LCD ESD blurred
 		if(is_project(OPPO_15109)&&(lcd_dev == LCD_15109_TM_NT35592)){
 			ctrl_pdata->check_read_status(ctrl_pdata);
 			ret = -EINVAL;
 		}
-#endif /*VENDOR_EDIT*/
-#ifdef VENDOR_EDIT
-//lile@EXP.BasicDrv.LCD, 2015-12-17, lile add for esd
-		if (is_project(OPPO_15035) && (lcd_dev == LCD_15035_TM_OTM9605)){
-			ret = ctrl_pdata->check_read_status(ctrl_pdata);
-		}
-#endif
 		pr_err("%s: Read status register returned error\n", __func__);
 	}
 
@@ -1222,7 +1181,7 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 			bpp = 3;	/* Default format set to RGB888 */
 
 		ystride = width * bpp + 1;
-		
+
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Modify for display dump and stuck */
 		/* Enable frame transfer in burst mode */
@@ -2002,8 +1961,6 @@ void mdss_dsi_cmd_mdp_start(struct mdss_dsi_ctrl_pdata *ctrl)
 	spin_unlock_irqrestore(&ctrl->mdp_lock, flag);
 }
 
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Add for display dump and stuck */
 static int mdss_dsi_mdp_busy_tout_check(struct mdss_dsi_ctrl_pdata *ctrl)
 {
 	unsigned long flag;
@@ -2049,7 +2006,6 @@ static int mdss_dsi_mdp_busy_tout_check(struct mdss_dsi_ctrl_pdata *ctrl)
 	pr_err("%s: -\n", __func__);
 	return tout;
 }
-#endif /*VENDOR_EDIT*/
 
 #ifndef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/16  Modify for static screen */
@@ -2126,7 +2082,6 @@ void mdss_dsi_cmd_mdp_busy(struct mdss_dsi_ctrl_pdata *ctrl)
 	pr_debug("%s: done pid=%d\n", __func__, current->pid);
 	MDSS_XLOG(ctrl->ndx, ctrl->mdp_busy, current->pid, XLOG_FUNC_EXIT);
 }
-
 #endif /*VENDOR_EDIT*/
 
 int mdss_dsi_cmdlist_tx(struct mdss_dsi_ctrl_pdata *ctrl,
@@ -2435,7 +2390,7 @@ need_lock:
 	}
 
 	return ret;
-}	
+}
 #endif /*VENDOR_EDIT*/
 
 static void dsi_send_events(struct mdss_dsi_ctrl_pdata *ctrl,
@@ -2505,16 +2460,12 @@ static int dsi_event_thread(void *data)
 				ctrl->recovery->fxn(ctrl->recovery->data,
 					MDP_INTF_DSI_CMD_FIFO_UNDERFLOW);
 				mdss_dsi_clk_ctrl(ctrl, DSI_ALL_CLKS, 0);
-			//}
-			//mutex_unlock(&ctrl->mutex);
 
-			//MDSS_XLOG_TOUT_HANDLER("mdp", "dsi0", "dsi1",
-			//			"edp", "hdmi", "panic");
 			} else { 
 				MDSS_XLOG_TOUT_HANDLER("mdp", "dsi0", "dsi1",
 					"edp", "hdmi", "panic");
 			}
-			mutex_unlock(&ctrl->mutex); 
+			mutex_unlock(&ctrl->mutex);
 		}
 
 #ifndef VENDOR_EDIT
@@ -2522,12 +2473,12 @@ static int dsi_event_thread(void *data)
 			mdss_dsi_sw_reset(ctrl, true);
 #else /*VENDOR_EDIT*/
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/05/23  Add for LCD screen blink START */
-		if(!(is_project(OPPO_15009)||is_project(OPPO_15035) || is_project(OPPO_16000))){
+		if(!is_project(OPPO_15009)){
 			//if (todo & DSI_EV_DSI_FIFO_EMPTY)
 			//	mdss_dsi_sw_reset(ctrl, true);
-			if (todo & DSI_EV_DSI_FIFO_EMPTY) { 
+			if (todo & DSI_EV_DSI_FIFO_EMPTY) {
 				mdss_dsi_clk_ctrl(ctrl, DSI_ALL_CLKS, 1);
-				mdss_dsi_sw_reset(ctrl, true); 
+				mdss_dsi_sw_reset(ctrl, true);
 				mdss_dsi_clk_ctrl(ctrl, DSI_ALL_CLKS, 0);
 			}
 		}
@@ -2589,7 +2540,7 @@ static int dsi_event_thread(void *data)
 			mdss_dsi_stop_hs_clk_lane(ctrl, arg);
 #else /*VENDOR_EDIT*/
 		if (todo & DSI_EV_STOP_HS_CLK_LANE)
-			mdss_dsi_stop_hs_clk_lane(ctrl);	
+			mdss_dsi_stop_hs_clk_lane(ctrl);
 #endif /*VENDOR_EDIT*/
 
 		if (todo & DSI_EV_LP_RX_TIMEOUT) {
@@ -2615,7 +2566,7 @@ void mdss_dsi_ack_err_status(struct mdss_dsi_ctrl_pdata *ctrl)
 		MIPI_OUTP(base + 0x0068, status);
 		/* Writing of an extra 0 needed to clear error bits */
 		MIPI_OUTP(base + 0x0068, 0);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 	}
 }
 
@@ -2632,7 +2583,7 @@ void mdss_dsi_timeout_status(struct mdss_dsi_ctrl_pdata *ctrl)
 		MIPI_OUTP(base + 0x00c0, status);
 		if (status & 0x0110)
 			dsi_send_events(ctrl, DSI_EV_LP_RX_TIMEOUT, 0);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 	}
 }
 
@@ -2663,7 +2614,7 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 	/* fifo underflow, overflow and empty*/
 	if (status & 0xcccc4489) {
 		MIPI_OUTP(base + 0x000c, status);
-		pr_debug("%s: status=%x\n", __func__, status);
+		pr_err("%s: status=%x\n", __func__, status);
 
 #ifndef VENDOR_EDIT
 		if (status & 0x44440000) {/* DLNx_HS_FIFO_OVERFLOW */
@@ -2673,7 +2624,7 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 		}
 #else /*VENDOR_EDIT*/
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/05/23  Add for LCD screen blink START */
-		if(!(is_project(OPPO_15009)||is_project(OPPO_15035) || is_project(OPPO_16000))){
+		if(!is_project(OPPO_15009)){
 			if (status & 0x44440000) {/* DLNx_HS_FIFO_OVERFLOW */
 				dsi_send_events(ctrl, DSI_EV_DLNx_FIFO_OVERFLOW, 0);
 				/* Ignore FIFO EMPTY when overflow happens */
@@ -2689,7 +2640,7 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 			dsi_send_events(ctrl, DSI_EV_DSI_FIFO_EMPTY, 0);
 #else /*VENDOR_EDIT*/
 /* <- YongPeng.Yi@SWDP.MultiMedia, 2015/05/23  Add for LCD screen blink  START */
-		if(!(is_project(OPPO_15009)||is_project(OPPO_15035) || is_project(OPPO_16000))){
+		if(!is_project(OPPO_15009)){
 			if (status & 0x11110000) /* DLN_FIFO_EMPTY */
 				dsi_send_events(ctrl, DSI_EV_DSI_FIFO_EMPTY, 0);
 		}
@@ -2812,8 +2763,6 @@ irqreturn_t mdss_dsi_isr(int irq, void *ptr)
 		spin_unlock(&ctrl->mdp_lock);
 	}
 
-#ifndef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/05  Modify for display dump and stuck */
 	if (isr & DSI_INTR_CMD_MDP_DONE) {
 		MDSS_XLOG(ctrl->ndx, ctrl->mdp_busy, isr, 0x99);
 		spin_lock(&ctrl->mdp_lock);
@@ -2829,23 +2778,6 @@ irqreturn_t mdss_dsi_isr(int irq, void *ptr)
 		complete_all(&ctrl->mdp_comp);
 		spin_unlock(&ctrl->mdp_lock);
 	}
-#else /*VENDOR_EDIT*/
-	if (isr & DSI_INTR_CMD_MDP_DONE) {
-		MDSS_XLOG(ctrl->ndx, ctrl->mdp_busy, isr, 0x99);
-		spin_lock(&ctrl->mdp_lock);
-		mdss_dsi_disable_irq_nosync(ctrl, DSI_MDP_TERM);
-		if (ctrl->cmd_clk_ln_recovery_en &&
-				ctrl->panel_mode == DSI_CMD_MODE) {
-			/* stop force clk lane hs */
-			mdss_dsi_cfg_lane_ctrl(ctrl, BIT(28), 0);
-			dsi_send_events(ctrl, DSI_EV_STOP_HS_CLK_LANE,
-							DSI_MDP_TERM);
-		}
-		ctrl->mdp_busy = false;
-		complete_all(&ctrl->mdp_comp);
-		spin_unlock(&ctrl->mdp_lock);
-	}	
-#endif /*VENDOR_EDIT*/
 
 	if (isr & DSI_INTR_BTA_DONE) {
 		spin_lock(&ctrl->mdp_lock);

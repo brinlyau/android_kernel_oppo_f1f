@@ -2141,8 +2141,8 @@ static int sdhci_msm_setup_vreg(struct sdhci_msm_pltfm_data *pdata,
 				goto out;
 		}
 	}
-	
-#ifdef VENDOR_EDIT //Jianfeng.Qiu@BSP.Driver, 2014-09-13, Add for sdcard vdd supply enable	
+
+#ifdef VENDOR_EDIT //Jianfeng.Qiu@BSP.Driver, 2014-09-13, Add for sdcard vdd supply enable
 	if (gpio_is_valid(pdata->sd_vdd_en)) {
 		mdelay(2);
 		if (enable) {
@@ -2152,7 +2152,7 @@ static int sdhci_msm_setup_vreg(struct sdhci_msm_pltfm_data *pdata,
 		}
 	}
 #endif /* VENDOR_EDIT */
-	
+
 out:
 	return ret;
 }

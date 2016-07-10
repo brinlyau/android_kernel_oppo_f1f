@@ -216,7 +216,7 @@ static int suspend_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, suspend_stats_show, NULL);
 }
-//#ifdef VENDOR_EDIT
+
 //yanzhen.feng@Swdp.Android.Framework, 2015/08/14, Sync App and Kernel time
 static ssize_t watchdog_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
@@ -261,25 +261,19 @@ static ssize_t watchdog_write(struct file *file, const char __user *buf, size_t 
 
 	return count;
 }
-//#endif /* VENDOR_EDIT */
 
 static const struct file_operations suspend_stats_operations = {
 	.open           = suspend_stats_open,
 	.read           = seq_read,
 	.llseek         = seq_lseek,
 	.release        = single_release,
-	//#ifdef VENDOR_EDIT
 	//yanzhen.feng@Swdp.Android.Framework, 2015/08/14, Sync App and Kernel time
 	.write          = watchdog_write,
-	//#endif /* VENDOR_EDIT */
 };
 
 static int __init pm_debugfs_init(void)
 {
-	//#ifdef VENDOR_EDIT
-	//yanzhen.feng@Swdp.Android.Framework, 2015/08/14, Sync App and Kernel time
 	debugfs_create_file("suspend_stats", S_IFREG | S_IRUGO | S_IWUGO,
-	//#endif /* VENDOR_EDIT */
 			NULL, NULL, &suspend_stats_operations);
 	return 0;
 }
@@ -601,10 +595,10 @@ static ssize_t app_boot_show(struct kobject *kobj, struct kobj_attribute *attr,
         return sprintf(buf, "normal");
 #endif
 }
- 
+
 static ssize_t app_boot_store(struct kobject *kobj, struct kobj_attribute *attr,
 			   const char *buf, size_t n)
-{	
+{
 	return 0;
 }
 power_attr(app_boot);

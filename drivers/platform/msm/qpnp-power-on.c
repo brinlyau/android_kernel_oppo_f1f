@@ -708,7 +708,7 @@ static bool qpnp_cblpwr_is_usb_plugged_in(struct qpnp_pon *pon)
 {
 	int rc;
 	u8 valid_sta;
-	
+
 	rc = spmi_ext_register_readl(pon->spmi->ctrl, pon->spmi->sid,
 				CBL_POWER_ON_VALID_REG, &valid_sta, 1);
 	if (rc) {
@@ -738,8 +738,8 @@ static irqreturn_t qpnp_cblpwr_irq(int irq, void *_pon)
 int opchg_get_charger_inout_cblpwr(void)
 {
 	int charger_in=0;
-	
-	charger_in= qpnp_cblpwr_is_usb_plugged_in(sys_reset_dev);	
+
+	charger_in= qpnp_cblpwr_is_usb_plugged_in(sys_reset_dev);
 	return charger_in;
 }
 

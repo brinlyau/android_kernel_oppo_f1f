@@ -3887,7 +3887,7 @@ int mmc_pm_notify(struct notifier_block *notify_block,
 			spin_unlock_irqrestore(&host->lock, flags);
 			break;
 		}
-		
+
 		spin_unlock_irqrestore(&host->lock, flags);
 		mmc_detect_change(host, 0);
 		break;

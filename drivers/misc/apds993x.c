@@ -13,6 +13,7 @@
 /*
  * apds993x.c - Linux kernel modules for ambient light + proximity sensor
  *
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2012 Lee Kai Koon <kai-koon.lee@avagotech.com>
  * Copyright (C) 2012 Avago Technologies
  * Copyright (C) 2013 LGE Inc.
@@ -199,10 +200,7 @@ static int apds993x_ps_pgain = 0;
 
 static unsigned int last_ps_state = 0;
 
-#ifdef VENDOR_EDIT /* LiuPing@Phone.BSP.Sensor, 2014/08/04, add for dynamic threshold */
 #define APDS993X_ALSPS_DYNAMIC_THRESHOLD
-#endif /*VENDOR_EDIT*/
-#ifdef APDS993X_ALSPS_DYNAMIC_THRESHOLD
 
 static int ps_min = 0;
 static int ps_adjust_max = 850;
@@ -211,7 +209,6 @@ static int ps_thd_low_highlight = 600, ps_thd_high_highlight = 650;
 
 static struct delayed_work sample_ps_work;
 static DECLARE_WAIT_QUEUE_HEAD(enable_wq);
-#endif
 
 typedef enum
 {
@@ -641,7 +638,7 @@ RECALIBRATION:
 			cal_check_flag = 1;
 			goto RECALIBRATION;
 		} else {
-			pr_err("%s: CALIBRATION FAIL - cross_talk is set to DEFAULT\n", __func__);
+			pr_err("%s: CALIBRATION FAIL -cross_talk is set to DEFAULT\n", __func__);
 			data->cross_talk = DEFAULT_CROSS_TALK;
 			apds993x_set_enable(client, 0x00); /* Power Off */
 			data->ps_cal_result = 0; /* 0:Fail, 1:Pass */
@@ -656,7 +653,8 @@ RECALIBRATION:
 	apds993x_set_enable(client, 0x00); /* Power Off */
 	data->ps_cal_result = 1;
 
-	pr_info("%s: total_pdata = %d & cross_talk = %d\n",__func__, sum_of_pdata, data->cross_talk);
+	pr_info("%s: total_pdata = %d & cross_talk = %d\n",
+			__func__, sum_of_pdata, data->cross_talk);
 	pr_info("%s: FINISH proximity sensor calibration\n", __func__);
 
 	/* Save the cross-talk to the non-volitile memory in the phone  */
@@ -782,7 +780,8 @@ static void apds993x_change_ps_threshold(struct i2c_client *client)
 	pr_err("%s: prox ps_detection = %d, ps_data = %d, th_low = %d, th_high = %d\n", __func__, data->ps_detection, data->ps_data, data->pilt, data->piht);
 }
 
-static void apds993x_reschedule_work(struct apds993x_data *data,unsigned long delay)
+static void apds993x_reschedule_work(struct apds993x_data *data,
+				unsigned long delay)
 {
 	/*
 	 * If work is already scheduled then subsequent schedules will not
@@ -899,10 +898,8 @@ static void apds993x_work_handler(struct work_struct *work)
 		goto exit;
 	}
 
-	if ((status & enable & 0x20) == 0x20) 
-	{
-		apds993x_change_ps_threshold(client);
-
+	if ((status & enable & 0x20) == 0x20) {
+				apds993x_change_ps_threshold(client);
 		apds993x_set_command(client, 0);
 	} 
 
@@ -914,7 +911,7 @@ static void apds993x_work_handler(struct work_struct *work)
 	return;
 
 exit:
-	apds993x_set_command(client, 2);  
+	apds993x_set_command(client, 2);  //  2 = CMD_CLR_PS_ALS_INT
 	msleep(30);
 	if (data->irq)
 	{
@@ -928,7 +925,7 @@ static irqreturn_t apds993x_interrupt(int vec, void *info)
 {
 	struct i2c_client *client=(struct i2c_client *)info;
 	struct apds993x_data *data = i2c_get_clientdata(client);
-	printk("%s occur... \n", __func__);
+
 	disable_irq_nosync(data->irq);
 	apds993x_reschedule_work(data, 0);
 

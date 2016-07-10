@@ -315,9 +315,9 @@ static void suspend_finish(void)
 /**
  * Sync the filesystem in seperate workqueue.
  * Then check it finishing or not periodically and
- * abort if any wakeup source comes in. That can reduce 
+ * abort if any wakeup source comes in. That can reduce
  * the wakeup latency
- * 
+ *
  */
 static bool sys_sync_completed = false;
 static void sys_sync_work_func(struct work_struct *work);

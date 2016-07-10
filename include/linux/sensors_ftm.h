@@ -1,11 +1,11 @@
 /*************************************************************
- ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd 
+ ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd
  ** VENDOR_EDIT
  ** File        : sensors_ftm.h
- ** Description : 
- ** Date        : 2014-10-31 
+ ** Description :
+ ** Date        : 2014-10-31
  ** Author      : BSP.Sensor
- ** 
+ **
  ** ------------------ Revision History: ---------------------
  **      <author>        <date>          <desc>
  *************************************************************/

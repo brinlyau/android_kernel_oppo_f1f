@@ -1,11 +1,11 @@
 /*************************************************************
- ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd 
+ ** Copyright (C), 2012-2016, OPPO Mobile Comm Corp., Ltd
  ** VENDOR_EDIT
  ** File        : stk3x1x.c
- ** Description : 
+ ** Description :
  ** Date        : 2014-08-04 19:33
  ** Author      : BSP.Sensor
- ** 
+ **
  ** ------------------ Revision History: ---------------------
  **      <author>        <date>          <desc>
  *************************************************************/
@@ -188,11 +188,8 @@
 #define STK_FIR_LEN 4
 #define MAX_FIR_LEN 32
 
-#ifdef VENDOR_EDIT /* LiuPing@Phone.BSP.Sensor, 2014/08/04, add for dynamic threshold */
 #define STK3X1X_ALSPS_DYNAMIC_THRESHOLD
-#endif /*VENDOR_EDIT*/
 
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD
 static int ps_min = 0;
 static int ps_adjust_max = 2200;
 static int dirty_adjust_low_thd = 200, dirty_adjust_high_thd = 250;
@@ -200,8 +197,6 @@ static int ps_thd_low_highlight = 2100, ps_thd_high_highlight = 2150;
 
 static struct delayed_work sample_ps_work;
 static DECLARE_WAIT_QUEUE_HEAD(enable_wq);
-
-#endif
 
 static struct stk3x1x_data *g_ps_data = NULL;
 static int g_is_resumed = 1;
@@ -512,23 +507,24 @@ static int32_t stk3x1x_set_ps_thd_h(struct stk3x1x_data *ps_data, uint16_t thd_h
 	return i2c_smbus_write_word_data(ps_data->client,STK_THDH1_PS_REG,thd_h);
 }
 
-// hight light process . when the light contains lots of IR, the ps value will reduce. 
+// hight light process . when the light contains lots of IR, the ps value will reduce.
 static int stk_alsprx_prx_val(void)
 {
 	uint8_t mode;
-	int32_t word_data , lii;
-	int32_t tmp_word_data_1 = 0;       
+	int32_t word_data, lii;
+	int32_t tmp_word_data_1 = 0;
 	int32_t tmp_word_data_2 = 0;
 
-	tmp_word_data_1 = i2c_smbus_read_word_data(g_ps_data->client,0x20);
-	tmp_word_data_2 = i2c_smbus_read_word_data(g_ps_data->client,0x22);
-	if(tmp_word_data_1 < 0  || tmp_word_data_2 < 0)
-	{
-		printk(KERN_ERR "%s fail ", __func__);
+	tmp_word_data_1 = i2c_smbus_read_word_data(g_ps_data->client, 0x20);
+	tmp_word_data_2 = i2c_smbus_read_word_data(g_ps_data->client, 0x22);
+	if (tmp_word_data_1 < 0  || tmp_word_data_2 < 0) {
+		printk(KERN_ERR "%s fail", __func__);
 		return 0;
 	}
-	word_data = ((tmp_word_data_1 & 0xFF00) >> 8) | ((tmp_word_data_1 & 0x00FF) << 8) ;   
-	word_data += ((tmp_word_data_2 & 0xFF00) >> 8) | ((tmp_word_data_2 & 0x00FF) << 8) ;   
+	word_data = ((tmp_word_data_1 & 0xFF00) >> 8) |
+			((tmp_word_data_1 & 0x00FF) << 8);
+	word_data += ((tmp_word_data_2 & 0xFF00) >> 8) |
+			((tmp_word_data_2 & 0x00FF) << 8);
 
 	mode = (g_ps_data->pdata->psctrl_reg) & 0x3F;
 	if (mode == 0x30)
@@ -539,12 +535,11 @@ static int stk_alsprx_prx_val(void)
 		lii = 400;
 	else if (mode == 0x33)
 		lii = 800;
-	else{
-		printk( "unsupported PS_IT(0x%x)\n", mode);
+	else {
+		pr_info("unsupported PS_IT(0x%x)\n", mode);
 		return 0xFF;
 	}
-	//printk("%s :  word_data=%u, lii=%u\n", __func__,word_data, lii);
-	if (word_data > lii*3/4)   //the light contains lots of IR
+	if (word_data > lii * 3 / 4) //the light contains lots of IR
 	{
 		return 0xFF;
 	}
@@ -624,37 +619,29 @@ static int32_t stk3x1x_enable_ps(struct stk3x1x_data *ps_data, uint8_t enable)
 
 	if(enable)
 	{
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD
 		{
 			int low_threshold, high_threshold;
 			if (ps_min > 1000)
 			{
-				dirty_adjust_high_thd = 600; 
-				dirty_adjust_low_thd = 500;  
-			}
-			else
-			{
-				dirty_adjust_high_thd = 250; 
-				dirty_adjust_low_thd = 200;                  
+				dirty_adjust_high_thd = 600;
+				dirty_adjust_low_thd = 500;
+			} else {
+				dirty_adjust_high_thd = 250;
+				dirty_adjust_low_thd = 200;
 			}
 			if (ps_min != 0 && ps_min + dirty_adjust_high_thd < ps_adjust_max)
 			{
 				high_threshold = ps_min + dirty_adjust_high_thd;
-				low_threshold = ps_min + dirty_adjust_low_thd;                    
-			}
-			else
-			{
-				high_threshold =  ps_thd_high_highlight;  
-				low_threshold = ps_thd_low_highlight;   
+				low_threshold = ps_min + dirty_adjust_low_thd;
+			} else {
+				high_threshold = ps_thd_high_highlight;
+				low_threshold = ps_thd_low_highlight;
 			}
 
 			stk3x1x_set_ps_thd_h(g_ps_data, high_threshold);
 			stk3x1x_set_ps_thd_l(g_ps_data, low_threshold);
-		}          
-#endif
-
+		}
 		ps_data->ps_enabled = true;
-
 		enable_irq(ps_data->irq);
 		msleep(1);
 		ret = stk3x1x_get_flag(ps_data);
@@ -672,9 +659,7 @@ static int32_t stk3x1x_enable_ps(struct stk3x1x_data *ps_data, uint8_t enable)
 		reading = stk3x1x_get_ps_reading(ps_data);
 		STK3X1X_LOG("%s: ps_is_far=%d, cur ps_raw = %d ,  ps_min = %d \n",__func__, near_far_state, reading, ps_min);
 
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD
-		wake_up(&enable_wq);	
-#endif
+		wake_up(&enable_wq);
 	}
 	else
 	{
@@ -696,7 +681,6 @@ static int32_t stk3x1x_enable_als(struct stk3x1x_data *ps_data, uint8_t enable)
 	int32_t ret;
 	uint8_t w_state_reg;
 	uint8_t curr_als_enable = (ps_data->als_enabled)?1:0;
-	STK3X1X_LOG("%s: enable = %d\n",__func__, enable);
 	if(curr_als_enable == enable)
 		return 0;
 
@@ -728,15 +712,14 @@ static int32_t stk3x1x_enable_als(struct stk3x1x_data *ps_data, uint8_t enable)
 	if (enable)
 	{
 		ps_data->als_enabled = true;
-		hrtimer_start(&ps_data->als_timer, ns_to_ktime(200000000), HRTIMER_MODE_REL);   //200ms   alsctrl=3a,so time > 0.185*(2^10) ms
+		hrtimer_start(&ps_data->als_timer, ns_to_ktime(200000000), HRTIMER_MODE_REL);
 	}
 	else
 	{
 		ps_data->als_enabled = false;
 		hrtimer_cancel(&ps_data->als_timer);
 	}
-
-	if (!enable) 
+	if (!enable)
 	{
 		ret = stk3x1x_device_ctl(ps_data, enable);
 		if (ret)
@@ -746,7 +729,8 @@ static int32_t stk3x1x_enable_als(struct stk3x1x_data *ps_data, uint8_t enable)
 	return ret;
 }
 
-static inline int32_t stk3x1x_filter_reading(struct stk3x1x_data *ps_data,int32_t word_data)
+static inline int32_t stk3x1x_filter_reading(struct stk3x1x_data *ps_data,
+			int32_t word_data)
 {
 	int index;
 	int firlen = atomic_read(&ps_data->firlength);
@@ -772,13 +756,11 @@ static inline int32_t stk3x1x_get_als_reading(struct stk3x1x_data *ps_data)
 	int32_t word_data, tmp_word_data;
 
 	tmp_word_data = i2c_smbus_read_byte_data(ps_data->client, STK_FLAG_REG);
-	if(tmp_word_data < 0)
-	{
+	if (tmp_word_data < 0) {
 		printk(KERN_ERR "%s fail, err=0x%x", __func__, tmp_word_data);
 		return tmp_word_data;
 	}
-	if ((tmp_word_data & 0x80) == 0)   // STK_FLAG_REG[bit7]: FLG_ALSDR
-	{
+	if ((tmp_word_data & 0x80) == 0) { // STK_FLAG_REG[bit7]: FLG_ALSDR
 		printk(KERN_ERR "%s fail, als data not ready! \n", __func__);
 		return -1;
 	}
@@ -805,9 +787,11 @@ static inline int32_t stk3x1x_get_als_reading(struct stk3x1x_data *ps_data)
 	return word_data;
 }
 
-static int stk_als_enable_set(struct sensors_classdev *sensors_cdev,unsigned int enabled)
+static int stk_als_enable_set(struct sensors_classdev *sensors_cdev,
+						unsigned int enabled)
 {
-	struct stk3x1x_data *als_data = container_of(sensors_cdev,struct stk3x1x_data, als_cdev);
+	struct stk3x1x_data *als_data = container_of(sensors_cdev,
+						struct stk3x1x_data, als_cdev);
 	int err;
 
 	mutex_lock(&als_data->io_lock);
@@ -876,7 +860,8 @@ static ssize_t stk_als_lux_store(struct device *dev, struct device_attribute *at
 	ret = kstrtoul(buf, 16, &value);
 	if(ret < 0)
 	{
-		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",__func__, ret);
+		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",
+			__func__, ret);
 		return ret;
 	}
 	mutex_lock(&ps_data->io_lock);
@@ -892,7 +877,8 @@ static ssize_t stk_als_lux_store(struct device *dev, struct device_attribute *at
 static ssize_t stk_als_delay_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct stk3x1x_data *ps_data =  dev_get_drvdata(dev);
-	return scnprintf(buf, PAGE_SIZE, "%u\n",(u32)ktime_to_ms(ps_data->als_poll_delay));
+	return scnprintf(buf, PAGE_SIZE, "%u\n",
+			(u32)ktime_to_ms(ps_data->als_poll_delay));
 }
 
 static inline void stk_als_delay_store_fir(struct stk3x1x_data *ps_data)
@@ -902,10 +888,11 @@ static inline void stk_als_delay_store_fir(struct stk3x1x_data *ps_data)
 	ps_data->fir.sum = 0;
 }
 
-static int stk_als_poll_delay_set(struct sensors_classdev *sensors_cdev,unsigned int delay_msec)
+static int stk_als_poll_delay_set(struct sensors_classdev *sensors_cdev,
+						unsigned int delay_msec)
 {
 	struct stk3x1x_data *als_data = container_of(sensors_cdev,
-			struct stk3x1x_data, als_cdev);
+						struct stk3x1x_data, als_cdev);
 	uint64_t value = 0;
 
 	value = delay_msec * 1000000;
@@ -936,7 +923,6 @@ static ssize_t stk_als_delay_store(struct device *dev, struct device_attribute *
 		dev_err(dev, "%s:kstrtoull failed, ret=0x%x\n",	__func__, ret);
 		return ret;
 	}
-
 	ret = stk_als_poll_delay_set(&als_data->als_cdev, value);
 	if (ret < 0)
 		return ret;
@@ -953,10 +939,10 @@ static ssize_t stk_ps_code_show(struct device *dev, struct device_attribute *att
 }
 
 static int stk_ps_enable_set(struct sensors_classdev *sensors_cdev,
-		unsigned int enabled)
+						unsigned int enabled)
 {
 	struct stk3x1x_data *ps_data = container_of(sensors_cdev,
-			struct stk3x1x_data, ps_cdev);
+						struct stk3x1x_data, ps_cdev);
 	int err;
 
 	mutex_lock(&ps_data->io_lock);
@@ -1016,7 +1002,7 @@ static ssize_t stk_ps_offset_show(struct device *dev, struct device_attribute *a
 		printk(KERN_ERR "%s fail, err=0x%x", __func__, tmp_word_data);
 		return tmp_word_data;
 	}
-	word_data = ((tmp_word_data & 0xFF00) >> 8) | ((tmp_word_data & 0x00FF) << 8) ;
+		word_data = ((tmp_word_data & 0xFF00) >> 8) | ((tmp_word_data & 0x00FF) << 8) ;
 	return scnprintf(buf, PAGE_SIZE, "%d\n", word_data);
 }
 
@@ -1030,7 +1016,8 @@ static ssize_t stk_ps_offset_store(struct device *dev, struct device_attribute *
 	ret = kstrtoul(buf, 10, &value);
 	if(ret < 0)
 	{
-		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",__func__, ret);
+		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",
+			__func__, ret);
 		return ret;
 	}
 	if(value > 65535)
@@ -1082,7 +1069,8 @@ static ssize_t stk_ps_distance_store(struct device *dev, struct device_attribute
 	ret = kstrtoul(buf, 10, &value);
 	if(ret < 0)
 	{
-		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",__func__, ret);
+		printk(KERN_ERR "%s:kstrtoul failed, ret=0x%x\n",
+			__func__, ret);
 		return ret;
 	}
 	mutex_lock(&ps_data->io_lock);
@@ -1193,11 +1181,10 @@ static void stk_als_work_func(struct work_struct *work)
 
 	mutex_lock(&ps_data->io_lock);
 	reading = stk3x1x_get_als_reading(ps_data);
-	if(reading < 0)
-	{
+	if (reading < 0) {
 		mutex_unlock(&ps_data->io_lock);
-		return;       
-	}   
+		return;
+	}
 	ps_data->als_lux_last = stk_alscode2lux(ps_data, reading);
 	input_report_abs(ps_data->als_input_dev, ABS_MISC, ps_data->als_lux_last);
 	input_sync(ps_data->als_input_dev);
@@ -1315,7 +1302,6 @@ static int stk3x1x_setup_irq(struct i2c_client *client)
 		printk(KERN_ERR "%s: gpio_direction_input, err=%d", __func__, err);
 		return err;
 	}
-
 	err = request_any_context_irq(irq, stk_oss_irq_handler, IRQF_TRIGGER_LOW, DEVICE_NAME, ps_data);
 	if (err < 0)
 	{
@@ -1325,7 +1311,6 @@ static int stk3x1x_setup_irq(struct i2c_client *client)
 	disable_irq(irq);
 
 	return 0;
-
 err_request_any_context_irq:
 	gpio_free(ps_data->int_pin);
 	return err;
@@ -1363,7 +1348,7 @@ static int stk3x1x_resume(struct device *dev)
 	printk("%s enter \n", __func__);
 	mutex_lock(&ps_data->io_lock);
 	if(ps_data->als_enable_state)
-	{   
+	{
 		stk3x1x_enable_als(ps_data, 1);
 	}
 
@@ -1378,7 +1363,6 @@ static int stk3x1x_resume(struct device *dev)
 	return 0;
 }
 
-
 static int stk3x1x_power_ctl(struct stk3x1x_data *data, bool on)
 {
 	int ret = 0;
@@ -1389,43 +1373,53 @@ static int stk3x1x_power_ctl(struct stk3x1x_data *data, bool on)
 
 		ret = regulator_disable(data->vdd);
 		if (ret) {
-			dev_err(&data->client->dev,"Regulator vdd disable failed ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator vdd disable failed ret=%d\n", ret);
 			return ret;
 		}
 
 		ret = regulator_disable(data->vio);
 		if (ret) {
-			dev_err(&data->client->dev,"Regulator vio disable failed ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator vio disable failed ret=%d\n", ret);
 			ret = regulator_enable(data->vdd);
 			if (ret) {
-				dev_err(&data->client->dev,"Regulator vdd enable failed ret=%d\n",ret);
+				dev_err(&data->client->dev,
+					"Regulator vdd enable failed ret=%d\n",
+					ret);
 			}
 			return ret;
 		}
 		data->power_enabled = on;
-		dev_dbg(&data->client->dev, "stk3x1x_power_ctl on=%d\n",on);
+		dev_dbg(&data->client->dev, "stk3x1x_power_ctl on=%d\n",
+				on);
 	} else if (on && !data->power_enabled) {
 
 		printk(KERN_ERR"%s, on = %d\n", __func__, on);
 
 		ret = regulator_enable(data->vdd);
 		if (ret) {
-			dev_err(&data->client->dev,"Regulator vdd enable failed ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator vdd enable failed ret=%d\n", ret);
 			return ret;
 		}
 
 		ret = regulator_enable(data->vio);
 		if (ret) {
-			dev_err(&data->client->dev,"Regulator vio enable failed ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator vio enable failed ret=%d\n", ret);
 			regulator_disable(data->vdd);
 			return ret;
 		}
 		data->power_enabled = on;
-		dev_dbg(&data->client->dev, "stk3x1x_power_ctl on=%d\n",on);
+		dev_dbg(&data->client->dev, "stk3x1x_power_ctl on=%d\n",
+				on);
 
 		msleep(20);
 	} else {
-		dev_warn(&data->client->dev,"Power on=%d. enabled=%d\n",on, data->power_enabled);
+		dev_warn(&data->client->dev,
+				"Power on=%d. enabled=%d\n",
+				on, data->power_enabled);
 	}
 
 	return ret;
@@ -1439,26 +1433,33 @@ static int stk3x1x_power_init(struct stk3x1x_data *data, bool on)
 
 	if (!on) {
 		if (regulator_count_voltages(data->vdd) > 0)
-			regulator_set_voltage(data->vdd,0, STK3X1X_VDD_MAX_UV);
+			regulator_set_voltage(data->vdd,
+					0, STK3X1X_VDD_MAX_UV);
 
 		regulator_put(data->vdd);
 
 		if (regulator_count_voltages(data->vio) > 0)
-			regulator_set_voltage(data->vio,0, STK3X1X_VIO_MAX_UV);
+			regulator_set_voltage(data->vio,
+					0, STK3X1X_VIO_MAX_UV);
 
 		regulator_put(data->vio);
 	} else {
 		data->vdd = regulator_get(&data->client->dev, "vdd");
 		if (IS_ERR(data->vdd)) {
 			ret = PTR_ERR(data->vdd);
-			dev_err(&data->client->dev,"Regulator get failed vdd ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator get failed vdd ret=%d\n", ret);
 			return ret;
 		}
 
 		if (regulator_count_voltages(data->vdd) > 0) {
-			ret = regulator_set_voltage(data->vdd,STK3X1X_VDD_MIN_UV,STK3X1X_VDD_MAX_UV);
+			ret = regulator_set_voltage(data->vdd,
+					STK3X1X_VDD_MIN_UV,
+					STK3X1X_VDD_MAX_UV);
 			if (ret) {
-				dev_err(&data->client->dev,"Regulator set failed vdd ret=%d\n",ret);
+				dev_err(&data->client->dev,
+					"Regulator set failed vdd ret=%d\n",
+					ret);
 				goto reg_vdd_put;
 			}
 		}
@@ -1466,14 +1467,18 @@ static int stk3x1x_power_init(struct stk3x1x_data *data, bool on)
 		data->vio = regulator_get(&data->client->dev, "vio");
 		if (IS_ERR(data->vio)) {
 			ret = PTR_ERR(data->vio);
-			dev_err(&data->client->dev,"Regulator get failed vio ret=%d\n", ret);
+			dev_err(&data->client->dev,
+				"Regulator get failed vio ret=%d\n", ret);
 			goto reg_vdd_set;
 		}
 
 		if (regulator_count_voltages(data->vio) > 0) {
-			ret = regulator_set_voltage(data->vio,STK3X1X_VIO_MIN_UV,STK3X1X_VIO_MAX_UV);
+			ret = regulator_set_voltage(data->vio,
+					STK3X1X_VIO_MIN_UV,
+					STK3X1X_VIO_MAX_UV);
 			if (ret) {
-				dev_err(&data->client->dev,"Regulator set failed vio ret=%d\n", ret);
+				dev_err(&data->client->dev,
+				"Regulator set failed vio ret=%d\n", ret);
 				goto reg_vio_put;
 			}
 		}
@@ -1517,11 +1522,11 @@ static int stk3x1x_device_ctl(struct stk3x1x_data *ps_data, bool enable)
 			}
 		} else {
 			dev_dbg(dev, "device control: als_enabled=%d, ps_enabled=%d\n",
-					ps_data->als_enabled, ps_data->ps_enabled);
+				ps_data->als_enabled, ps_data->ps_enabled);
 		}
 	} else {
 		dev_dbg(dev, "device control: enable=%d, power_enabled=%d\n",
-				enable, ps_data->power_enabled);
+			enable, ps_data->power_enabled);
 	}
 	return 0;
 
@@ -1530,24 +1535,23 @@ err_exit:
 }
 #ifdef CONFIG_OF
 static int stk3x1x_parse_dt(struct device *dev,
-		struct stk3x1x_platform_data *pdata)
+			struct stk3x1x_platform_data *pdata)
 {
 	int rc;
 	struct device_node *np = dev->of_node;
 	u32 temp_val;
 	/* LiuPing@Phone.BSP.Sensor, 2014/09/18, add for set gpio to control ex-ldo for vdd supply in 14005. */
 	{
-		int vdd_gpio = 0;
-		vdd_gpio = of_get_named_gpio(np, "sensor,vdd-gpio", 0);
-		if (gpio_is_valid(vdd_gpio)) 
-		{
-			printk("%s set gpio:%d to high for vdd supply. \n", __func__, vdd_gpio);
-			gpio_request(vdd_gpio,"vdd-gpio");
-			gpio_direction_output(vdd_gpio, 1);
+	int vdd_gpio = 0;
+	vdd_gpio = of_get_named_gpio(np, "sensor,vdd-gpio", 0);
+	if (gpio_is_valid(vdd_gpio)) {
+		pr_info("%s set gpio:%d to high for vdd supply.\n", __func__, vdd_gpio);
+		gpio_request(vdd_gpio, "vdd-gpio");
+		gpio_direction_output(vdd_gpio, 1);
 		}
 	}
 	pdata->int_pin = of_get_named_gpio_flags(np, "stk,irq-gpio",
-			0, &pdata->int_flags);
+				0, &pdata->int_flags);
 	if (pdata->int_pin < 0) {
 		dev_err(dev, "Unable to read irq-gpio\n");
 		return pdata->int_pin;
@@ -1623,14 +1627,11 @@ static int stk3x1x_parse_dt(struct device *dev,
 }
 #else
 static int stk3x1x_parse_dt(struct device *dev,
-		struct stk3x1x_platform_data *pdata)
+			struct stk3x1x_platform_data *pdata)
 {
 	return -ENODEV;
 }
 #endif /* !CONFIG_OF */
-
-
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD
 
 static void sample_work_func(struct work_struct *work)
 {
@@ -1644,9 +1645,8 @@ static void sample_work_func(struct work_struct *work)
 		return;
 
 	ret = i2c_smbus_read_byte_data(g_ps_data->client, STK_STATE_REG);
-	if (ret < 0)
-	{
-		printk(KERN_ERR "%s: write i2c error, ret=%d\n", __func__, ret);
+	if (ret < 0) {
+		pr_err("%s: write i2c error, ret=%d\n", __func__, ret);
 		return;
 	}
 
@@ -1654,42 +1654,38 @@ static void sample_work_func(struct work_struct *work)
 	w_state_reg &= ~(STK_STATE_EN_PS_MASK | STK_STATE_EN_WAIT_MASK | 0x60);
 
 	w_state_reg |= STK_STATE_EN_PS_MASK;
-	if(!(g_ps_data->als_enabled))
+	if (!(g_ps_data->als_enabled))
 		w_state_reg |= STK_STATE_EN_WAIT_MASK;
 
-	ret = i2c_smbus_write_byte_data(g_ps_data->client, STK_STATE_REG, w_state_reg);
-	if (ret < 0)
-	{
-		STK3X1X_LOG("%s: write i2c error, ret=%d\n", __func__, ret);
+	ret = i2c_smbus_write_byte_data(g_ps_data->client, STK_STATE_REG,
+			w_state_reg);
+	if (ret < 0) {
+		pr_err("%s: write i2c error, ret=%d\n", __func__, ret);
 		return;
 	}
 
 	msleep(10);
-	for (i = 0; i < 10; i++)
-	{
-		if (stk_alsprx_prx_val() == 0)
-		{
+	for (i = 0; i < 10; i++) {
+		if (stk_alsprx_prx_val() == 0) {
 			if ((ps = stk3x1x_get_ps_reading(g_ps_data)) <= 0)
 			{
 				continue;
 			}
 		}
-		if( (ps > 0) &&((ps_min == 0) || (ps_min > ps)))
+		if ((ps > 0) && ((ps_min == 0) || (ps_min > ps)))
 			ps_min = ps;
 
 		msleep(10);
 	}
 
-
 	if (ps_min > ps_adjust_max)  //ps_adjust_max
 		ps_min = ps_adjust_max;
 
-
 	w_state_reg &= ~(STK_STATE_EN_PS_MASK | STK_STATE_EN_WAIT_MASK | 0x60);
-	ret = i2c_smbus_write_byte_data(g_ps_data->client, STK_STATE_REG, w_state_reg);
-	if (ret < 0)
-	{
-		STK3X1X_LOG("%s: write i2c error, ret=%d\n", __func__, ret);
+	ret = i2c_smbus_write_byte_data(g_ps_data->client, STK_STATE_REG,
+			w_state_reg);
+	if (ret < 0) {
+		pr_err("%s: write i2c error, ret=%d\n", __func__, ret);
 		return;
 	}
 
@@ -1697,25 +1693,25 @@ static void sample_work_func(struct work_struct *work)
 	if (ret)
 		return;
 
-	STK3X1X_LOG("%s ps:%d  \n", __func__, ps_min);
+	pr_err("%s ps:%d  \n", __func__, ps_min);
 }
 
-#endif /*STK3X1X_ALSPS_DYNAMIC_THRESHOLD*/
 
-static ssize_t stk3x1x_alsps_enable_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
+static ssize_t stk3x1x_alsps_enable_store(struct kobject *kobj,
+		struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	u32 data[2];
 	int ret = -EINVAL;
+
 	sscanf(buf, "%x %x", (unsigned int *)&data[0],(unsigned int *)&data[1]);
-	switch(data[0])
-	{
+	switch (data[0]) {
 		case SENSOR_TYPE_LIGHT:
 			ret = stk3x1x_enable_als(g_ps_data,(int)data[1]);
 			if (ret < 0)
 			{
 				printk("%s: %s als fail\n",__func__, (data[1] == 1)?"enable":"disable");
 			}
-			break;
+		break;
 
 		case SENSOR_TYPE_PROXIMITY:
 			ret = stk3x1x_enable_ps(g_ps_data, (int)data[1]);
@@ -1723,54 +1719,61 @@ static ssize_t stk3x1x_alsps_enable_store(struct kobject *kobj, struct kobj_attr
 			{
 				printk("%s: %s prox fail\n",__func__, (data[1] == 1)?"enable":"disable");
 			}
-			break;
+		break;
 
 		default:
 			ret = -EINVAL;
-			printk("%s: DO NOT support this type sensor\n",__func__);
-			break;
+			pr_err("%s: this type of sensor is not supported\n",
+				__func__);
+		break;
 	}
 	if (ret == 0)
-		printk("%s: Enable sensor SUCCESS\n",__func__);
+		pr_info("%s: Enable sensor SUCCESS\n",__func__);
 
 	return count;
 }
-static ssize_t stk3x1x_alsps_enable_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+
+static ssize_t stk3x1x_alsps_enable_show(struct kobject *kobj,
+		struct kobj_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "als:%d  prox:%d\n", g_ps_data->als_enabled, g_ps_data->ps_enabled);
+	return snprintf(buf, PAGE_SIZE, "als:%d  prox:%d\n",
+			g_ps_data->als_enabled, g_ps_data->ps_enabled);
 }
-static struct kobj_attribute enable = 
-{
+
+static struct kobj_attribute enable = {
 	.attr = {"enable", 0664},
 	.show = stk3x1x_alsps_enable_show,
 	.store = stk3x1x_alsps_enable_store,
 };
-static ssize_t stk3x1x_prox_raw_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+
+static ssize_t stk3x1x_prox_raw_show(struct kobject *kobj,
+		struct kobj_attribute *attr, char *buf)
 {
 	uint32_t reading;
+
 	reading = stk3x1x_get_ps_reading(g_ps_data);
 	return snprintf(buf, PAGE_SIZE, "%d\n", reading);
 }
-static struct kobj_attribute prox_raw = 
-{
+
+static struct kobj_attribute prox_raw = {
 	.attr = {"prox_raw", 0444},
 	.show = stk3x1x_prox_raw_show,
 };
-static ssize_t stk3x1x_als_raw_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+
+static ssize_t stk3x1x_als_raw_show(struct kobject *kobj,
+		struct kobj_attribute *attr, char *buf)
 {
 	int32_t reading;
-	reading = stk3x1x_get_als_reading(g_ps_data);
 
+	reading = stk3x1x_get_als_reading(g_ps_data);
 	return snprintf(buf, PAGE_SIZE, "%d\n", reading);
 }
-static struct kobj_attribute als_raw = 
-{
+
+static struct kobj_attribute als_raw = {
 	.attr = {"als_raw", 0444},
 	.show = stk3x1x_als_raw_show,
 };
 
-
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD    // Do not modify it as wilful, because it is used for algo.
 static ssize_t stk3x1x_name_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%s", DEVICE_NAME);
@@ -1892,14 +1895,11 @@ static struct kobj_attribute far_status =
 	.attr = {"far_status", 0444},
 	.show = stk3x1x_far_status_show,
 };
-#endif
 
-static const struct attribute *stk3x1x_ftm_attrs[] = 
-{
+static const struct attribute *stk3x1x_ftm_attrs[] = {
 	&enable.attr,
 	&prox_raw.attr,
 	&als_raw.attr,
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD	
 	&name.attr,
 	&is_high_light.attr,
 	&ps_enable.attr,
@@ -1908,17 +1908,17 @@ static const struct attribute *stk3x1x_ftm_attrs[] =
 	&ps_min_val.attr,
 	&algo_wakeup.attr,
 	&algo_info.attr,
-#endif
 	NULL
 };
 
 static struct dev_ftm stk3x1x_ftm;
-static int stk3x1x_probe(struct i2c_client *client,const struct i2c_device_id *id)
+static int stk3x1x_probe(struct i2c_client *client,
+			const struct i2c_device_id *id)
 {
 	int err = -ENODEV;
 	struct stk3x1x_data *ps_data;
 	struct stk3x1x_platform_data *plat_data;
-	printk(KERN_INFO "%s : driver version = %s\n", __func__, DRIVER_VERSION);
+	printk(KERN_INFO "%s: driver version = %s\n", __func__, DRIVER_VERSION);
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 	{
@@ -1943,21 +1943,24 @@ static int stk3x1x_probe(struct i2c_client *client,const struct i2c_device_id *i
 	wake_lock_init(&ps_data->ps_wakelock,WAKE_LOCK_SUSPEND, "stk_input_wakelock");
 
 	if (client->dev.of_node) {
-		plat_data = devm_kzalloc(&client->dev,sizeof(struct stk3x1x_platform_data), GFP_KERNEL);
+		plat_data = devm_kzalloc(&client->dev,
+			sizeof(struct stk3x1x_platform_data), GFP_KERNEL);
 		if (!plat_data) {
 			dev_err(&client->dev, "Failed to allocate memory\n");
 			return -ENOMEM;
 		}
 
 		err = stk3x1x_parse_dt(&client->dev, plat_data);
-		dev_err(&client->dev,"%s: stk3x1x_parse_dt ret=%d\n", __func__, err);
+		dev_err(&client->dev,
+			"%s: stk3x1x_parse_dt ret=%d\n", __func__, err);
 		if (err)
 			return err;
 	} else
 		plat_data = client->dev.platform_data;
 
 	if (!plat_data) {
-		dev_err(&client->dev,"%s: no stk3x1x platform data!\n", __func__);
+		dev_err(&client->dev,
+			"%s: no stk3x1x platform data!\n", __func__);
 		goto err_als_input_allocate;
 	}
 	ps_data->als_transmittance = plat_data->transmittance;
@@ -1966,7 +1969,8 @@ static int stk3x1x_probe(struct i2c_client *client,const struct i2c_device_id *i
 	ps_data->pdata = plat_data;
 
 	if (ps_data->als_transmittance == 0) {
-		dev_err(&client->dev,"%s: Please set als_transmittance\n", __func__);
+		dev_err(&client->dev,
+			"%s: Please set als_transmittance\n", __func__);
 		goto err_als_input_allocate;
 	}
 
@@ -2044,18 +2048,19 @@ static int stk3x1x_probe(struct i2c_client *client,const struct i2c_device_id *i
 
 	ps_data->als_enabled = false;
 	ps_data->ps_enabled = false;
-
 	/* make sure everything is ok before registering the class device */
 	ps_data->als_cdev = sensors_light_cdev;
 	ps_data->als_cdev.sensors_enable = stk_als_enable_set;
 	ps_data->als_cdev.sensors_poll_delay = stk_als_poll_delay_set;
-	err = sensors_classdev_register(&ps_data->als_input_dev->dev,&ps_data->als_cdev);
+	err = sensors_classdev_register(&ps_data->als_input_dev->dev,
+			&ps_data->als_cdev);
 	if (err)
 		goto err_class_sysfs_light;
 
 	ps_data->ps_cdev = sensors_proximity_cdev;
 	ps_data->ps_cdev.sensors_enable = stk_ps_enable_set;
-	err = sensors_classdev_register(&ps_data->ps_input_dev->dev,&ps_data->ps_cdev);
+	err = sensors_classdev_register(&ps_data->ps_input_dev->dev,
+			&ps_data->ps_cdev);
 	if (err)
 		goto err_class_sysfs_prox;
 
@@ -2070,15 +2075,12 @@ static int stk3x1x_probe(struct i2c_client *client,const struct i2c_device_id *i
 	stk3x1x_ftm.i2c_client = ps_data->client;
 	stk3x1x_ftm.attrs = stk3x1x_ftm_attrs;
 	stk3x1x_ftm.priv_data = ps_data;
-	register_single_dev_ftm(&stk3x1x_ftm);       
+	register_single_dev_ftm(&stk3x1x_ftm);
 
-#ifdef STK3X1X_ALSPS_DYNAMIC_THRESHOLD  
 
 	INIT_DELAYED_WORK(&sample_ps_work, sample_work_func);
-	queue_delayed_work(ps_data->stk_wq,&sample_ps_work, msecs_to_jiffies(5000)); 
-
+	queue_delayed_work(ps_data->stk_wq,&sample_ps_work, msecs_to_jiffies(5000));
 	init_waitqueue_head(&enable_wq);
-#endif
 
 	printk(KERN_ERR"%s: probe successfully", __func__);
 
@@ -2122,22 +2124,17 @@ err_power_init:
 static int stk3x1x_remove(struct i2c_client *client)
 {
 	struct stk3x1x_data *ps_data = i2c_get_clientdata(client);
-
 	free_irq(ps_data->irq, ps_data);
 	gpio_free(ps_data->int_pin);
-
 	hrtimer_try_to_cancel(&ps_data->als_timer);
 	destroy_workqueue(ps_data->stk_als_wq);
-
 	destroy_workqueue(ps_data->stk_wq);
-
 	sysfs_remove_group(&ps_data->ps_input_dev->dev.kobj, &stk_ps_attribute_group);
 	sysfs_remove_group(&ps_data->als_input_dev->dev.kobj, &stk_als_attribute_group);
 	input_unregister_device(ps_data->ps_input_dev);
 	input_unregister_device(ps_data->als_input_dev);
 	input_free_device(ps_data->ps_input_dev);
 	input_free_device(ps_data->als_input_dev);
-
 	wake_lock_destroy(&ps_data->ps_wakelock);
 	mutex_destroy(&ps_data->io_lock);
 	kfree(ps_data);
@@ -2165,7 +2162,7 @@ static const struct dev_pm_ops stk3x1x_pm_ops = {
 static struct i2c_driver stk_ps_driver =
 {
 	.driver = {
-		.name = DEVICE_NAME,
+	.name = DEVICE_NAME,
 		.owner = THIS_MODULE,
 		.of_match_table = stk_match_table,
 		.pm = &stk3x1x_pm_ops,

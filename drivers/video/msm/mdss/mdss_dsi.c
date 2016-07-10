@@ -485,11 +485,7 @@ static int mdss_dsi_off(struct mdss_panel_data *pdata, int power_state)
 #ifdef VENDOR_EDIT
 	/* nanwei.deng@Mobile Phone Software bsp.Driver, 2014/10/30  Add for 14045 charger */
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
-	if (is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15018) || 
-		is_project(OPPO_15022) || is_project(OPPO_14045) || is_project(OPPO_15005) || 
-		is_project(OPPO_15011) || is_project(OPPO_15035) || is_project(OPPO_15043) || 
-		is_project(OPPO_15085) || is_project(OPPO_15029) || is_project(OPPO_15109) ||
-		is_project(OPPO_16000))
+	if (is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_14045) || is_project(OPPO_15005) || is_project(OPPO_15011) || is_project(OPPO_15035) || is_project(OPPO_15085) || is_project(OPPO_15029) || is_project(OPPO_15109))
 	{
 		opchg_check_lcd_off();
 	}
@@ -595,11 +591,7 @@ int mdss_dsi_on(struct mdss_panel_data *pdata)
 #ifdef VENDOR_EDIT
 	/* nanwei.deng@Mobile Phone Software bsp.Driver, 2014/10/30  Add for 14045 charger */
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
-	if (is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15018)|| 
-		is_project(OPPO_15022) || is_project(OPPO_14045) || is_project(OPPO_15005)|| 
-		is_project(OPPO_15011) || is_project(OPPO_15035) || is_project(OPPO_15043)|| 
-		is_project(OPPO_15085) || is_project(OPPO_15029) || is_project(OPPO_15109)||
-		is_project(OPPO_16000))
+	if (is_project(OPPO_14005) || is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_14045) || is_project(OPPO_15005)|| is_project(OPPO_15011) || is_project(OPPO_15085) || is_project(OPPO_15109))
 	{
 		opchg_check_lcd_on();
 	}
@@ -630,15 +622,6 @@ int mdss_dsi_on(struct mdss_panel_data *pdata)
 		goto end;
 	}
 
-	/* wuyu@EXP.BaseDrv.LCM, 2015-08-13, modify for display question when connecting to WifiDisplay */
-	if (is_project(OPPO_15085)) {
-		u32 temp;
-		temp = MIPI_INP((ctrl_pdata->ctrl_base) + 0xac);
-		temp &= ~(1<<28);
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xac, temp);
-		wmb();
-	}
-	
 	/*
 	 * Enable DSI bus clocks prior to resetting and initializing DSI
 	 * Phy. Phy and ctrl setup need to be done before enabling the link

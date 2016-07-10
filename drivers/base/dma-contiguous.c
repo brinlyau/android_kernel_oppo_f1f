@@ -570,8 +570,7 @@ unsigned long cma_get_size(struct device *dev)
 
 	return cma->count << PAGE_SHIFT;
 }
-#ifdef VENDOR_EDIT
-	/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
+/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
 phys_addr_t cma_get_base_byname(char *name)
 {
 	struct cma *cma = cma_get_area_by_name(name);
@@ -589,7 +588,6 @@ unsigned long cma_get_size_byname(char *name)
 	else 
 		return 0;
 }
-#endif
 
 static void clear_cma_bitmap(struct cma *cma, unsigned long pfn, int count)
 {

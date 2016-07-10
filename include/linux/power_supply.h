@@ -46,11 +46,11 @@ enum {
 	POWER_SUPPLY_CHARGE_TYPE_TRICKLE,
 	POWER_SUPPLY_CHARGE_TYPE_FAST,
 	POWER_SUPPLY_CHARGE_TYPE_TAPER,
-#ifdef VENDOR_EDIT	
+#ifdef VENDOR_EDIT
 	/*OPPO 2013-10-22 liaofuchun add for bq24196 charger*/
 	POWER_SUPPLY_CHARGE_TYPE_TERMINATE,
 	/*OPPO 2013-10-28 liaofuchun add end*/
-#endif	
+#endif
 };
 
 enum {

@@ -5300,7 +5300,7 @@ static int probe_freq_mitigation(struct device_node *node,
 	if (ret)
 		data->freq_min = 0;
 #endif
-	
+
 PROBE_FREQ_EXIT:
 	if (ret) {
 		dev_info(&pdev->dev,

@@ -62,7 +62,7 @@ int set_backlight_pwm(int state);
 static struct lm3630_chip_data *lm3630_pchip;
 #ifdef VENDOR_EDIT
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/04/20  Add for 15009 lcd +-5v START */
-static int disp_enp_gpio_15009 = 999 ;		//GPIO_97
+static int disp_enp_gpio_15009 = 999;		//GPIO_97
 static int disp_enn_gpio_15009 = 1000;		//GPIO_98
 /* YongPeng.Yi@SWDP.MultiMedia END */
 /* goushengjun@SWDP.MultiMedia, 2015/04/20  Add for 15029 lcd +-5v START */
@@ -83,7 +83,7 @@ static const char * const bled_name[] = {
 	[BLED_1] = "lm3630_bled1",	/*Bank1 controls bled1 */
 	[BLED_2] = "lm3630_bled2",	/*Bank1 or 2 controls bled2 */
 };
-#endif 
+#endif
 
 struct lm3630_chip_data {
 	struct device *dev;
@@ -120,7 +120,7 @@ static int lm3630_chip_init(struct lm3630_chip_data *pchip)
 	reg_val = ((pdata->bank_b_ctrl & 0x01) << 1) |
 			(pdata->bank_a_ctrl & 0x07)|0x18;//linear;
     pr_err("%s REG_CTRL:0x%x\n", __func__, reg_val);
-	if(is_project(OPPO_15035) || is_project(OPPO_15109) || is_project(OPPO_16000)){
+	if(is_project(OPPO_15035) || is_project(OPPO_15109)){
 	/* YongPeng.Yi@SWDP.MultiMedia, 2015/10/08  Add for 15035 BL SM5306 */
 		reg_val = 0x1F;
 	}
@@ -143,13 +143,13 @@ static int lm3630_chip_init(struct lm3630_chip_data *pchip)
 		ret = regmap_write(pchip->regmap, REG_MAXCU_B, 20);
 		if (ret < 0)
 			goto out;
-	
+
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/06/03  Add for silence mode */
 	if(MSM_BOOT_MODE__SILENCE == get_boot_mode())
 		return 0;
 #endif /*VENDOR_EDIT*/
-	
+
 	/* set initial brightness */
 	if (pdata->bank_a_ctrl != BANK_A_CTRL_DISABLE) {
 		ret = regmap_write(pchip->regmap,
@@ -424,10 +424,9 @@ extern struct regulator *vddf_2v5;
 {
 	int ret;
 	int temp_bl = 0;
-
 	struct lm3630_chip_data *pchip = lm3630_pchip;
 	pr_debug("%s: bl=%d\n", __func__,bl_level);
-	
+
 	if(!pchip){
 		dev_err(pchip->dev, "lm3630_bank_a_update_status pchip is null\n");
 		return -ENOMEM;
@@ -438,9 +437,13 @@ extern struct regulator *vddf_2v5;
         return bl_level;
     }
 
+
+
+
+
 	/* brightness 0 means disable */
 	if (!bl_level) {
-        ret = regmap_write(lm3630_pchip->regmap, REG_BRT_A, 0);
+	        ret = regmap_write(lm3630_pchip->regmap, REG_BRT_A, 0);
 		ret = regmap_update_bits(pchip->regmap, REG_CTRL, 0x80, 0x80);
 		if (ret < 0)
 			goto out;
@@ -461,21 +464,6 @@ extern struct regulator *vddf_2v5;
 		}
 /* YongPeng.Yi@SWDP.MultiMedia END */
 #endif /*VENDOR_EDIT*/
-#ifdef VENDOR_EDIT
-		/* goushegnjun@SWDP.MultiMedia, 2015/08/16	Add for 15029 factory mode big current close +-5v START */
-				if(MSM_BOOT_MODE__FACTORY == get_boot_mode()&&is_project(OPPO_15029)){
-					mdelay(230);
-					if(gpio_is_valid(disp_enp_gpio_15029))
-						gpio_set_value(disp_enp_gpio_15029, 0); //GPIO_114
-					else
-						pr_err("%s: unvalid gpio disp_enp_gpio_15029 \n", __func__);
-					mdelay(3);
-					if(gpio_is_valid(disp_enn_gpio_15029))
-						gpio_set_value(disp_enn_gpio_15029, 0); //GPIO_113
-					else
-						pr_err("%s: unvalid gpio disp_enn_gpio_15029 \n", __func__);
-				}
-		/* goushengjun@SWDP.MultiMedia END */
 	            if(MSM_BOOT_MODE__FACTORY == get_boot_mode()&&is_project(OPPO_15109)){
 					mdelay(230);
 					if(gpio_is_valid(disp_enp_gpio_15029))
@@ -488,9 +476,7 @@ extern struct regulator *vddf_2v5;
 					else
 						pr_err("%s: unvalid gpio disp_enn_gpio_15109 \n", __func__);
 				}
-#endif /*VENDOR_EDIT*/
 
-		
 		return bl_level;
 	}
 
@@ -508,7 +494,7 @@ extern struct regulator *vddf_2v5;
 #else /*VENDOR_EDIT*/
 		if(bl_level < 4)
 			bl_level = 4;
-		if(is_project(OPPO_15009) || is_project(OPPO_15029) || is_project(OPPO_15109)){
+		if(is_project(OPPO_15009) || is_project(OPPO_15109)){
 			if(cabc_mode == 3){
 			if(bl_level>CABC_DISABLE_LEVEL_15009){
 				ret = regmap_write(pchip->regmap,
@@ -534,10 +520,10 @@ extern struct regulator *vddf_2v5;
 				ret = regmap_write(pchip->regmap, REG_BRT_A, temp_bl);
 #endif
 				}
-			}else{
+		}else{
 				ret = regmap_write(pchip->regmap, REG_BRT_A, bl_level);
 			}
-		}else if(is_project(OPPO_15037)||is_project(OPPO_15035) || is_project(OPPO_16000)){
+		}else if(is_project(OPPO_15037)||is_project(OPPO_15035)){
 			if(cabc_mode == 3){
 			if(bl_level>CABC_DISABLE_LEVEL_15037){
 				ret = regmap_write(pchip->regmap,
@@ -552,7 +538,7 @@ extern struct regulator *vddf_2v5;
 				ret = regmap_write(pchip->regmap, REG_BRT_A, bl_level);
 			}
 		}else{
-			ret = regmap_write(pchip->regmap, REG_BRT_A, bl_level);
+					ret = regmap_write(pchip->regmap, REG_BRT_A, bl_level);
 		}
 
 		backlight_level =  bl_level;
@@ -564,7 +550,7 @@ extern struct regulator *vddf_2v5;
 			}
 		}
 
-		if(is_project(OPPO_15029) || is_project(OPPO_15109)){
+		if(is_project(OPPO_15109)){
 			if(bl_level <= CABC_DISABLE_LEVEL_15009 && pwm_flag==true){
 				set_backlight_pwm(0);
 			}else if(bl_level > CABC_DISABLE_LEVEL_15009 && pwm_flag==false){
@@ -572,7 +558,7 @@ extern struct regulator *vddf_2v5;
 			}
 		}
 
-		if(is_project(OPPO_15037) || is_project(OPPO_15035) || is_project(OPPO_16000)){
+		if(is_project(OPPO_15037)){
 			if(bl_level <= CABC_DISABLE_LEVEL_15037 && pwm_flag==true){
 				set_backlight_pwm(0);
 			}else if(bl_level > CABC_DISABLE_LEVEL_15037 && pwm_flag==false && cabc_mode>0){
@@ -598,9 +584,9 @@ static int lm3630_dt(struct device *dev, struct lm3630_platform_data *pdata)
 {
 	u32 temp_val;
 	int rc;
-	struct device_node *np = dev->of_node;	
+	struct device_node *np = dev->of_node;
 		dev_err(dev, "%s parse device tree\n", __func__);
-		
+
 	rc = of_property_read_u32(np, "ti,bank-a-ctrl", &temp_val);
 	if (rc) {
 		dev_err(dev, "Unable to read bank-a-ctrl\n");
@@ -675,8 +661,7 @@ static int lm3630_dt(struct device *dev, struct lm3630_platform_data *pdata)
 		    pdata->bl_en_gpio = of_get_named_gpio(np, "ti,bl-enable-gpio69", 0);
 		else
 		    pdata->bl_en_gpio = of_get_named_gpio(np, "ti,bl-enable-gpio", 0);
-	/* Goushengjun for 15029*/
-	}else if(is_project(OPPO_15029) || is_project(OPPO_15109)){
+	}else if(is_project(OPPO_15109)){
 		pdata->bl_en_gpio = of_get_named_gpio(np, "ti,bl-enable-gpio115", 0);
 	}else{
 		pdata->bl_en_gpio = of_get_named_gpio(np, "ti,bl-enable-gpio", 0);
@@ -685,9 +670,9 @@ static int lm3630_dt(struct device *dev, struct lm3630_platform_data *pdata)
 #endif /*VEDNOR_EDIT*/
     if (!gpio_is_valid(pdata->bl_en_gpio))
 		    pr_err("%s:%d, Backlight_en gpio not specified\n", __func__, __LINE__);
-	
-	
-#if 0														
+
+
+#if 0
 	pdata->bank_b_ctrl=BANK_B_CTRL_DISABLE;
 	pdata->init_brt_led1=200;
 	pdata->init_brt_led2=200;
@@ -744,7 +729,7 @@ static int lm3630_probe(struct i2c_client *client,
 	unsigned int revision;
     static char *temp;
 #endif /*VENDOR_EDIT*/
-	
+
 	pr_err("%s Enter\n", __func__);
 	if (client->dev.of_node) {
 		pdata = devm_kzalloc(&client->dev,
@@ -759,7 +744,7 @@ static int lm3630_probe(struct i2c_client *client,
 			return ret;
 	} else
 		pdata = client->dev.platform_data;
-	
+
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		dev_err(&client->dev, "fail : i2c functionality check...\n");
 		return -EOPNOTSUPP;
@@ -775,7 +760,7 @@ static int lm3630_probe(struct i2c_client *client,
 	if (!pchip)
 		return -ENOMEM;
 	lm3630_pchip=pchip;
-	
+
 	pchip->pdata = pdata;
 	pchip->dev = &client->dev;
 
@@ -785,7 +770,7 @@ static int lm3630_probe(struct i2c_client *client,
 	}
     /* Supply power for I2C end */
 
-//HW enable 
+//HW enable
     ret = gpio_request(pdata->bl_en_gpio, "backlight_enable");
 	if (ret) {
 		pr_err("request enable gpio failed, ret=%d\n", ret);
@@ -822,14 +807,14 @@ static int lm3630_probe(struct i2c_client *client,
     }else if (revision == 0x00) {
 	/* YongPeng.Yi@SWDP.MultiMedia, 2015/10/08  Add for 15035 BL SM5306 */
         temp = "00";
-    }else {
+    } else {
         temp = "unknown";
     }
 	if((is_project(OPPO_15035)||is_project(OPPO_15109) || is_project(OPPO_16000)) && (revision == 0x00)){
 		/* YongPeng.Yi@SWDP.MultiMedia, 2015/10/08  Add for 15035 BL SM5306 */
 	    register_device_proc("backlight", temp, "SM5306");
 	}else{
-	    register_device_proc("backlight", temp, "LM3630A");
+    register_device_proc("backlight", temp, "LM3630A");
 	}
 #endif /*VENDOR_EDIT*/
 #ifdef CONFIG_BL_REGISTER
@@ -874,7 +859,7 @@ static int lm3630_probe(struct i2c_client *client,
 err_bl_reg:
 	dev_err(&client->dev, "fail : backlight register.\n");
 	lm3630_backlight_unregister(pchip);
-#endif	
+#endif
 err_chip_init:
 	return ret;
 }
@@ -896,7 +881,7 @@ static int lm3630_remove(struct i2c_client *client)
 #endif
 	if (gpio_is_valid(LM3630_ENABLE_GPIO))
 		gpio_free(LM3630_ENABLE_GPIO);
-	
+
 	if (pchip->irq) {
 		free_irq(pchip->irq, pchip);
 		flush_workqueue(pchip->irqthread);
@@ -915,13 +900,13 @@ MODULE_DEVICE_TABLE(i2c, lm3630_id);
 static int lm3630_suspend(struct i2c_client *client, pm_message_t mesg)
 {
 	int rc ;
-	if(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) || is_project(OPPO_16000)){
+	if(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035)){
 		return 0;
 	}
 	pr_err("%s: YXQ backlight suspend.\n", __func__);
 
 
-	
+
     //rc = regmap_write(lm3630_pchip->regmap, REG_BRT_A, 0);
 	rc  = regmap_update_bits(lm3630_pchip->regmap, REG_CTRL, 0x80, 0x80);
 	if (rc  < 0)
@@ -942,27 +927,27 @@ static int lm3630_resume(struct i2c_client *client)
 
 	pr_err("%s: YXQ backlight resume.\n", __func__);
     //rc = regmap_write(lm3630_pchip->regmap, REG_BRT_A, 0);
-	if(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) || is_project(OPPO_16000)){
+	if(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035)){
 		//Xiaori.yuan add for temp power secquence
 		return 0;
 		//add end
-	 	if(lm3630_pchip!=NULL){
+		if(lm3630_pchip!=NULL){
 		     if (gpio_is_valid(lm3630_pchip->pdata->i2c_1v8_gpio_14045)){
-		 	     gpio_set_value((lm3630_pchip->pdata->i2c_1v8_gpio_14045), 1);
+			     gpio_set_value((lm3630_pchip->pdata->i2c_1v8_gpio_14045), 1);
 		         gpio_direction_output((lm3630_pchip->pdata->i2c_1v8_gpio_14045), 1);
 		         //pr_err("%s yxr i2c_1v8_gpio_14045 --> 1\n", __func__);
 		     }else{
-		     	 pr_err("%s yxr i2c_1v8_gpio_14045 is not specfied\n", __func__);
+			 pr_err("%s yxr i2c_1v8_gpio_14045 is not specfied\n", __func__);
 		     }
-	 	}
+		}
 
 	}
-	
+
 	rc  = regmap_update_bits(lm3630_pchip->regmap, REG_CTRL, 0x80, 0x00);
 	if (rc  < 0)
 	{
 		pr_err("%s: unable to resume !!!!!!!!!!!!\n", __func__);
-	}	
+	}
 //	rc = gpio_direction_output(LM3630_ENABLE_GPIO, 1);
 //	if (rc) {
 //		pr_err("%s: unable to enable!!!!!!!!!!!!\n", __func__);
@@ -977,7 +962,7 @@ static int lm3630_resume(struct i2c_client *client)
 int set_backlight_pwm(int state)
 {
 	int rc = 0;
-	
+
 	if (get_boot_mode() == MSM_BOOT_MODE__NORMAL) {
 		if(is_project(OPPO_15009)){
 			if( state == 1 && backlight_level <= CABC_DISABLE_LEVEL_15009 ) return rc;

@@ -46,10 +46,8 @@
 
 static int restart_mode;
 void *restart_reason;
-#ifdef VENDOR_EDIT //fangpan@oppo.com,2015/11/04
 #define MAX_PANIC_STRING 20
 char panic_reason[MAX_PANIC_STRING];
-#endif
 static bool scm_pmic_arbiter_disable_supported;
 static bool scm_deassert_ps_hold_supported;
 /* Download mode master kill-switch */
@@ -70,9 +68,9 @@ static int dload_set(const char *val, struct kernel_param *kp);
 
 #ifdef VENDOR_EDIT //Tong.han@BSP.group.TP, Modify for selct dump config for diffrent sw version,2015/06/28
 #if defined(CONFIG_OPPO_DAILY_BUILD)
-	static int download_mode = 1;
+static int download_mode = 1;
 #else
-	static int download_mode = 0;
+static int download_mode = 0;
 #endif
 #endif/*VENDOR_EDIT*/
 
@@ -223,8 +221,6 @@ static void halt_spmi_pmic_arbiter(void)
 				  SCM_IO_DISABLE_PMIC_ARBITER), &desc);
 	}
 }
-#ifdef VENDOR_EDIT
-/* OPPO 2013.07.09 hewei modify begin for restart mode*/
 #define FACTORY_MODE	0x77665504
 #define WLAN_MODE		0x77665505
 #define RF_MODE			0x77665506
@@ -232,12 +228,8 @@ static void halt_spmi_pmic_arbiter(void)
 #define SILENCE_MODE    0x77665508
 #define RECOVERY_MODE   0x77665502
 #define FASTBOOT_MODE   0x77665500
-/* OPPO 2013.07.09 hewei modify end for restart mode*/
-#endif //VENDOR_EDIT
 
-#ifdef VENDOR_EDIT //yixue.ge@bsp.drv add some log for debug
 extern int qpnp_pon_print_power_reason(void);
-#endif
 
 static void msm_restart_prepare(const char *cmd)
 {
@@ -262,13 +254,12 @@ static void msm_restart_prepare(const char *cmd)
 		/* Set warm reset as true when device is in dload mode
 		 *  or device doesn't boot up into recovery, bootloader or rtc.
 		 */
-
 		if (get_dload_mode() ||
 			((cmd != NULL && cmd[0] != '\0') &&
 			strcmp(cmd, "recovery") &&
 			strcmp(cmd, "bootloader") &&
 			strcmp(cmd, "rtc")))
-			need_warm_reset = true;	
+			need_warm_reset = true;
 	}
 
 #else
@@ -306,15 +297,11 @@ static void msm_restart_prepare(const char *cmd)
 
 #endif /*VENDOR_EDIT*/
 
-#ifdef VENDOR_EDIT
 //tanggeliang@Swdp.Android.Kernel, 2015/05/07, enable ramoops_console
 	if (in_panic) {
 		need_warm_reset = true;
-/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
 		cmd = panic_reason;
-/* OPPO 2015-11-04 fangpan@oppo.com modify the crash save tool*/
 	}
-#endif /* VENDOR_EDIT */
 
 #ifdef VENDOR_EDIT //yixue.ge@bsp.drv add some log for debug
 	if(cmd != NULL && cmd[0] != '\0')
@@ -334,13 +321,13 @@ static void msm_restart_prepare(const char *cmd)
 /* OPPO 2013.07.09 hewei modify begin for restart mode*/
 	if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
-			qpnp_pon_set_restart_reason(
-				PON_RESTART_REASON_BOOTLOADER);
-			__raw_writel(0x77665500, restart_reason);
+				qpnp_pon_set_restart_reason(
+					PON_RESTART_REASON_BOOTLOADER);
+				__raw_writel(0x77665500, restart_reason);
 		} else if (!strncmp(cmd, "recovery", 8)) {
-			qpnp_pon_set_restart_reason(
-				PON_RESTART_REASON_RECOVERY);
-			__raw_writel(0x77665502, restart_reason);
+				qpnp_pon_set_restart_reason(
+					PON_RESTART_REASON_RECOVERY);
+				__raw_writel(0x77665502, restart_reason);
 		} else if (!strcmp(cmd, "rtc")) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_RTC);
@@ -398,7 +385,7 @@ static void msm_restart_prepare(const char *cmd)
 		}
 	}
 /* OPPO 2013.07.09 hewei modify en for restart mode*/
-#endif //VENDOR_EDIT
+#endif
 
 	flush_cache_all();
 
@@ -552,11 +539,11 @@ static int msm_restart_probe(struct platform_device *pdev)
 	msm_ps_hold = devm_ioremap_resource(dev, mem);
 	if (IS_ERR(msm_ps_hold))
 		return PTR_ERR(msm_ps_hold);
+
 #ifdef VENDOR_EDIT
-/* OPPO 2013.07.09 hewei added begin for default restart reason*/
 	__raw_writel(0x7766550a, restart_reason);
-/* OPPO 2013.07.09 hewei added end for default restart reason*/
-#endif //VENDOR_EDIT
+#endif
+
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	if (mem)
 		tcsr_boot_misc_detect = mem->start;

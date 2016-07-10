@@ -843,7 +843,6 @@ static int gpio_keys_probe(struct platform_device *pdev)
 		error = gpio_keys_setup_key(pdev, input, bdata, button);
 		if (error)
 			goto err_pinctrl;
-#ifdef VENDOR_EDIT /* LiuPing@Phone.BSP.Sensor, 2014/11/26, add for hall proc. */
 #ifdef HALL_KEY_STATUS_PROC
               if (strcmp(button->desc, "hallsensor_key") == 0)
               {
@@ -855,7 +854,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
                     }
               }
 #endif
-#endif /*VENDOR_EDIT*/
+
 		if (button->wakeup)
 			wakeup = 1;
 	}

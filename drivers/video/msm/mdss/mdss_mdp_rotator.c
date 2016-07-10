@@ -262,7 +262,7 @@ static int mdss_mdp_rotator_queue_sub(struct mdss_mdp_rotator_session *rot,
 		mutex_lock(orig_ctl->shared_lock);
 
 	rot_ctl = mdss_mdp_ctl_mixer_switch(orig_ctl,
-			MDSS_MDP_WB_CTL_TYPE_BLOCK);
+					MDSS_MDP_WB_CTL_TYPE_BLOCK);
 	if (!rot_ctl) {
 		ret = -EINVAL;
 		goto error;
