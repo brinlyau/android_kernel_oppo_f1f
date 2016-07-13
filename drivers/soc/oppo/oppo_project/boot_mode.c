@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2016, The CyanogenMod Project
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -99,7 +112,6 @@ static struct attribute_group attr_group = {
 	.attrs = g,
 };
 
-#ifdef VENDOR_EDIT
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
 char pwron_event[16];
 static int __init start_reason_init(void)
@@ -139,11 +151,9 @@ static int __init boot_mode_init(void)
 
     printk(KERN_INFO "%s: parse boot_mode is %s\n", __func__, boot_mode);
 
-#ifdef VENDOR_EDIT
 	/* OPPO 2013.07.09 hewei add begin for factory mode*/
 	board_mfg_mode_init();
 	/* OPPO 2013.07.09 hewei add end */
-#endif //VENDOR_EDIT
 
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
     start_reason_init();
@@ -159,7 +169,5 @@ static int __init boot_mode_init(void)
 }
 //__setup("androidboot.mode=", boot_mode_setup);
 /* OPPO 2013-09-03 zhanglong add for add interface start reason and boot_mode end */
-#endif //VENDOR_EDIT
 
-//module_init(boot_mode_init);
 arch_initcall(boot_mode_init);
