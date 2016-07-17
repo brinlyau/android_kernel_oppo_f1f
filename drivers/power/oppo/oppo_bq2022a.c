@@ -43,7 +43,6 @@
 #define DEVICE_BATTERY_ID_TYPE_SDI		"SDI"
 #define DEVICE_BATTERY_ID_TYPE_LG		"LG"
 
-
 #define OPPO_BATTERY_ENCRPTION
 static bool oppo_high_battery_status = 1;
 static int oppo_check_ID_status = 0;
@@ -51,7 +50,7 @@ static bool oppo_battery_status_init_flag = 0;
 //int Gpio_BatId_Init(void);
 void CheckIDCompare(void);
 
-#define DEBUG_BQ2202A           
+#define DEBUG_BQ2202A
 #define READ_PAGE_BQ2202A
 
 //#define BQ2202A_GPIO				53
@@ -62,24 +61,24 @@ static int bq2202a_gpio = 0;
 
 
 #define READ_ID_CMD					0x33            // read ROM
-#define SKIP_ROM_CMD               	0xCC           // skip ROM
-#define WRITE_EPROM_CMD        		0x0F           // write EPROM 
-#define READ_PAGE_ID_CMD        	0xF0          // read EPROM  PAGE
-#define READ_FIELD_ID_CMD       	0xC3          // read EPROM  FIELD
+#define SKIP_ROM_CMD			0xCC           // skip ROM
+#define WRITE_EPROM_CMD			0x0F           // write EPROM
+#define READ_PAGE_ID_CMD		0xF0          // read EPROM  PAGE
+#define READ_FIELD_ID_CMD		0xC3          // read EPROM  FIELD
 
 #ifdef READ_PAGE_BQ2202A
-#define AddressLow                   		0x20        // EPROM start address LOW 
-#define AddressHigh                  		0x00        // EPROM start address  HIGH
+#define AddressLow				0x20        // EPROM start address LOW
+#define AddressHigh				0x00        // EPROM start address  HIGH
 #define BQ2022_MANUFACTURE_ADDR_LOW			0x40
 #define BQ2022_MANUFACTURE_ADDR_HIGH		0x00
 #else
-#define AddressLow                   	0x00        // EPROM start address LOW 
-#define AddressHigh                  	0x00        // EPROM start address  HIGH
+#define AddressLow			0x00        // EPROM start address LOW
+#define AddressHigh			0x00        // EPROM start address  HIGH
 #define BQ2022_MANUFACTURE_ADDR_LOW		0x00
 #define BQ2022_MANUFACTURE_ADDR_HIGH		0x00
 #endif
 
-static  unsigned char ReadIDDataByte[8];     //8*8=64bit            ID ROM 
+static  unsigned char ReadIDDataByte[8];     //8*8=64bit            ID ROM
 #ifdef READ_PAGE_BQ2202A
 static  unsigned char CheckIDDataByte[32];    // 32*8=256bit   EPROM  PAGE1
 #else
@@ -90,13 +89,13 @@ static  unsigned char CheckIDDataByte[128];    // 128*8=1024bit   EPROM  PAGE1
 
 static DEFINE_MUTEX(bq2202a_access);
 /**********************************************************************/
-/* 		void wait_us(int usec)										  */
+/*		void wait_us(int usec)										  */
 /*																      */
-/*	Description :   Creates a delay of approximately (usec + 5us) 	  */
-/*				  		when usec is greater.						  */
-/* 	Arguments : 		None										  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None								          */
+/*	Description :   Creates a delay of approximately (usec + 5us)	  */
+/*						when usec is greater.						  */
+/*	Arguments :		None										  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 #if 0
 void wait_us(int usec)
@@ -129,35 +128,35 @@ static int Gpio_BatId_Init(void)
 	return rc;
 }
 /**********************************************************************/
-/* 	static void SendReset(void)										  */
+/*	static void SendReset(void)										  */
 /*																      */
-/*	Description : 		Creates the Reset signal to initiate SDQ 	  */
-/*				  		communication.								  */
-/* 	Arguments : 		None										  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None								          */
+/*	Description :		Creates the Reset signal to initiate SDQ	  */
+/*						communication.								  */
+/*	Arguments :		None										  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 static void SendReset(void)
 {
-    
+
     gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_1);	            //Set High
     wait_us(20);													//Allow PWR cap to charge and power IC	~ 25us
-    gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_0);           	//Set Low
+    gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_0);		//Set Low
     wait_us(650);								//Reset time greater then 480us
-    //mt_set_gpio_out(bq2202a_gpio, 1);            	//Set High
+    //mt_set_gpio_out(bq2202a_gpio, 1);			//Set High
     gpio_direction_input(bq2202a_gpio);		//Set GPIO P9.3 as Input
 }
 
 /**********************************************************************/
-/* 	static unsigned char TestPresence(void)							  */
+/*	static unsigned char TestPresence(void)							  */
 /*																      */
-/*	Description : 		Detects if a device responds to Reset signal  */
-/* 	Arguments : 		PresenceTimer - Sets timeout if no device	  */
+/*	Description :		Detects if a device responds to Reset signal  */
+/*	Arguments :		PresenceTimer - Sets timeout if no device	  */
 /*							present									  */
 /*						InputData - Actual state of GPIO			  */
 /*						GotPulse - States if a pulse was detected	  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			GotPulse         							  */
+/*	Global Variables:	None										  */
+/*  Returns:			GotPulse								  */
 /**********************************************************************/
 static unsigned char TestPresence(void)
 {
@@ -168,24 +167,24 @@ static unsigned char TestPresence(void)
     gpio_direction_input(bq2202a_gpio);	        //Set GPIO P9.3 as Input
     PresenceTimer = 300;                                                //Set timeout, enough time to allow presence pulse
     GotPulse = 0;                                                           //Initialize as no pulse detected
-	wait_us(60);	
-    while ((PresenceTimer > 0) && (GotPulse == 0)) 
+	wait_us(60);
+    while ((PresenceTimer > 0) && (GotPulse == 0))
     {
         InputData = gpio_get_value(bq2202a_gpio);       //Monitor logic state of GPIO
 		/*int j = 0;
-		while(j < 10) 
+		while(j < 10)
 		{
 			printk("mt_get_gpio_in---------------InputData = %d\r\n", InputData);
 			j++;
 			wait_us(100);
-			
+
 		}*/
         if (InputData == 0)                                             //If GPIO is Low,
-        {                           
+        {
             GotPulse = 1;                                               //it means that device responded
         }
-        else                                                                //If GPIO is high      
-        {                                          
+        else                                                                //If GPIO is high
+        {
             GotPulse = 0;			                            //it means that device has not responded
             --PresenceTimer;		                            //Decrease timeout until enough time has been allowed for response
         }
@@ -198,13 +197,13 @@ static unsigned char TestPresence(void)
 }
 
 /**********************************************************************/
-/* 	static void WriteOneBit(unsigned char OneZero)					  */
+/*	static void WriteOneBit(unsigned char OneZero)					  */
 /*																      */
-/*	Description : 		This procedure outputs a bit in SDQ to the 	  */
-/*				  		slave.								  		  */
-/* 	Arguments : 		OneZero - value of bit to be written		  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None								          */
+/*	Description :		This procedure outputs a bit in SDQ to the	  */
+/*						slave.										  */
+/*	Arguments :		OneZero - value of bit to be written		  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 static void WriteOneBit(unsigned char OneZero)
 {
@@ -212,7 +211,7 @@ static void WriteOneBit(unsigned char OneZero)
 	gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_1);			//Set GPIO P9.3 as Output
     //mt_set_gpio_out(bq2202a_gpio, 1);		            //Set High
      gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_0);	                //Set Low
-    
+
      //printk("WriteOneBit----1------OneZero = %d\t\n", OneZero);
     if (OneZero != 0x00)
     {
@@ -221,22 +220,22 @@ static void WriteOneBit(unsigned char OneZero)
         wait_us(65);								//approximately 65us
     }
     else
-    { 
+    {
         wait_us(65);								//approximately 65us for a Bit 0
         gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_1);	            //Set High
-        wait_us(7);					   				//approximately 7us
+        wait_us(7);									//approximately 7us
     }
-    wait_us(5);	  									//approximately 5us
+    wait_us(5);										//approximately 5us
 }
 
 /**********************************************************************/
-/* 	static void WriteOneByte(unsigned char Data2Send)				  */
+/*	static void WriteOneByte(unsigned char Data2Send)				  */
 /*																      */
-/*	Description : 		This procedure calls the WriteOneBit() 		  */
-/*				  		function 8 times to send a byte in SDQ.		  */
-/* 	Arguments : 		Data2Send - Value of byte to be sent in SDQ	  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None								          */
+/*	Description :		This procedure calls the WriteOneBit()		  */
+/*						function 8 times to send a byte in SDQ.		  */
+/*	Arguments :		Data2Send - Value of byte to be sent in SDQ	  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 static void WriteOneByte(unsigned char Data2Send)
 {
@@ -245,8 +244,8 @@ static void WriteOneByte(unsigned char Data2Send)
     unsigned char Bit2Send;
 
     MaskByte = 0x01;
-	
-    for (i = 0; i < 8; i++) 
+
+    for (i = 0; i < 8; i++)
     {
         Bit2Send = Data2Send & MaskByte;		//Selects the bit to be sent
         WriteOneBit(Bit2Send);					//Writes the selected bit
@@ -255,43 +254,43 @@ static void WriteOneByte(unsigned char Data2Send)
 }
 
 /**********************************************************************/
-/* 	static unsigned char ReadOneBit(void)							  */
+/*	static unsigned char ReadOneBit(void)							  */
 /*																      */
-/*	Description : 		This procedure receives the bit value returned*/
-/*				  		by the SDQ slave.							  */
-/* 	Arguments : 		InBit - Bit value returned by slave			  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			InBit								          */
+/*	Description :		This procedure receives the bit value returned*/
+/*						by the SDQ slave.							  */
+/*	Arguments :		InBit - Bit value returned by slave			  */
+/*	Global Variables:	None										  */
+/*  Returns:			InBit								          */
 /**********************************************************************/
 static unsigned char ReadOneBit(void)
 {
     static unsigned char InBit;
-	
+
     gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_1);			//Set GPIO P9.3 as Output
-    													            //Set High
+													            //Set High
     gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_0);	                //Set Low
-   	gpio_direction_input(bq2202a_gpio);			//Set GPIO P9.3 as Input
-    wait_us(15);		   								//Strobe window	~ 12us
+	gpio_direction_input(bq2202a_gpio);			//Set GPIO P9.3 as Input
+    wait_us(15);										//Strobe window	~ 12us
     InBit = gpio_get_value(bq2202a_gpio);		        //This function takes about 3us
 													//Between the wait_us and GPIO_ReadBit functions
-													//approximately 15us should occur to monitor the 
+													//approximately 15us should occur to monitor the
 													//GPIO line and determine if bit read is one or zero
     wait_us(65);									//End of Bit
     gpio_direction_output(bq2202a_gpio, GPIO_DIR_OUT_1);			//Set GPIO P9.3 as Output
-    													            //Set High
+													            //Set High
     return InBit;									//Return bit value
 }
 
 /**********************************************************************/
-/* 	static unsigned char ReadOneByte(void)							  */
+/*	static unsigned char ReadOneByte(void)							  */
 /*																      */
-/*	Description : 		This procedure reads 8 bits on the SDQ line   */
-/*				  		and returns the byte value.					  */
-/* 	Arguments : 		Databyte - Byte value returned by SDQ slave	  */
+/*	Description :		This procedure reads 8 bits on the SDQ line   */
+/*						and returns the byte value.					  */
+/*	Arguments :		Databyte - Byte value returned by SDQ slave	  */
 /*						MaskByte - Used to seperate each bit	      */
 /*						i - Used for 8 time loop					  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			DataByte							          */
+/*	Global Variables:	None										  */
+/*  Returns:			DataByte							          */
 /**********************************************************************/
 static unsigned char ReadOneByte(void)
 {
@@ -299,11 +298,11 @@ static unsigned char ReadOneByte(void)
     unsigned char DataByte;
     unsigned char MaskByte;
 
-    DataByte = 0x00;			 								//Initialize return value
-	
+    DataByte = 0x00;											//Initialize return value
+
     for (i = 0; i < 8; i++)                                      //Select one bit at a time
-    {                  
-        MaskByte = ReadOneBit();				    		//Read One Bit
+    {
+        MaskByte = ReadOneBit();						//Read One Bit
         MaskByte <<= i;										//Determine Bit position within the byte
         DataByte = DataByte | MaskByte;					//Keep adding bits to form the byte
     }
@@ -311,19 +310,19 @@ static unsigned char ReadOneByte(void)
 }
 
 /**********************************************************************/
-/* 	void ReadBq2202aID(void)               							  */
+/*	void ReadBq2202aID(void)								  */
 /*																      */
-/*	Description : 		This procedure reads BQ2202A'S ID on the SDQ  */
-/*				  		line.                   					  */
-/* 	Arguments : 		None                    					  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None       							          */
+/*	Description :		This procedure reads BQ2202A'S ID on the SDQ  */
+/*						line.								  */
+/*	Arguments :		None								  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 void ReadBq2202aID(void)
 {
     unsigned char i;
     mutex_lock(&bq2202a_access);
-     
+
     SendReset();
     wait_us(2);
     i = TestPresence();
@@ -333,10 +332,10 @@ void ReadBq2202aID(void)
 	//printk("TestPresence----1------WriteOneByte\t\n");
     //wait_us(600);
 	//printk("TestPresence----2------WriteOneByte\t\n");
-    WriteOneByte(READ_ID_CMD);                     		 // read rom commond
+    WriteOneByte(READ_ID_CMD);					 // read rom commond
     for(i = 0;i < 8;i++)
     {
-        //ReadIDDataByte[i] = ReadOneByte();     				 // read rom Partition 64bits = 8Bits
+        //ReadIDDataByte[i] = ReadOneByte();					 // read rom Partition 64bits = 8Bits
         ReadIDDataByte[7-i] = ReadOneByte();      // read rom Partition 64bits = 8Bits
     }
 
@@ -351,19 +350,19 @@ void ReadBq2202aID(void)
 	printk("ReadBq2202aID[0-7]:%03d,%03d,%03d,%03d,%03d,%03d,%03d,%03d\n",ReadIDDataByte[0],ReadIDDataByte[1],ReadIDDataByte[2],ReadIDDataByte[3],ReadIDDataByte[4],ReadIDDataByte[5],ReadIDDataByte[6],ReadIDDataByte[7]);
 }
 /**********************************************************************/
-/* 	void CheckBq2202aID(void)               							  */
+/*	void CheckBq2202aID(void)									  */
 /*																      */
-/*	Description : 		This procedure reads BQ2202A'S ID on the SDQ  */
-/*				  		line.                   					  */
-/* 	Arguments : 		None                    					  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None       							          */
+/*	Description :		This procedure reads BQ2202A'S ID on the SDQ  */
+/*						line.								  */
+/*	Arguments :		None								  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
 void CheckBq2202aID(void)
 {
     unsigned char i;
     mutex_lock(&bq2202a_access);
-       
+
     SendReset();
     wait_us(2);
     i=TestPresence();
@@ -392,20 +391,20 @@ void CheckBq2202aID(void)
 
     mutex_unlock(&bq2202a_access);
 	/*
-    #ifdef DEBUG_BQ2202A	
+    #ifdef DEBUG_BQ2202A
     for(i=0;i<32;i++)
     {
         printk("CheckBq2202aID[%d]=%d\n",i,CheckIDDataByte[i]);
     }
     #endif
-	*/	
+	*/
 	printk("CheckBq2202aID[16-23]:%03d,%03d,%03d,%03d,%03d,%03d,%03d,%03d\n",CheckIDDataByte[16],CheckIDDataByte[17],CheckIDDataByte[18],CheckIDDataByte[19],CheckIDDataByte[20],CheckIDDataByte[21],CheckIDDataByte[22],CheckIDDataByte[23]);
 	//printk("CheckBq2202aID[24]=%03d,CheckBq2202aID[25]=%03d,CheckBq2202aID[26]=%03d,CheckBq2202aID[27]=%03d,CheckBq2202aID[28]=%03d,CheckBq2202aID[29]=%03d,CheckBq2202aID[30]=%03d,CheckBq2202aID[31]=%03d\n",CheckIDDataByte[24],CheckIDDataByte[25],CheckIDDataByte[26],CheckIDDataByte[27],CheckIDDataByte[28],CheckIDDataByte[29],CheckIDDataByte[30],CheckIDDataByte[31]);
 	//printk("CheckBq2202aID[0] =%03d,CheckBq2202aID[1] =%03d,CheckBq2202aID[2] =%03d,CheckBq2202aID[3] =%03d,CheckBq2202aID[4] =%03d,CheckBq2202aID[5] =%03d,CheckBq2202aID[6] =%03d,CheckBq2202aID[7] =%03d\n",CheckIDDataByte[0],CheckIDDataByte[1],CheckIDDataByte[2],CheckIDDataByte[3],CheckIDDataByte[4],CheckIDDataByte[5],CheckIDDataByte[6],CheckIDDataByte[7]);
 	//printk("CheckBq2202aID[8] =%03d,CheckBq2202aID[9] =%03d,CheckBq2202aID[10]=%03d,CheckBq2202aID[11]=%03d,CheckBq2202aID[12]=%03d,CheckBq2202aID[13]=%03d,CheckBq2202aID[14]=%03d,CheckBq2202aID[15]=%03d\n",CheckIDDataByte[8],CheckIDDataByte[9],CheckIDDataByte[10],CheckIDDataByte[11],CheckIDDataByte[12],CheckIDDataByte[13],CheckIDDataByte[14],CheckIDDataByte[15]);
-	
-	
-#else 
+
+
+#else
     for(i = 0;i < 128;i++)
     {
         CheckIDDataByte[i] = ReadOneByte();   // read eprom Partition field  1024bits = 128Bits
@@ -421,17 +420,17 @@ void CheckBq2202aID(void)
 #endif
 }
 /**********************************************************************/
-/* 	void CheckIDCompare(void)               							  */
+/*	void CheckIDCompare(void)									  */
 /*																      */
-/*	Description : 		This procedure reads BQ2202A'S ID on the SDQ  */
-/*				  		line.                   					  */
-/* 	Arguments : 		None                    					  */
-/*	Global Variables:	None   										  */
-/*  Returns: 			None       							          */
+/*	Description :		This procedure reads BQ2202A'S ID on the SDQ  */
+/*						line.								  */
+/*	Arguments :		None								  */
+/*	Global Variables:	None										  */
+/*  Returns:			None								          */
 /**********************************************************************/
-void CheckIDCompare(void) 
+void CheckIDCompare(void)
 {
-    unsigned char i,j;  
+    unsigned char i,j;
     int IDReadSign=1;
 
     if(IDReadSign == 1)
@@ -461,7 +460,7 @@ void CheckIDCompare(void)
             {
                 continue;
             }
-        } 
+        }
         IDReadSign=0;
     }
 }
@@ -481,7 +480,7 @@ int opchg_get_bq2022_manufacture_id(void)
 	{
 		oppo_high_battery_status = 1;
 		oppo_battery_status_init_flag = 1;
-		
+
 		if(opchg_chip == NULL)
 		{
 			return -EPROBE_DEFER;
@@ -496,7 +495,7 @@ int opchg_get_bq2022_manufacture_id(void)
 				pr_debug("MPP4 battery id volatge is fail\n");
 				return -EPROBE_DEFER;
 			}
-			
+
 			if(bq2202a_gpio <= SDI_VOLATGE)
 			{
 				batt_manufac_id = BATTERY_2420MAH_SDI;
@@ -507,7 +506,7 @@ int opchg_get_bq2022_manufacture_id(void)
 				batt_manufac_id = BATTERY_2420MAH_LG;
 				register_device_proc("battery_id", DEVICE_BATTERY_ID_VERSION, DEVICE_BATTERY_ID_TYPE_LG);
 			}
-			else 
+			else
 			{
 				batt_manufac_id = BATTERY_2420MAH_ATL;
 				register_device_proc("battery_id", DEVICE_BATTERY_ID_VERSION, DEVICE_BATTERY_ID_TYPE_ATL);
@@ -515,103 +514,71 @@ int opchg_get_bq2022_manufacture_id(void)
 			return batt_manufac_id;
 		}
 	}
-	
+
 	if(!oppo_battery_status_init_flag)
 		return -1;
 
-	/****************************************************************
-	* Because the 15035 project does not use encryption chip bq2022
-	*****************************************************************/
-	if(is_project(OPPO_15035)||is_project(OPPO_16000))
-	{
-		rc = gpio_direction_input(bq2202a_gpio);
-		wait_us(20);
-		rc = gpio_get_value(bq2202a_gpio);
-		
-		if(get_PCB_Version()< HW_VERSION__14)
-		{
-			batt_manufac_id = BATTERY_2420MAH_ATL;
-			register_device_proc("battery_id", DEVICE_BATTERY_ID_VERSION, DEVICE_BATTERY_ID_TYPE_ATL);
-		}
+    mutex_lock(&bq2202a_access);
+    SendReset();
+    wait_us(2);
+    TestPresence();
+
+    WriteOneByte(SKIP_ROM_CMD);              // skip rom commond
+    wait_us(60);
+
+#ifdef READ_PAGE_BQ2202A
+    WriteOneByte(READ_PAGE_ID_CMD);     // read eprom Partition for page mode
+#else
+    WriteOneByte(READ_FIELD_ID_CMD);     // read eprom Partition for field mode
+#endif
+    wait_us(60);
+    WriteOneByte(BQ2022_MANUFACTURE_ADDR_LOW);               // read eprom Partition Starting address low
+    wait_us(60);
+    WriteOneByte(BQ2022_MANUFACTURE_ADDR_HIGH);               // read eprom Partition Starting address high
+
+#ifdef READ_PAGE_BQ2202A
+    for(i = 0;i < 7;i++)
+    {
+        manufac_id_buf[i] = ReadOneByte();   // read eprom Partition page1  256bits = 32Bits
+        //printk("manufac_id[0x%x]:0x%x\n",i,manufac_id_buf[i]);
+    }
+    mutex_unlock(&bq2202a_access);
+
+	if(is_project(OPPO_14043)){
+		if(manufac_id_buf[1] == 0x3)		//manufac_id_buf[0] must be discarded
+			batt_manufac_id = BATTERY_1800MAH_XWD;
+		else if(manufac_id_buf[1] == 0x1)
+			batt_manufac_id = BATTERY_1800MAH_MM;
 		else
-		{
-			if(rc == 1)
-			{
-				batt_manufac_id = BATTERY_2420MAH_ATL;
-				register_device_proc("battery_id", DEVICE_BATTERY_ID_VERSION, DEVICE_BATTERY_ID_TYPE_ATL);
-			}
-			else
-			{
-				batt_manufac_id = BATTERY_2420MAH_SDI;
-				register_device_proc("battery_id", DEVICE_BATTERY_ID_VERSION, DEVICE_BATTERY_ID_TYPE_SDI);
-			}
-		}
+			batt_manufac_id = BATTERY_1800MAH_MM;	//default to BATTERY_1800MAH_MM
+	} else if(is_project(OPPO_14037) || is_project(OPPO_15057) || is_project(OPPO_15025)){
+		if(manufac_id_buf[6] == 0x2)
+			batt_manufac_id = BATTERY_2020MAH_SONY;
+		else if(manufac_id_buf[6] == 0x4)
+			batt_manufac_id = BATTERY_2020MAH_ATL;
+		else
+			batt_manufac_id = BATTERY_2020MAH_SONY;
 	}
 	else
 	{
-	    mutex_lock(&bq2202a_access);
-	    SendReset();
-	    wait_us(2);
-	    TestPresence();
-
-	    WriteOneByte(SKIP_ROM_CMD);              // skip rom commond
-	    wait_us(60);
-
-		#ifdef READ_PAGE_BQ2202A
-	    WriteOneByte(READ_PAGE_ID_CMD);     // read eprom Partition for page mode
-		#else
-	    WriteOneByte(READ_FIELD_ID_CMD);     // read eprom Partition for field mode
-		#endif
-	    wait_us(60);
-	    WriteOneByte(BQ2022_MANUFACTURE_ADDR_LOW);               // read eprom Partition Starting address low
-	    wait_us(60);
-	    WriteOneByte(BQ2022_MANUFACTURE_ADDR_HIGH);               // read eprom Partition Starting address high
-
-		
-		#ifdef READ_PAGE_BQ2202A
-	    for(i = 0;i < 7;i++)
-	    {
-	        manufac_id_buf[i] = ReadOneByte();   // read eprom Partition page1  256bits = 32Bits
-	        //printk("manufac_id[0x%x]:0x%x\n",i,manufac_id_buf[i]);
-	    }
-	    mutex_unlock(&bq2202a_access);
-
-		if(is_project(OPPO_14043)){
-			if(manufac_id_buf[1] == 0x3)		//manufac_id_buf[0] must be discarded
-				batt_manufac_id = BATTERY_1800MAH_XWD;
-			else if(manufac_id_buf[1] == 0x1)
-				batt_manufac_id = BATTERY_1800MAH_MM;
-			else 
-				batt_manufac_id = BATTERY_1800MAH_MM;	//default to BATTERY_1800MAH_MM
-		} else if(is_project(OPPO_14037) || is_project(OPPO_15057) || is_project(OPPO_15025)){
-			if(manufac_id_buf[6] == 0x2)
-				batt_manufac_id = BATTERY_2020MAH_SONY;
-			else if(manufac_id_buf[6] == 0x4)
-				batt_manufac_id = BATTERY_2020MAH_ATL;
-			else
-				batt_manufac_id = BATTERY_2020MAH_SONY;
-		}
-		else
-		{
-			batt_manufac_id = BATTERY_2020MAH_SONY;
-		}
-		printk("manufac_id[0-6]:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",manufac_id_buf[0],manufac_id_buf[1],
-			manufac_id_buf[2],manufac_id_buf[3],manufac_id_buf[4],manufac_id_buf[5],manufac_id_buf[6]);
-		#else 
-	    for(i = 0;i < 128;i++)
-	    {
-	        CheckIDDataByte[i] = ReadOneByte();   // read eprom Partition field  1024bits = 128Bits
-	    }
-	    mutex_unlock(&bq2202a_access);
-
-	    #ifdef DEBUG_BQ2202A
-	    for(i = 0;i < 128;i++)
-	    {
-	        printk("CheckBq2202aID[%d]=%d\n",i,CheckIDDataByte[i]);
-	    }
-	    #endif
-		#endif
+		batt_manufac_id = BATTERY_2020MAH_SONY;
 	}
+	printk("manufac_id[0-6]:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",manufac_id_buf[0],manufac_id_buf[1],
+		manufac_id_buf[2],manufac_id_buf[3],manufac_id_buf[4],manufac_id_buf[5],manufac_id_buf[6]);
+#else
+    for(i = 0;i < 128;i++)
+    {
+        CheckIDDataByte[i] = ReadOneByte();   // read eprom Partition field  1024bits = 128Bits
+    }
+    mutex_unlock(&bq2202a_access);
+
+    #ifdef DEBUG_BQ2202A
+    for(i = 0;i < 128;i++)
+    {
+        printk("CheckBq2202aID[%d]=%d\n",i,CheckIDDataByte[i]);
+    }
+    #endif
+#endif
 
 	return batt_manufac_id;
 }
@@ -621,53 +588,37 @@ bool oppo_battery_status_init(int batt_id_gpio)
 {
     static int CheckIDSign = 5;
 
-
-	/****************************************************************
-	* Because the 15035 project does not use encryption chip bq2022
-	*****************************************************************/
-	if(is_project(OPPO_15035)||is_project(OPPO_16000))
+	if(is_project(OPPO_15109))
 	{
-		bq2202a_gpio = batt_id_gpio;
-		Gpio_BatId_Init();
-		
-		oppo_high_battery_status = 1;
-		oppo_battery_status_init_flag = 1;
-	}
-	else if(is_project(OPPO_15109))
-	{		
 		oppo_high_battery_status = 1;
 		oppo_battery_status_init_flag = 1;
 	}
 	else
 	{
-		bq2202a_gpio = batt_id_gpio;
-		Gpio_BatId_Init();
-		
-		if(!oppo_battery_status_init_flag)
-		{
-			while(CheckIDSign > 0)
-		    {
-		        CheckIDCompare();
-		        CheckIDSign--;	 
-		        if(oppo_check_ID_status > 0)
-		        {
-		            oppo_high_battery_status = 1;
-		            oppo_check_ID_status = 0;
-		            CheckIDSign = 0;
-					oppo_battery_status_init_flag = 1;
-					break;
-		        }
-		        else if(CheckIDSign <= 0)
-		        {
-		            oppo_high_battery_status = 0;
-		            oppo_check_ID_status = 0;
-					oppo_battery_status_init_flag = 1;
-		        }			
-		    }
-		}
+	bq2202a_gpio = batt_id_gpio;
+	Gpio_BatId_Init();
+	if(!oppo_battery_status_init_flag)
+	{
+		while(CheckIDSign > 0)
+	    {
+	        CheckIDCompare();
+	        CheckIDSign--;
+	        if(oppo_check_ID_status > 0)
+	        {
+	            oppo_high_battery_status = 1;
+	            oppo_check_ID_status = 0;
+	            CheckIDSign = 0;
+				oppo_battery_status_init_flag = 1;
+				break;
+	        }
+	        else if(CheckIDSign <= 0)
+	        {
+	            oppo_high_battery_status = 0;
+	            oppo_check_ID_status = 0;
+				oppo_battery_status_init_flag = 1;
+	        }
+	    }
 	}
-	
+	}
 	return oppo_high_battery_status;
 }
-
-

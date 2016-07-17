@@ -101,7 +101,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 #else
 					if (size==2)
 						i2c_byte2 = (value & 0xFF00) >> 8;
-					else 
+					else
 						i2c_byte2 = value & 0xFF;
 #endif
 					CDBG("byte1:0x%x, byte2:0x%x\n",

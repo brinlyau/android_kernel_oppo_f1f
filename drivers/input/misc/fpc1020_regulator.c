@@ -46,7 +46,7 @@ int fpc1020_regulator_configure(fpc1020_data_t *fpc1020)
 	}
 #endif /* VENDOR_EDIT */
 
-	
+
 	fpc1020->vdd_io = regulator_get(&fpc1020->spi->dev, "vdd_io");
 	if (IS_ERR(fpc1020->vdd_io)) {
 		error = PTR_ERR(fpc1020->vdd_io);
@@ -241,6 +241,3 @@ out_err:
 	fpc1020_regulator_release(fpc1020);
 	return error;
 }
-
-
-

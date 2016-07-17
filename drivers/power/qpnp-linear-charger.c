@@ -2069,9 +2069,9 @@ static irqreturn_t qpnp_lbc_usbin_valid_irq_handler(int irq, void *_chip)
 	unsigned long flags;
 #endif
 
-	if(is_project(OPPO_15005)||is_project(OPPO_15035)||is_project(OPPO_15109)|| is_project(OPPO_16000))
+	if(is_project(OPPO_15005)||is_project(OPPO_15035)||is_project(OPPO_15109))
 		return IRQ_HANDLED;
-	
+
 	usb_present = qpnp_lbc_is_usb_chg_plugged_in(chip);
 	pr_err("usbin-valid triggered: %d\n", usb_present);
 
@@ -2461,10 +2461,9 @@ static void determine_initial_status(struct qpnp_lbc_chip *chip)
 	int rc;
 #endif
 
-	if( is_project(OPPO_15005)||is_project(OPPO_15035) || is_project(OPPO_15109)||
-		(is_project(OPPO_15029) && get_PCB_Version() == HW_VERSION__10)||is_project(OPPO_16000))
+	if(is_project(OPPO_15005)||is_project(OPPO_15035) || is_project(OPPO_15109))
 		return ;
-	
+
 	chip->usb_present = qpnp_lbc_is_usb_chg_plugged_in(chip);
 	pr_err("%s usb_present:%d\n",__func__,chip->usb_present);
 
@@ -2552,7 +2551,7 @@ void opchg_set_pmic_soc_memory(int soc)
 {
 	int rc = 0;
 	u8 soc_temp = 0;
-	
+
 	if(the_chip == NULL){
 		pr_debug("%s the_chip is NULL\n",__func__);
 		return;
@@ -2566,7 +2565,7 @@ int opchg_get_pmic_soc_memory(void)
 {
 	int rc = 0;
 	u8 reg = 0;
-	
+
 	if(the_chip == NULL){
 		pr_debug("%s the_chip is NULL\n",__func__);
 		return reg;
@@ -2574,15 +2573,15 @@ int opchg_get_pmic_soc_memory(void)
 	rc = qpnp_lbc_read(the_chip, BMS_VM_BMS_DATA_REG_0, &reg, 1);
 	if(rc)
 		pr_err("%s fail,rc:%d\n",__func__,rc);
-	
+
 	return reg;
 }
 
 int opchg_get_charger_inout(void)
 {
 	int charger_in=0;
-	
-	charger_in= qpnp_lbc_is_usb_chg_plugged_in(the_chip);	
+
+	charger_in= qpnp_lbc_is_usb_chg_plugged_in(the_chip);
 	return charger_in;
 }
 #endif //VENDOR_EDIT
@@ -2736,9 +2735,9 @@ static int qpnp_lbc_probe(struct spmi_device *spmi)
 	rc = qpnp_disable_lbc_charger(chip);
 	if (rc)
 		pr_err("Unable to disable charger rc=%d\n", rc);
-	
+
 	pr_info("%s success\n",__func__);
-	
+
 	return 0;
 #endif	//VENDOR_EDIT
 

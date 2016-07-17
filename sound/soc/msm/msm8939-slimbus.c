@@ -333,15 +333,15 @@ static int msm_snd_enable_codec_ext_clk(struct snd_soc_codec *codec, int enable,
 		if (clk_users != 1)
 			goto exit;
 		pr_debug("clock enable\n");
-		pdata->digital_cdc_clk.clk_val = 9600000;
-		ret = afe_set_digital_codec_core_clock(
-			AFE_PORT_ID_PRIMARY_MI2S_RX,
-			&pdata->digital_cdc_clk);
-		if (ret < 0) {
-			pr_err("%s: failed to enable the MCLK\n",
-							__func__);
-			clk_users--;
-			goto exit;
+			pdata->digital_cdc_clk.clk_val = 9600000;
+			ret = afe_set_digital_codec_core_clock(
+				AFE_PORT_ID_PRIMARY_MI2S_RX,
+				&pdata->digital_cdc_clk);
+			if (ret < 0) {
+				pr_err("%s: failed to enable the MCLK\n",
+								__func__);
+				clk_users--;
+				goto exit;
 		}
 		pdata->msm8939_codec_fn.mclk_enable_fn(codec, 1, dapm);
 	} else {
@@ -350,13 +350,13 @@ static int msm_snd_enable_codec_ext_clk(struct snd_soc_codec *codec, int enable,
 			if (clk_users == 0) {
 				pdata->msm8939_codec_fn.mclk_enable_fn(codec,
 							0, dapm);
-				pdata->digital_cdc_clk.clk_val = 0;
-				ret = afe_set_digital_codec_core_clock(
-					AFE_PORT_ID_PRIMARY_MI2S_RX,
-					&pdata->digital_cdc_clk);
-				if (ret < 0)
-					pr_err("%s: failed disable the MCLK\n",
-								__func__);
+					pdata->digital_cdc_clk.clk_val = 0;
+					ret = afe_set_digital_codec_core_clock(
+						AFE_PORT_ID_PRIMARY_MI2S_RX,
+						&pdata->digital_cdc_clk);
+					if (ret < 0)
+						pr_err("%s: failed disable the MCLK\n",
+									__func__);
 			}
 		} else {
 			pr_err("%s: Error releasing codec MCLK\n", __func__);
@@ -1379,17 +1379,17 @@ static int msm_snd_enable_quat_mclk(struct snd_soc_codec *codec, int enable,
 	} else {
 		if (quat_enable_mclk) {
 			clk_users--;
-			if (!clk_users) {
-				quat_enable_mclk = false;
-				pdata->digital_cdc_clk.clk_val = 0;
-				ret = afe_set_digital_codec_core_clock(
-					AFE_PORT_ID_QUATERNARY_MI2S_RX,
-					&pdata->digital_cdc_clk);
-				if (ret < 0) {
-					pr_err("%s: failed to enable the MCLK\n",
-							__func__);
-					goto exit;
-				}
+		if (!clk_users) {
+		quat_enable_mclk = false;
+			pdata->digital_cdc_clk.clk_val = 0;
+			ret = afe_set_digital_codec_core_clock(
+				AFE_PORT_ID_QUATERNARY_MI2S_RX,
+				&pdata->digital_cdc_clk);
+			if (ret < 0) {
+				pr_err("%s: failed to enable the MCLK\n",
+						__func__);
+				goto exit;
+			}
 			}
 		}
 	}

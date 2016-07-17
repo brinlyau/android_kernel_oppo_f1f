@@ -26,4 +26,3 @@ extern void fpc1020_report_finger_up(fpc1020_data_t *fpc1020);
 #endif /* VENDOR_EDIT */
 
 #endif /* LINUX_SPI_FPC1020_NAV_H */
-

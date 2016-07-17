@@ -53,12 +53,12 @@
 
 #include "mdss_fb.h"
 #include "mdss_mdp_splash_logo.h"
+#include "mdss_mdp.h"
 
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2014/08/27  Add for 14045 LCD */
 #include <soc/oppo/oppo_project.h>
 #include "mdss_dsi.h"
-#include "mdss_mdp.h"
 #ifdef VENDOR_EDIT
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/04/01  Add for 15009 lcd-backlight ctrl in factory mode START */
 #include <soc/oppo/boot_mode.h>
@@ -680,7 +680,7 @@ static ssize_t mdss_mdp_lcdoff_event(struct device *dev,
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
     struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
-  	   pr_err("%s YXQ mfd=0x%p\n", __func__, mfd);
+	   pr_err("%s YXQ mfd=0x%p\n", __func__, mfd);
 	if (!mfd)
 			return -ENODEV;
 #ifdef VENDOR_EDIT
@@ -692,7 +692,7 @@ static ssize_t mdss_mdp_lcdoff_event(struct device *dev,
 	   if(is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15085)){
 			return sprintf(buf,"mdss_fb_suspend_sub is called\n");
 	   }
-		if(is_project(OPPO_15037) || is_project(OPPO_15035))
+		if(is_project(OPPO_15037))
 		{
 			mdss_fb_suspend_sub(mfd);
 			return sprintf(buf,"mdss_fb_suspend_sub is called\n");
@@ -709,7 +709,7 @@ static ssize_t mdss_set_low_power_mode(struct device *dev,
     sscanf(buf, "%du", &level);
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 	if(is_project(14005) || is_project(OPPO_15011) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15085))
-    	set_acl_mode(level);
+	set_acl_mode(level);
     return count;
 }
 extern void set_hbm_mode(int level);
@@ -732,7 +732,7 @@ extern int cabc_mode;
 static ssize_t mdss_get_cabc(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	if(!(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) || is_project(OPPO_16000) ||is_project(OPPO_15029)||is_project(OPPO_15109))){
+	if(!(is_project(OPPO_15009)||is_project(OPPO_15037)||is_project(OPPO_15035) ||is_project(OPPO_15109))){
 		return 0;
 	}
 	printk(KERN_INFO "get cabc mode = %d\n",cabc_mode);
@@ -750,17 +750,17 @@ static ssize_t mdss_set_cabc(struct device *dev,
     return count;
 }
 /* YongPeng.Yi@SWDP.MultiMedia END */
-static ssize_t mdss_get_closebl_flag(struct device *dev,	
-    							struct device_attribute *attr, char *buf)
-{	
+static ssize_t mdss_get_closebl_flag(struct device *dev,
+							struct device_attribute *attr, char *buf)
+{
     printk(KERN_INFO "get closebl flag = %d\n",lcd_closebl_flag);
     return sprintf(buf, "%d\n", lcd_closebl_flag);
-}	
+}
 
 static ssize_t mdss_set_closebl_flag(struct device *dev,
                                struct device_attribute *attr,
                                const char *buf, size_t count)
-{	
+{
 	int closebl = 0;
 	sscanf(buf, "%du", &closebl);
 	pr_err("lcd_closebl_flag = %d\n",closebl);
@@ -768,8 +768,72 @@ static ssize_t mdss_set_closebl_flag(struct device *dev,
 		lcd_closebl_flag = 0;
 	pr_err("mdss_set_closebl_flag = %d\n",lcd_closebl_flag);
     return count;
-}	
+}
 #endif /*VENDOR_EDIT*/
+
+static int pcc_r = 32768, pcc_g = 32768, pcc_b = 32768;
+static ssize_t mdss_get_rgb(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+       return sprintf(buf, "%d %d %d\n", pcc_r, pcc_g, pcc_b);
+}
+
+/*
+ * simple color temperature interface using polynomial color correction
+ *
+ * input values are r/g/b adjustments from 0-32768 representing 0 -> 1
+ *
+ * example adjustment @ 3500K:
+ * 1.0000 / 0.5515 / 0.2520 = 32768 / 25828 / 17347
+ *
+ * reference chart:
+ * http://www.vendian.org/mncharity/dir3/blackbody/UnstableURLs/bbr_color.html
+ */
+static ssize_t mdss_set_rgb(struct device *dev,
+			    struct device_attribute *attr,
+			    const char *buf, size_t count)
+{
+	uint32_t r = 0, g = 0, b = 0;
+	struct mdp_pcc_cfg_data pcc_cfg;
+	u32 copyback = 0;
+	int ret;
+
+	if (count > 19)
+		return -EINVAL;
+
+	sscanf(buf, "%d %d %d", &r, &g, &b);
+
+	if (r < 0 || r > 32768)
+		return -EINVAL;
+	if (g < 0 || g > 32768)
+		return -EINVAL;
+	if (b < 0 || b > 32768)
+		return -EINVAL;
+
+	pr_info("%s: r=%d g=%d b=%d", __func__, r, g, b);
+
+	memset(&pcc_cfg, 0, sizeof(struct mdp_pcc_cfg_data));
+
+	pcc_cfg.block = MDP_LOGICAL_BLOCK_DISP_0;
+	if (r == 32768 && g == 32768 && b == 32768)
+		pcc_cfg.ops = MDP_PP_OPS_DISABLE;
+	else
+		pcc_cfg.ops = MDP_PP_OPS_ENABLE;
+	pcc_cfg.ops |= MDP_PP_OPS_WRITE;
+	pcc_cfg.r.r = r;
+	pcc_cfg.g.g = g;
+	pcc_cfg.b.b = b;
+
+	ret = mdss_mdp_pcc_config(&pcc_cfg, &copyback);
+	if (ret != 0)
+		return ret;
+
+	pcc_r = r;
+	pcc_g = g;
+	pcc_b = b;
+
+	return count;
+}
 
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
 static DEVICE_ATTR(msm_fb_split, S_IRUGO | S_IWUSR, mdss_fb_show_split,
@@ -790,6 +854,8 @@ static DEVICE_ATTR(always_on, S_IRUGO | S_IWUSR | S_IWGRP,
 static DEVICE_ATTR(lcdoff, S_IRUGO, mdss_mdp_lcdoff_event, NULL);
 static DEVICE_ATTR(lpm, S_IRUGO|S_IWUSR, NULL, mdss_set_low_power_mode);
 static DEVICE_ATTR(hbm, S_IRUGO|S_IWUSR, NULL, mdss_set_hbm);
+// Also export hbm as sre, as this is what user space expects
+static DEVICE_ATTR(sre, S_IRUGO|S_IWUSR, NULL, mdss_set_hbm);
 #endif /*VENDOR_EDIT*/
 #ifdef VENDOR_EDIT
 /* YongPeng.Yi@SWDP.MultiMedia, 2015/05/19  Add for set cabc START */
@@ -797,7 +863,7 @@ static DEVICE_ATTR(cabc, S_IRUGO|S_IWUSR, mdss_get_cabc, mdss_set_cabc);
 /* YongPeng.Yi@SWDP.MultiMedia END */
 static DEVICE_ATTR(closebl, 0664, mdss_get_closebl_flag, mdss_set_closebl_flag);
 #endif /*VENDOR_EDIT*/
-
+static DEVICE_ATTR(rgb, S_IRUGO | S_IWUSR | S_IWGRP, mdss_get_rgb, mdss_set_rgb);
 
 static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_type.attr,
@@ -809,13 +875,17 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_src_split_info.attr,
 	&dev_attr_msm_fb_thermal_level.attr,
 	&dev_attr_always_on.attr,
+	&dev_attr_rgb.attr,
 #ifdef VENDOR_EDIT
 /* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2014/08/14  Add for ftm mode shut down lcd */
 	&dev_attr_lcdoff.attr,
 	&dev_attr_lpm.attr,
 	&dev_attr_hbm.attr,
+	&dev_attr_sre.attr,
+	&dev_attr_closebl.attr,
 	&dev_attr_cabc.attr,
 	&dev_attr_closebl.attr,
+	&dev_attr_cabc.attr,
 #endif /*VENDOR_EDIT*/
 	NULL,
 };
@@ -971,27 +1041,10 @@ static int mdss_fb_probe(struct platform_device *pdev)
 #endif /*VENDOR_EDIT*/
 
 #ifdef VENDOR_EDIT
-/* YongPeng.Yi@SWDP.MultiMedia, 2015/03/12  Add for 15009 15035 clear power by android START */
-#ifndef OPPO_CMCC_MP /*YongPeng.Yi@SWDP.MultiMedia, 2015/11/04  Add for 15035 CMCC MP*/
-#ifndef OPPO_CMCC_TEST 
-	#ifndef OPPO_CU_TEST
-		if(is_project(OPPO_15009)){
-			memset(phys_to_virt(0x83200000 + 1080*720*3), 0x00, 200*720*3);
-		}else if(is_project(OPPO_15035) || is_project(OPPO_16000)){
-			memset(phys_to_virt(0x83200000 + 800*540*3), 0x00, 160*540*3);
-		}	
-		if(is_project(OPPO_15022) && (mfd->index==0) && (MSM_BOOT_MODE__NORMAL==get_boot_mode())){		
-			struct mdss_overlay_private * mdp5_data = mfd_to_mdp5_data(mfd);
-			if(mdp5_data){
-				struct mdss_mdp_ctl *ctl = mdp5_data->ctl;
-				pr_err("15022 erase Powerd by android\n");
-				memset(phys_to_virt(0x83200000 + 1520*1080*3), 0x00, 300*1080*3);
-				mdss_mdp_ctl_write(ctl, MDSS_MDP_REG_CTL_START, 1);
-			}
-		}
-	#endif
-#endif
-#endif
+/* YongPeng.Yi@SWDP.MultiMedia, 2015/03/12  Add for 15009 START */
+	if(is_project(OPPO_15009)){
+		memset(phys_to_virt(0x83200000 + 1080*720*3), 0x00, 200*720*3);
+	}
 /* YongPeng.Yi@SWDP.MultiMedia END */
 #endif /*VENDOR_EDIT*/
 
@@ -1457,11 +1510,10 @@ static int mdss_fb_unblank_sub(struct msm_fb_data_type *mfd)
 /* wuyu@EXP.BaseDrv.LCM, 2015-05-18, add micro OPPO_15011, (OPPO15011=OPPO_15018) */
 /*huqiao@EXP.BasicDrv.Basic add for clone 15085*/
 			{
-				if(!(is_project(OPPO_14045) || is_project(OPPO_15011) ||is_project(OPPO_15009) || is_project(OPPO_15037) ||
-					is_project(OPPO_15085) || is_project(OPPO_15035) || is_project(OPPO_15018) || is_project(OPPO_15022) || is_project(OPPO_15109)) || panel_dead){
+				if(!(is_project(OPPO_14045) || is_project(OPPO_15011) ||is_project(OPPO_15009) || is_project(OPPO_15037) || is_project(OPPO_15018) || is_project(OPPO_15022) || panel_dead || is_project(OPPO_15085) || is_project(OPPO_15035) || is_project(OPPO_15109)) ){
 					panel_dead = false;
 					//mdss_fb_set_backlight(mfd, mfd->unset_bl_level);
-					mdss_fb_set_backlight(mfd, save_bl);	
+					mdss_fb_set_backlight(mfd, save_bl);
 				}
 			}
 #endif /*VENDOR_EDIT*/
@@ -1550,19 +1602,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			complete(&mfd->no_update.comp);
 
 			mfd->op_enable = false;
-#ifndef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/07/03  Modify for 15020 kgsl fence time out */
-			mutex_lock(&mfd->bl_lock);
-			if (mdss_panel_is_power_off(req_power_state)) {
-				/* Stop Display thread */
-				if (mfd->disp_thread)
-					mdss_fb_stop_disp_thread(mfd);
-				mdss_fb_set_backlight(mfd, 0);
-				mfd->bl_updated = 0;
-			}
-			mfd->panel_power_state = req_power_state;
-			mutex_unlock(&mfd->bl_lock);
-#else /*VENDOR_EDIT*/
 			if (mdss_panel_is_power_off(req_power_state)) {
 				/* Stop Display thread */
 				if (mfd->disp_thread)
@@ -1573,7 +1612,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 				mutex_unlock(&mfd->bl_lock);
 			}
 			mfd->panel_power_state = req_power_state;
-#endif /*VENDOR_EDIT*/
 
 			ret = mfd->mdp.off_fnc(mfd);
 			if (ret)
@@ -2515,12 +2553,9 @@ static int mdss_fb_release_all(struct fb_info *info, bool release_all)
 			return ret;
 		}
 
-#ifdef VENDOR_EDIT
-/* Xiaori.Yuan@Mobile Phone Software Dept.Driver, 2015/08/20  Add for recovery mode shutdown iommu error */
 		if (mfd->fb_ion_handle)
-			mdss_fb_free_fb_ion_memory(mfd); 
-#endif /*VENDOR_EDIT*/
-		
+			mdss_fb_free_fb_ion_memory(mfd);
+
 		atomic_set(&mfd->ioctl_ref_cnt, 0);
 	}
 

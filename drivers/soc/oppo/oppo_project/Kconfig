@@ -1,5 +1,5 @@
 
-# ifdef VENDOR_EDIT 
+# ifdef VENDOR_EDIT
 # yixue.ge add for config oppo software common soft
       config OPPO_COMMON_SOFT
       bool "config oppo common software"
@@ -8,4 +8,3 @@
 		Maybe this value is from CDT or dynamic identify by hardware
 		id.
 #endif /* VENDOR_EDIT */
-

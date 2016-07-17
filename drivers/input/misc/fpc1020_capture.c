@@ -159,7 +159,7 @@ bool fpc1020_capture_check_ready(fpc1020_data_t *fpc1020)
 
 	return ((state == FPC1020_CAPTURE_STATE_IDLE) ||
 			(state == FPC1020_CAPTURE_STATE_COMPLETED) ||
-			(state == FPC1020_CAPTURE_STATE_FAILED)) && 
+			(state == FPC1020_CAPTURE_STATE_FAILED)) &&
 		(!fpc1020->nav.enabled);
 }
 
@@ -246,7 +246,7 @@ int fpc1020_capture_task(fpc1020_data_t *fpc1020)
 	if (error < 0)
 		goto out_error;
 
-	error = fpc1020_capture_set_crop(fpc1020, 
+	error = fpc1020_capture_set_crop(fpc1020,
 					fpc1020->setup.capture_col_start,
 					fpc1020->setup.capture_col_groups,
 					fpc1020->setup.capture_row_start,
@@ -670,4 +670,3 @@ extern int fpc1020_capture_deferred_task(fpc1020_data_t *fpc1020)
 
 
 /* -------------------------------------------------------------------- */
-

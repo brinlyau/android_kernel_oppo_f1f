@@ -30,7 +30,7 @@
 
 #ifdef VENDOR_EDIT
 /* xianglie.liu 2014-09-11 add for add project name */
-//#include <mach/oppo_project.h> 
+//#include <mach/oppo_project.h>
 #endif
 
 int32_t msm_led_i2c_trigger_get_subdev_id(struct msm_led_flash_ctrl_t *fctrl,
@@ -360,7 +360,7 @@ int msm_flash_led_off(struct msm_led_flash_ctrl_t *fctrl)
 	if(strcmp(fctrl->flashdata->sensor_name,"lm3642") == 0){
 		int i = 0;
 		uint16_t reg_value = 0;
-		
+
 		//read flag register
 		rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_read(
 			fctrl->flash_i2c_client, 0x0B,
@@ -378,7 +378,7 @@ int msm_flash_led_off(struct msm_led_flash_ctrl_t *fctrl)
 					&reg_value, MSM_CAMERA_I2C_BYTE_DATA);
 				if (reg_value == 0)
 					break;
-				pr_err(" flag 0x%x j=%d\n",reg_value,j);	
+				pr_err(" flag 0x%x j=%d\n",reg_value,j);
 			}
 		}
 
@@ -410,7 +410,7 @@ int msm_flash_led_off(struct msm_led_flash_ctrl_t *fctrl)
 
 		for (i = 0; i <= 3; i++)
 			usleep(750);
-	} else {	
+	} else {
 		if (fctrl->flash_i2c_client && fctrl->reg_setting) {
 			rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write_table(
 				fctrl->flash_i2c_client,
@@ -418,7 +418,7 @@ int msm_flash_led_off(struct msm_led_flash_ctrl_t *fctrl)
 			if (rc < 0)
 				pr_err("%s:%d failed\n", __func__, __LINE__);
 		}
-	
+
 		if (power_info->gpio_conf->gpio_num_info->
 				valid[SENSOR_GPIO_FL_NOW] == 1)
 			gpio_set_value_cansleep(
@@ -459,10 +459,10 @@ int msm_flash_led_low(struct msm_led_flash_ctrl_t *fctrl)
 					&reg_value, MSM_CAMERA_I2C_BYTE_DATA);
 				if (reg_value == 0)
 					break;
-				pr_err(" flag 0x%x j=%d\n",reg_value,j);	
+				pr_err(" flag 0x%x j=%d\n",reg_value,j);
 			}
 		}
-		
+
 		if (power_info->gpio_conf->gpio_num_info->valid[SENSOR_GPIO_FL_EN] == 1)
 			gpio_set_value_cansleep(
 				power_info->gpio_conf->gpio_num_info->
@@ -493,18 +493,10 @@ int msm_flash_led_low(struct msm_led_flash_ctrl_t *fctrl)
 			for (i = 0; i <= 3; i++)
 				usleep(750);
 
-#ifdef OPPO_CMCC_TEST
-/* xianglie.liu modify for cmcc */
-			//torch current 48mA
-			rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write(
-					fctrl->flash_i2c_client, 0x09,
-					0x00, MSM_CAMERA_I2C_BYTE_DATA);
-#else
 			//torch current 93.74mA
 			rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write(
 					fctrl->flash_i2c_client, 0x09,
 					0x10, MSM_CAMERA_I2C_BYTE_DATA);
-#endif
 			if (rc < 0)
 				pr_err("%s:%d write failed\n", __func__, __LINE__);
 		}
@@ -534,7 +526,7 @@ int msm_flash_led_low(struct msm_led_flash_ctrl_t *fctrl)
 			power_info->gpio_conf->gpio_num_info->
 			gpio_num[SENSOR_GPIO_FL_NOW],
 			GPIO_OUT_LOW);
-		
+
 		if (fctrl->flash_i2c_client && fctrl->reg_setting) {
 			rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write_table(
 				fctrl->flash_i2c_client,
@@ -587,14 +579,14 @@ int msm_flash_led_high(struct msm_led_flash_ctrl_t *fctrl)
 					&reg_value, MSM_CAMERA_I2C_BYTE_DATA);
 				if (reg_value == 0)
 					break;
-				pr_err(" flag 0x%x j=%d\n",reg_value,j);	
+				pr_err(" flag 0x%x j=%d\n",reg_value,j);
 			}
 		}
-		
-    	gpio_set_value_cansleep(
-    		power_info->gpio_conf->gpio_num_info->
-    		gpio_num[SENSOR_GPIO_FL_EN],
-    		GPIO_OUT_LOW);
+
+	gpio_set_value_cansleep(
+		power_info->gpio_conf->gpio_num_info->
+		gpio_num[SENSOR_GPIO_FL_EN],
+		GPIO_OUT_LOW);
         gpio_set_value_cansleep(
 			power_info->gpio_conf->gpio_num_info->
 			gpio_num[SENSOR_GPIO_FL_NOW],
@@ -863,7 +855,7 @@ static int32_t msm_led_get_dt_data(struct device_node *of_node,
 			pr_err("%s failed %d\n", __func__, __LINE__);
 			goto ERROR9;
 		}
-    		CDBG("%s, num_vreg = %d\n ", __func__, power_info->num_vreg);
+		CDBG("%s, num_vreg = %d\n ", __func__, power_info->num_vreg);
 		if (rc_reg > 0 && power_info->num_vreg&&power_info->cam_vreg) {
 			rc = msm_camera_get_dt_power_setting_data(of_node,
 				power_info->cam_vreg,

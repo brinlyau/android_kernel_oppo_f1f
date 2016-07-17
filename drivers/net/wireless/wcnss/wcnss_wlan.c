@@ -42,11 +42,6 @@
 #include <soc/qcom/subsystem_notif.h>
 
 #include <soc/qcom/smd.h>
-#ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/21, Add for distinguish the type of wcnss
-#include <soc/oppo/device_info.h>  
-#include <soc/oppo/oppo_project.h>
-#endif /* VENDOR_EDIT */
 
 #define DEVICE "wcnss_wlan"
 #define CTRL_DEVICE "wcnss_ctrl"
@@ -94,10 +89,6 @@ static DEFINE_SPINLOCK(reg_spinlock);
 #define CCU_RIVA_LAST_ADDR2_OFFSET		0x10c
 
 #define PRONTO_PMU_SPARE_OFFSET       0x1088
-#ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/11/05, Add for qualcomm patch,logs for dump
-#define PRONTO_PMU_CCPU_BOOT_REMAP_ADDR        0x2004    
-#endif /* VENDOR_EDIT */
 
 #define PRONTO_PMU_COM_GDSCR_OFFSET       0x0024
 #define PRONTO_PMU_COM_GDSCR_SW_COLLAPSE  BIT(0)
@@ -180,10 +171,6 @@ static DEFINE_SPINLOCK(reg_spinlock);
 #define MCU_FDBR_FDAHB_TIMEOUT_OFFSET		0x3ac
 
 #define WCNSS_DEF_WLAN_RX_BUFF_COUNT		1024
-#define WCNSS_VBATT_THRESHOLD		3500000
-#define WCNSS_VBATT_GUARD		20000
-#define WCNSS_VBATT_HIGH		3700000
-#define WCNSS_VBATT_LOW			3300000
 
 #define WCNSS_CTRL_CHANNEL			"WCNSS_CTRL"
 #define WCNSS_MAX_FRAME_SIZE		(4*1024)
@@ -265,10 +252,6 @@ static struct notifier_block wnb = {
 };
 
 #define NVBIN_FILE "wlan/prima/WCNSS_qcom_wlan_nv.bin"
-#ifdef VENDOR_EDIT
-//TangYuanliu@PSW.WCN.Wifi, 2015/12/29, Add for change resource
-#define NVBIN_FILE_c1 "wlan/prima/WCNSS_qcom_wlan_nv_15022_c1.bin"
-#endif /* VENDOR_EDIT */
 
 /* On SMD channel 4K of maximum data can be transferred, including message
  * header, so NV fragment size as next multiple of 1Kb is 3Kb.
@@ -280,23 +263,7 @@ static struct notifier_block wnb = {
 #define CAN_RECEIVE_CALDATA  (1 << 15)
 #define WCNSS_RESP_SUCCESS   1
 #define WCNSS_RESP_FAIL      0
-#ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for distinguish the type of wcnss
-static unsigned char   wcn_chip_type[WCNSS_MAX_BUILD_VER_LEN];    
-static unsigned char manufacture[] = "Qualcomm";
-static const unsigned char CHIP_WCN3660[] = "WCN3660";
-static const unsigned char CHIP_WCN3660A[] = "WCN3660A";
-static const unsigned char CHIP_WCN3660B[] = "WCN3660B";
-static const unsigned char CHIP_WCN3620[] = "WCN3620";
-static const unsigned char CHIP_WCN3620A[] = "WCN3620A";
-static const unsigned char CHIP_WCN3610[] = "WCN3610";
-#define WCN3660       0x0200
-#define WCN3660A      0x0300
-#define WCN3660B      0x0400
-#define WCN3620       0x5111
-#define WCN3620A      0x5112
-#define WCN3610       0x9101
-#endif /* VENDOR_EDIT */
+
 
 /* Macro to find the total number fragments of the NV bin Image */
 #define TOTALFRAGMENTS(x) (((x % NV_FRAGMENT_SIZE) == 0) ? \
@@ -393,10 +360,6 @@ static struct {
 	u32		wlan_rx_buff_count;
 	smd_channel_t	*smd_ch;
 	unsigned char	wcnss_version[WCNSS_VERSION_LEN];
-	#ifdef VENDOR_EDIT
-	//hedong.liu@Connectivity, 2014/07/03, Add for wcnss firmware version show
-	unsigned char	wcnss_build_version[WCNSS_MAX_BUILD_VER_LEN];
-	#endif /* VENDOR_EDIT */
 	unsigned char   fw_major;
 	unsigned char   fw_minor;
 	unsigned int	serial_number;
@@ -410,6 +373,7 @@ static struct {
 	struct work_struct wcnss_pm_config_work;
 	struct work_struct wcnssctrl_nvbin_dnld_work;
 	struct work_struct wcnssctrl_rx_work;
+	struct work_struct wcnss_vadc_work;
 	struct wake_lock wcnss_wake_lock;
 	void __iomem *msm_wcnss_base;
 	void __iomem *riva_ccu_base;
@@ -445,6 +409,7 @@ static struct {
 	wait_queue_head_t read_wait;
 	struct qpnp_adc_tm_btm_param vbat_monitor_params;
 	struct qpnp_adc_tm_chip *adc_tm_dev;
+	struct qpnp_vadc_chip *vadc_dev;
 	struct mutex vbat_monitor_mutex;
 	u16 unsafe_ch_count;
 	u16 unsafe_ch_list[WCNSS_MAX_CH_NUM];
@@ -562,30 +527,6 @@ static ssize_t wcnss_thermal_mitigation_store(struct device *dev,
 static DEVICE_ATTR(thermal_mitigation, S_IRUSR | S_IWUSR,
 	wcnss_thermal_mitigation_show, wcnss_thermal_mitigation_store);
 
-#ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
-/* distinguish the type of wcnss and show firmware version */
-static ssize_t wcnss_buld_version_show(struct device *dev,
-            struct device_attribute *attr, char *buf)
-{
-    if (!penv)
-        return -ENODEV;
-    return scnprintf(buf, PAGE_SIZE, "%s\n", penv->wcnss_build_version);
-}
-static DEVICE_ATTR(wcnss_build_version, S_IRUSR,
-        wcnss_buld_version_show, NULL);
-
-
-static ssize_t wcnss_chip_type_show(struct device *dev,
-            struct device_attribute *attr, char *buf)
-{
-    if (!penv)
-        return -ENODEV;
-    return scnprintf(buf, PAGE_SIZE, "%s\n", wcn_chip_type);
-}
-static DEVICE_ATTR(wcnss_chip_type, S_IRUSR,
-        wcnss_chip_type_show, NULL);        
-#endif /* VENDOR_EDIT */
 
 static ssize_t wcnss_version_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
@@ -677,12 +618,6 @@ void wcnss_pronto_log_debug_regs(void)
 	void __iomem *reg_addr, *tst_addr, *tst_ctrl_addr;
 	u32 reg = 0, reg2 = 0, reg3 = 0, reg4 = 0;
 
-    #ifdef VENDOR_EDIT
-    //Yadong.Hu@Prd.Svc.Wifi, 2015/11/05, Add for qualcomm patch,logs for dump
-    reg_addr = penv->msm_wcnss_base + PRONTO_PMU_CCPU_BOOT_REMAP_ADDR;
-    reg = readl_relaxed(reg_addr);
-    pr_err("PRONTO_PMU_CCPU_BOOT_REMAP_ADDR %08x\n", reg);
-    #endif /* VENDOR_EDIT */
 
 	reg_addr = penv->msm_wcnss_base + PRONTO_PMU_SPARE_OFFSET;
 	reg = readl_relaxed(reg_addr);
@@ -1187,6 +1122,25 @@ void wcnss_reset_intr(void)
 }
 EXPORT_SYMBOL(wcnss_reset_intr);
 
+void wcnss_reset_fiq(bool clk_chk_en)
+{
+	if (wcnss_hardware_type() == WCNSS_PRONTO_HW) {
+		if (clk_chk_en) {
+			wcnss_log_debug_regs_on_bite();
+		} else {
+			wcnss_pronto_log_debug_regs();
+			if (wcnss_get_mux_control())
+				wcnss_log_iris_regs();
+		}
+		/* Insert memory barrier before writing fiq register */
+		wmb();
+		__raw_writel(1 << 16, penv->fiq_reg);
+	} else {
+		wcnss_riva_log_debug_regs();
+	}
+}
+EXPORT_SYMBOL(wcnss_reset_fiq);
+
 static int wcnss_create_sysfs(struct device *dev)
 {
 	int ret;
@@ -1210,16 +1164,6 @@ static int wcnss_create_sysfs(struct device *dev)
 	if (ret)
 		goto remove_version;
 
-    #ifdef VENDOR_EDIT
-    //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
-    /* distinguish the type of wcnss and show firmware version */
-    ret = device_create_file(dev, &dev_attr_wcnss_build_version);
-    if (ret)
-        goto remove_thermal;
-    ret = device_create_file(dev, &dev_attr_wcnss_chip_type);
-    if (ret)
-        goto remove_thermal;
-    #endif /* VENDOR_EDIT */
 	return 0;
 
 remove_version:
@@ -1239,12 +1183,6 @@ static void wcnss_remove_sysfs(struct device *dev)
 		device_remove_file(dev, &dev_attr_thermal_mitigation);
 		device_remove_file(dev, &dev_attr_wcnss_version);
 		device_remove_file(dev, &dev_attr_wcnss_mac_addr);
-        #ifdef VENDOR_EDIT
-        //Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
-        /* distinguish the type of wcnss and show firmware version */
-        device_remove_file(dev, &dev_attr_wcnss_build_version);
-        device_remove_file(dev, &dev_attr_wcnss_chip_type);
-        #endif /* VENDOR_EDIT */		
 	}
 }
 
@@ -1316,7 +1254,8 @@ static void wcnss_smd_notify_event(void *data, unsigned int event)
 		schedule_work(&penv->wcnss_pm_config_work);
 		cancel_delayed_work(&penv->wcnss_pm_qos_del_req);
 		schedule_delayed_work(&penv->wcnss_pm_qos_del_req, 0);
-
+		if (penv->wlan_config.is_pronto_v3 && (penv->vadc_dev))
+			schedule_work(&penv->wcnss_vadc_work);
 		break;
 
 	case SMD_EVENT_CLOSE:
@@ -1638,39 +1577,6 @@ int wcnss_wlan_get_dxe_rx_irq(struct device *dev)
 	return WCNSS_WLAN_IRQ_INVALID;
 }
 EXPORT_SYMBOL(wcnss_wlan_get_dxe_rx_irq);
-#ifdef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/05/01, Add for 
-/* distinguish the type of wcnss */
-void set_wcnss_chip_type(u32 chip_id) {
-	int iris_id;
-	iris_id = chip_id >> 16;
-    memset(wcn_chip_type, 0 , WCNSS_MAX_BUILD_VER_LEN);
-	switch (iris_id) {
-	case WCN3660:
-	     strcpy(wcn_chip_type, CHIP_WCN3660);
-	     break;
-	case WCN3660A:
-	    strcpy(wcn_chip_type, CHIP_WCN3660A);
-	     break;
-	case WCN3660B:
-	    strcpy(wcn_chip_type, CHIP_WCN3660B);
-	     break;
-	case WCN3620:
-	    strcpy(wcn_chip_type, CHIP_WCN3620);
-	     break;
-	case WCN3620A:
-	    strcpy(wcn_chip_type, CHIP_WCN3620A);
-	     break;
-	case WCN3610:
-	    strcpy(wcn_chip_type, CHIP_WCN3610);
-	     break;
-	default:
-	    strcpy(wcn_chip_type, "null");
-	    break;
-	}	
-}
-EXPORT_SYMBOL(set_wcnss_chip_type);    
-#endif /* VENDOR_EDIT */
 
 void wcnss_wlan_register_pm_ops(struct device *dev,
 				const struct dev_pm_ops *pm_ops)
@@ -1928,6 +1834,30 @@ static int wcnss_smd_tx(void *data, int len)
 	return ret;
 }
 
+static int wcnss_get_battery_volt(int *result_uv)
+{
+	int rc = -1;
+	struct qpnp_vadc_result adc_result;
+
+	if (!penv->vadc_dev) {
+		pr_err("wcnss: not setting up vadc\n");
+		return rc;
+	}
+
+	rc = qpnp_vadc_read(penv->vadc_dev, VBAT_SNS, &adc_result);
+	if (rc) {
+		pr_err("error reading adc channel = %d, rc = %d\n",
+						VBAT_SNS, rc);
+		return rc;
+	}
+
+	pr_info("Battery mvolts phy=%lld meas=0x%llx\n", adc_result.physical,
+						adc_result.measurement);
+	*result_uv = (int)adc_result.physical;
+
+	return 0;
+}
+
 static void wcnss_notify_vbat(enum qpnp_tm_state state, void *ctx)
 {
 	mutex_lock(&penv->vbat_monitor_mutex);
@@ -1988,6 +1918,27 @@ static int wcnss_setup_vbat_monitoring(void)
 		pr_err("wcnss: tm setup failed: %d\n", rc);
 
 	return rc;
+}
+
+static void wcnss_send_vbatt_indication(struct work_struct *work)
+{
+	struct vbatt_message vbatt_msg;
+	int ret = 0;
+
+	vbatt_msg.hdr.msg_type = WCNSS_VBATT_LEVEL_IND;
+	vbatt_msg.hdr.msg_len = sizeof(struct vbatt_message);
+	vbatt_msg.vbatt.threshold = WCNSS_VBATT_THRESHOLD;
+
+	mutex_lock(&penv->vbat_monitor_mutex);
+	vbatt_msg.vbatt.curr_volt = penv->wlan_config.vbatt;
+	mutex_unlock(&penv->vbat_monitor_mutex);
+	pr_debug("wcnss: send curr_volt: %d to FW\n",
+			vbatt_msg.vbatt.curr_volt);
+
+	ret = wcnss_smd_tx(&vbatt_msg, vbatt_msg.hdr.msg_len);
+	if (ret < 0)
+		pr_err("wcnss: smd tx failed\n");
+	return;
 }
 
 static void wcnss_update_vbatt(struct work_struct *work)
@@ -2178,10 +2129,7 @@ static void wcnssctrl_rx_handler(struct work_struct *worker)
 	struct wcnss_version *pversion;
 	int hw_type;
 	unsigned char fw_status = 0;
-    #ifdef VENDOR_EDIT
-    //hedong.liu@Connectivity, 2014/07/03, Add for wcnss firmware version show
-    int i = 0 ; 
-    #endif /* VENDOR_EDIT */
+
 	len = smd_read_avail(penv->smd_ch);
 	if (len > WCNSS_MAX_FRAME_SIZE) {
 		pr_err("wcnss: frame larger than the allowed size\n");
@@ -2268,11 +2216,6 @@ static void wcnssctrl_rx_handler(struct work_struct *worker)
 			return;
 		}
 		build[len] = 0;
-        #ifdef VENDOR_EDIT
-        //hedong.liu@Connectivity, 2014/07/03, Add for wcnss firmware version show
-        for (i = 0 ; i <= len ; i ++)
-            penv->wcnss_build_version[i] = build[i];
-        #endif /* VENDOR_EDIT */		
 		pr_info("wcnss: build version %s\n", build);
 		break;
 
@@ -2390,32 +2333,12 @@ static void wcnss_nvbin_dnld(void)
 	struct device *dev = &penv->pdev->dev;
 
 	down_read(&wcnss_pm_sem);
-	
-	#ifndef VENDOR_EDIT
-	ret = request_firmware(&nv, NVBIN_FILE, dev);
-	#else /* VENDOR_EDIT */
-    //TangYuanliu@PSW.WCN.Wifi, 2015/12/29, Modify for change resource
-	pr_err("wcnss: PCB Version is %d \n", get_PCB_Version());	
-    if (is_project(OPPO_15022) && get_PCB_Version() == HW_VERSION__13) {
-        pr_err("wcnss: using nv file %s \n", NVBIN_FILE_c1);			
-        ret = request_firmware(&nv, NVBIN_FILE_c1, dev);
-    } else {
-        pr_err("wcnss: using nv file %s \n", NVBIN_FILE);
-	    ret = request_firmware(&nv, NVBIN_FILE, dev);
-	}
-	#endif /* VENDOR_EDIT */
-	
 
+	ret = request_firmware(&nv, NVBIN_FILE, dev);
 
 	if (ret || !nv || !nv->data || !nv->size) {
-	    if (get_PCB_Version() == HW_VERSION__11) {
-            pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
-    			__func__, NVBIN_FILE_c1, ret);
-        } else {
-            pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
-    			__func__, NVBIN_FILE, ret);
-    	}
-		
+		pr_err("wcnss: %s: request_firmware failed for %s (ret = %d)\n",
+			__func__, NVBIN_FILE, ret);
 		goto out;
 	}
 
@@ -2743,6 +2666,7 @@ static int
 wcnss_trigger_config(struct platform_device *pdev)
 {
 	int ret;
+	int rc;
 	struct clk *snoc_qosgen;
 	struct qcom_wcnss_opts *pdata;
 	struct resource *res;
@@ -3088,6 +3012,23 @@ wcnss_trigger_config(struct platform_device *pdev)
 		}
 	}
 
+	if (penv->wlan_config.is_pronto_v3) {
+		penv->vadc_dev = qpnp_get_vadc(&penv->pdev->dev, "wcnss");
+
+		if (IS_ERR(penv->vadc_dev)) {
+			pr_err("%s:  vadc get failed\n", __func__);
+			penv->vadc_dev = NULL;
+		} else {
+			rc = wcnss_get_battery_volt(&penv->wlan_config.vbatt);
+			INIT_WORK(&penv->wcnss_vadc_work,
+					wcnss_send_vbatt_indication);
+
+			if (rc < 0)
+				pr_err("Failed to get battery voltage with error= %d\n",
+									rc);
+		}
+	}
+
 	do {
 		/* trigger initialization of the WCNSS */
 		penv->pil = subsystem_get(WCNSS_PIL_DEVICE);
@@ -3110,6 +3051,10 @@ wcnss_trigger_config(struct platform_device *pdev)
 	/* Remove pm_qos request */
 	wcnss_disable_pc_remove_req();
 
+	if (of_property_read_bool(pdev->dev.of_node,
+		"qcom,wlan-indication-enabled"))
+		wcnss_en_wlan_led_trigger();
+
 	return 0;
 
 fail_ioremap2:
@@ -3129,6 +3074,40 @@ fail_gpio_res:
 	penv = NULL;
 	return ret;
 }
+
+/* wlan prop driver cannot invoke cancel_work_sync
+ * function directly, so to invoke this function it
+ * call wcnss_flush_work function
+ */
+void wcnss_flush_work(struct work_struct *work)
+{
+	struct work_struct *cnss_work = work;
+	if (cnss_work != NULL)
+		cancel_work_sync(cnss_work);
+}
+EXPORT_SYMBOL(wcnss_flush_work);
+
+/* wlan prop driver cannot invoke show_stack
+ * function directly, so to invoke this function it
+ * call wcnss_dump_stack function
+ */
+void wcnss_dump_stack(struct task_struct *task)
+{
+	show_stack(task, NULL);
+}
+EXPORT_SYMBOL(wcnss_dump_stack);
+
+/* wlan prop driver cannot invoke cancel_delayed_work_sync
+ * function directly, so to invoke this function it call
+ * wcnss_flush_delayed_work function
+ */
+void wcnss_flush_delayed_work(struct delayed_work *dwork)
+{
+	struct delayed_work *cnss_dwork = dwork;
+	if (cnss_dwork != NULL)
+		cancel_delayed_work_sync(cnss_dwork);
+}
+EXPORT_SYMBOL(wcnss_flush_delayed_work);
 
 static int wcnss_node_open(struct inode *inode, struct file *file)
 {
@@ -3282,6 +3261,7 @@ static int wcnss_notif_cb(struct notifier_block *this, unsigned long code,
 		wcnss_disable_pc_add_req();
 		schedule_delayed_work(&penv->wcnss_pm_qos_del_req,
 				msecs_to_jiffies(WCNSS_PM_QOS_TIMEOUT));
+		penv->is_shutdown = 1;
 		wcnss_log_debug_regs_on_bite();
 	} else if (code == SUBSYS_POWERUP_FAILURE) {
 		if (pdev && pwlanconfig)
@@ -3363,10 +3343,6 @@ wcnss_wlan_probe(struct platform_device *pdev)
 	pr_info(DEVICE " probed in built-in mode\n");
 
 	misc_register(&wcnss_usr_ctrl);
-	//#ifdef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/05/21, Add for distinguish the type of wcnss
-    register_device_proc("wcn", wcn_chip_type, manufacture);	    
-	//#endif /* VENDOR_EDIT */
 
 	return misc_register(&wcnss_misc);
 

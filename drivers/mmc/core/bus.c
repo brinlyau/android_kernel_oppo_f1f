@@ -449,7 +449,7 @@ int mmc_add_card(struct mmc_card *card)
 			card->idle_timeout= 10000000;
 		}
 		/*added by songxh for qcom patch to solve some music issues end*/
-	
+
 	}
 
 	mmc_card_set_present(card);

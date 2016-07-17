@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2016, The CyanogenMod Project
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -12,7 +25,7 @@ static struct kobject *systeminfo_kobj;
 static int ftm_mode = MSM_BOOT_MODE__NORMAL;
 
 int __init  board_mfg_mode_init(void)
-{	
+{
     char *substr;
 
     substr = strstr(boot_command_line, "oppo_ftm_mode=");
@@ -31,10 +44,10 @@ int __init  board_mfg_mode_init(void)
             ftm_mode = MSM_BOOT_MODE__RECOVERY;
         else if(strncmp(substr, "ftmsilence", 10) == 0)
             ftm_mode = MSM_BOOT_MODE__SILENCE;
-    } 	
+    }
 
 	pr_err("board_mfg_mode_init, " "ftm_mode=%d\n", ftm_mode);
-	
+
 	return 0;
 
 }
@@ -99,13 +112,12 @@ static struct attribute_group attr_group = {
 	.attrs = g,
 };
 
-#ifdef VENDOR_EDIT
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
 char pwron_event[16];
 static int __init start_reason_init(void)
 {
     int i;
-    char * substr = strstr(boot_command_line, "androidboot.startupmode="); 
+    char * substr = strstr(boot_command_line, "androidboot.startupmode=");
     if(NULL == substr)
 		return 0;
     substr += strlen("androidboot.startupmode=");
@@ -113,9 +125,9 @@ static int __init start_reason_init(void)
         pwron_event[i] = substr[i];
     }
     pwron_event[i] = '\0';
-    
+
     printk(KERN_INFO "%s: parse poweron reason %s\n", __func__, pwron_event);
-	
+
 	return 1;
 }
 //__setup("androidboot.startupmode=", start_reason_setup);
@@ -126,24 +138,22 @@ static int __init boot_mode_init(void)
     int i;
 	int rc = 0;
     char *substr = strstr(boot_command_line, "androidboot.mode=");
-	
+
     if(NULL == substr)
 	return 0;
 
     substr += strlen("androidboot.mode=");
-	
+
     for(i=0; substr[i] != ' '; i++) {
         boot_mode[i] = substr[i];
     }
     boot_mode[i] = '\0';
 
     printk(KERN_INFO "%s: parse boot_mode is %s\n", __func__, boot_mode);
-	
-#ifdef VENDOR_EDIT		
+
 	/* OPPO 2013.07.09 hewei add begin for factory mode*/
 	board_mfg_mode_init();
 	/* OPPO 2013.07.09 hewei add end */
-#endif //VENDOR_EDIT
 
 /* OPPO 2013-09-03 heiwei add for add interface start reason and boot_mode begin */
     start_reason_init();
@@ -159,7 +169,5 @@ static int __init boot_mode_init(void)
 }
 //__setup("androidboot.mode=", boot_mode_setup);
 /* OPPO 2013-09-03 zhanglong add for add interface start reason and boot_mode end */
-#endif //VENDOR_EDIT
 
-//module_init(boot_mode_init);
 arch_initcall(boot_mode_init);

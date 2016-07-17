@@ -37,8 +37,8 @@ static int capture_nav_image(fpc1020_data_t *fpc1020);
 #ifdef VENDOR_EDIT
 //Lycan.Wang@Prd.BasicDrv, 2014-09-12 Add for report touch down or up
 #define FPC1020_KEY_FINGER_TOUCH			KEY_F19	/* 189*/
-#define FPC1020_KEY_MOVE_FORWARD   			KEY_F20	/* 190*/
-#define FPC1020_KEY_MOVE_BACKWARD  			KEY_F21	/* 191*/
+#define FPC1020_KEY_MOVE_FORWARD			KEY_F20	/* 190*/
+#define FPC1020_KEY_MOVE_BACKWARD			KEY_F21	/* 191*/
 #define FPC1020_KEY_ROTATE_FORWARD			KEY_F22	/* 192*/
 #define FPC1020_KEY_ROTATE_BACKWARD			KEY_F23	/* 192*/
 #endif /* VENDOR_EDIT */
@@ -53,7 +53,7 @@ static int capture_nav_image(fpc1020_data_t *fpc1020);
 #define DEVICE_WIDTH 720
 #define DEVICE_HEIGHT 1280
 
-#define IMAGE_PADDING 		24
+#define IMAGE_PADDING		24
 #define BEST_IMAGE_WIDTH	4
 #define BEST_IMAGE_HEIGHT	6
 
@@ -370,7 +370,7 @@ static void dispatch_move_event(fpc1020_data_t *fpc1020, int x, int y, int finge
 			if (fpc1020->moving_key) {
 				input_report_key(fpc1020->input_dev, fpc1020->moving_key, 0);
 				input_sync(fpc1020->input_dev);
-			} else if (abs(fpc1020->move_distance) > fpc1020->nav.move_distance_threshold && 
+			} else if (abs(fpc1020->move_distance) > fpc1020->nav.move_distance_threshold &&
 					jiffies_to_msecs(jiffies - fpc1020->touch_time) < fpc1020->nav.move_time_threshold) {
 				if (fpc1020->move_distance > 0) {
 					input_report_key(fpc1020->input_dev, FPC1020_KEY_ROTATE_FORWARD, 1);
@@ -382,7 +382,7 @@ static void dispatch_move_event(fpc1020_data_t *fpc1020, int x, int y, int finge
 					input_sync(fpc1020->input_dev);
 					input_report_key(fpc1020->input_dev, FPC1020_KEY_ROTATE_BACKWARD, 0);
 					input_sync(fpc1020->input_dev);
-				} 
+				}
 			} else if (abs(fpc1020->move_distance) < fpc1020->nav.move_distance_threshold) {
 				input_report_key(fpc1020->input_dev, FPC1020_KEY_FINGER_TOUCH, 1);
 				input_sync(fpc1020->input_dev);
@@ -503,6 +503,7 @@ int fpc1020_input_init(fpc1020_data_t *fpc1020)
 	if ((fpc1020->chip.type != FPC1020_CHIP_1020A)
 			&& (fpc1020->chip.type != FPC1020_CHIP_1021A)
 			&& (fpc1020->chip.type != FPC1020_CHIP_1021B)
+			&& (fpc1020->chip.type != FPC1020_CHIP_1021F)
 			&& (fpc1020->chip.type != FPC1020_CHIP_1150A)){
 		dev_err(&fpc1020->spi->dev, "%s, chip not supported (%s)\n",
 			__func__,
@@ -858,7 +859,7 @@ static int fpc1020_wait_finger_present_lpm(fpc1020_data_t *fpc1020)
 			wakeup_center = (zone_raw & zmask_5) ||
 					(zone_raw & zmask_6);
 
- 			/* Todo: refined extended processing ? */
+			/* Todo: refined extended processing ? */
 			wakeup_ext = ((zone_raw & zmask_ext) == zmask_ext);
 
 		} else {
@@ -927,4 +928,3 @@ static int capture_nav_image(fpc1020_data_t *fpc1020)
 
 
 /* -------------------------------------------------------------------- */
-

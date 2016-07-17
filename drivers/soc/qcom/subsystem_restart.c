@@ -842,14 +842,14 @@ static void device_restart_work_hdlr(struct work_struct *work)
 							dev->desc->name);
 }
 
-#ifdef VENDOR_EDIT //yixue.ge add for modem subsystem crash 
+#ifdef VENDOR_EDIT //yixue.ge add for modem subsystem crash
 int subsystem_restart_dev_level(struct subsys_device *dev,int restart_level)
 {
-	int rc = 0; 
+	int rc = 0;
 	int restart_level_bak = dev->restart_level;
 	if(restart_level >= 0)
 		dev->restart_level = restart_level;
-	
+
 	rc = subsystem_restart_dev(dev);
 
 	dev->restart_level = restart_level_bak;

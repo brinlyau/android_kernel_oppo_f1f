@@ -156,7 +156,7 @@ int  VL6180x_SetXTalkCompensationRate(VL6180xDev_t dev, FixPoint97_t Rate);
   * Should not be use in continuous mode operation as it will stop it and cause stop/start misbehaviour \n
   * \n This function clears Range Interrupt status , but not error one for that uses  @a VL6180x_ClearErrorInterrupt() \n
   * This range error is not related VL6180x_RangeData_t::errorStatus that refer measure status \n
-  * 
+  *
   * @param dev          The device
   * @param pRangeData   Will be populated with the result ranging data @a  VL6180x_RangeData_t
   * @return 0 on success , @a #RANGE_ERROR if device reports an error case in it status (not cleared) use

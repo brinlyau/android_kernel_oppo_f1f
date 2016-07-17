@@ -43,6 +43,7 @@ TEXT_OFFSET := 0x00080000
 export	TEXT_OFFSET GZFLAGS
 
 core-y		+= arch/arm64/kernel/ arch/arm64/mm/
+core-y		+= arch/arm64/hotplug/
 core-$(CONFIG_XEN)		+= arch/arm64/xen/
 core-$(CONFIG_KVM) += arch/arm64/kvm/
 core-$(CONFIG_CRYPTO) += arch/arm64/crypto/
@@ -75,14 +76,10 @@ dtbs: scripts
 	$(Q)$(MAKE) $(build)=$(boot)/dts dtbs
 #	$(Q)$(MAKE) $(build)=$(boot)/dts/qcom dtbs
 	$(Q)$(MAKE) $(build)=$(boot)/dts/14045 dtbs
-	$(Q)$(MAKE) $(build)=$(boot)/dts/15009 dtbs
 	$(Q)$(MAKE) $(build)=$(boot)/dts/15018 dtbs
 	$(Q)$(MAKE) $(build)=$(boot)/dts/15022 dtbs
 	$(Q)$(MAKE) $(build)=$(boot)/dts/15011 dtbs
-	$(Q)$(MAKE) $(build)=$(boot)/dts/15037 dtbs
 #huqiao@EXP.BasicDrv.Basic add for clone 15085
-	$(Q)$(MAKE) $(build)=$(boot)/dts/15085 dtbs
-	$(Q)$(MAKE) $(build)=$(boot)/dts/15035 dtbs
 	$(Q)$(MAKE) $(build)=$(boot)/dts/15109 dtbs
 PHONY += vdso_install
 vdso_install:

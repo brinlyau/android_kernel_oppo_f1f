@@ -1273,11 +1273,11 @@ static void iface_stat_update_from_skb(const struct sk_buff *skb,
 //Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for
 //process which use the same uid.
 static void tag_stat_update(struct tag_stat *tag_entry,
-            enum ifs_tx_rx direction, int proto, int bytes,
-            char *task_comm, pid_t task_pid)
+			enum ifs_tx_rx direction, int proto, int bytes,
+			char *task_comm, pid_t task_pid)
 #else /* VENDOR_EDIT */
 static void tag_stat_update(struct tag_stat *tag_entry,
-            enum ifs_tx_rx direction, int proto, int bytes)
+			enum ifs_tx_rx direction, int proto, int bytes)
 #endif /* VENDOR_EDIT */
 {
 	int active_set;
@@ -1297,7 +1297,6 @@ static void tag_stat_update(struct tag_stat *tag_entry,
 	if (tag_entry->parent_counters)
 		data_counters_update(tag_entry->parent_counters, active_set,
 				     direction, proto, bytes);
-#ifdef VENDOR_EDIT
 //tanggeliang@Swdp.Android.Kernel, 2014/06/20, Add for tag pid
 	uid_from_tag = get_uid_from_tag(tag_entry->tn.tag);
 
@@ -1313,7 +1312,6 @@ static void tag_stat_update(struct tag_stat *tag_entry,
 			}
 		}
 	}
-#endif /* VENDOR_EDIT */
 }
 
 /*
@@ -1334,12 +1332,10 @@ static struct tag_stat *create_if_tag_stat(struct iface_stat *iface_entry,
 		goto done;
 	}
 	new_tag_stat_entry->tn.tag = tag;
-#ifdef VENDOR_EDIT
 	//tanggeliang@Swdp.Android.Kernel, 2014/06/20, Add for tag pid
 	new_tag_stat_entry->pid_stat_tree = RB_ROOT;
 	new_tag_stat_entry->iface_stat = iface_entry;
 	spin_lock_init(&new_tag_stat_entry->pid_stat_list_lock);
-#endif /* VENDOR_EDIT */
 	tag_stat_tree_insert(new_tag_stat_entry, &iface_entry->tag_stat_tree);
 done:
 	return new_tag_stat_entry;
@@ -1731,8 +1727,7 @@ static void account_for_uid(const struct sk_buff *skb,
 		 par->family, proto, direction);
 
 #ifdef VENDOR_EDIT
-//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for
-//process which use the same uid.
+//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for process which use the same uid.
 	if_tag_stat_update(el_dev->name, uid,
 			skb->sk ? skb->sk : alternate_sk,
 			direction,
@@ -1740,9 +1735,9 @@ static void account_for_uid(const struct sk_buff *skb,
 			, task_comm, task_pid);
 #else /* VENDOR_EDIT */
 	if_tag_stat_update(el_dev->name, uid,
-			skb->sk ? skb->sk : alternate_sk,
-			direction,
-			proto, skb->len);
+			   skb->sk ? skb->sk : alternate_sk,
+			   direction,
+			   proto, skb->len);
 #endif /* VENDOR_EDIT */
 }
 
@@ -1831,8 +1826,7 @@ static bool qtaguid_mt(const struct sk_buff *skb, struct xt_action_param *par)
 		 * against the system.
 		 */
 #ifdef VENDOR_EDIT
-//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for
-//process which use the same uid.
+//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for process which use the same uid.
 		if (do_tag_stat)
 			account_for_uid(skb, sk, 0, par, "LostOwner", 0);
 #else /* VENDOR_EDIT */
@@ -1854,8 +1848,7 @@ static bool qtaguid_mt(const struct sk_buff *skb, struct xt_action_param *par)
 	if (filp == NULL) {
 		MT_DEBUG("qtaguid[%d]: leaving filp=NULL\n", par->hooknum);
 #ifdef VENDOR_EDIT
-//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for
-//process which use the same uid.
+//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for process which use the same uid.
 		if (do_tag_stat)
 			account_for_uid(skb, sk, 0, par, "LostFile", 0);
 #else /* VENDOR_EDIT */
@@ -1869,8 +1862,7 @@ static bool qtaguid_mt(const struct sk_buff *skb, struct xt_action_param *par)
 	}
 	sock_uid = filp->f_cred->fsuid;
 #ifdef VENDOR_EDIT
-//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for
-//process which use the same uid.
+//Peirs@Swdp.Android.frameworkUI, 2015.08.01, add for net comsuption statistics for process which use the same uid.
 	if (do_tag_stat) {
 		account_for_uid(skb, sk, sock_uid, par, sk->sk_socket->cmdline, 0);
 	}

@@ -469,26 +469,13 @@ static void i2c_msm_dbg_dump_diag(struct i2c_msm_ctrl *ctrl,
 	}
 
 	/* dump xfer details */
-	#ifndef VENDOR_EDIT
-	//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-	/*
 	dev_err(ctrl->dev,
 		"%s: msgs(n:%d cur:%d %s) bc(rx:%zu tx:%zu) mode:%s "
 		"slv_addr:0x%0x MSTR_STS:0x%08x OPER:0x%08x\n",
 		str, xfer->msg_cnt, xfer->cur_buf.msg_idx,
 		xfer->cur_buf.is_rx ? "rx" : "tx", xfer->rx_cnt, xfer->tx_cnt,
 		i2c_msm_mode_str_tbl[xfer->mode_id], xfer->msgs->addr,
-		status, qup_op);	
-	*/
-	#else /* VENDOR_EDIT */
-	dev_dbg(ctrl->dev,
-		"%s: msgs(n:%d cur:%d %s) bc(rx:%zu tx:%zu) mode:%s "
-		"slv_addr:0x%0x MSTR_STS:0x%08x OPER:0x%08x\n",
-		str, xfer->msg_cnt, xfer->cur_buf.msg_idx,
-		xfer->cur_buf.is_rx ? "rx" : "tx", xfer->rx_cnt, xfer->tx_cnt,
-		i2c_msm_mode_str_tbl[xfer->mode_id], xfer->msgs->addr,
-		status, qup_op);	    
-	#endif /* VENDOR_EDIT */
+		status, qup_op);
 }
 
 static const char * const i2c_msm_dbg_tag_val_to_str_tbl[] = {
@@ -3758,14 +3745,7 @@ static int i2c_msm_rsrcs_clk_init(struct i2c_msm_ctrl *ctrl)
 	ctrl->rsrcs.core_clk = clk_get(ctrl->dev, "core_clk");
 	if (IS_ERR(ctrl->rsrcs.core_clk)) {
 		ret = PTR_ERR(ctrl->rsrcs.core_clk);
-		#ifndef VENDOR_EDIT
-		//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-		/*
 		dev_err(ctrl->dev, "error on clk_get(core_clk):%d\n", ret);
-		*/
-		#else /* VENDOR_EDIT */
-		dev_dbg(ctrl->dev, "error on clk_get(core_clk):%d\n", ret);    
-		#endif /* VENDOR_EDIT */
 		return ret;
 	}
 
@@ -4119,14 +4099,7 @@ static int i2c_msm_probe(struct platform_device *pdev)
 	struct i2c_msm_ctrl             *ctrl;
 	int ret = 0;
 
-#ifndef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-/*
-    dev_info(&pdev->dev, "probing driver i2c-msm-v2\n");
-*/
-#else /* VENDOR_EDIT */
-    dev_dbg(&pdev->dev, "probing driver i2c-msm-v2\n");
-#endif /* VENDOR_EDIT */
+	dev_info(&pdev->dev, "probing driver i2c-msm-v2\n");
 
 	ctrl = devm_kzalloc(&pdev->dev, sizeof(*ctrl), GFP_KERNEL);
 	if (!ctrl)
@@ -4219,14 +4192,7 @@ ver_err:
 clk_err:
 	i2c_msm_rsrcs_mem_teardown(ctrl);
 mem_err:
-#ifndef VENDOR_EDIT
-//Yadong.Hu@Prd.Svc.Wifi, 2015/09/23, Modify for optimize log to enhance speed of wlan FTM mode
-/*
-    dev_err(ctrl->dev, "error probe() failed with err:%d\n", ret);
-*/
-#else /* VENDOR_EDIT */
-    dev_dbg(ctrl->dev, "error probe() failed with err:%d\n", ret);
-#endif /* VENDOR_EDIT */
+	dev_err(ctrl->dev, "error probe() failed with err:%d\n", ret);
 	devm_kfree(&pdev->dev, ctrl);
 	return ret;
 }

@@ -38,10 +38,8 @@
 #include <linux/slab.h>
 #include <linux/pid_namespace.h>
 #include <linux/security.h>
-//#ifdef VENDOR_EDIT
 //Peirs@Swdp.Android.frameworkUI, 2015.06.09, add for binder problem:
 #include <linux/ratelimit.h>
-//#edif /* VENDOR_EDIT */
 
 #include "binder.h"
 #include "binder_trace.h"
@@ -1724,22 +1722,17 @@ err_empty_call_stack:
 err_dead_binder:
 err_invalid_target_handle:
 err_no_context_mgr_node:
-    //ifndef VENDOR_EDIT
-    //Peirs@Swdp.Android.frameworkUI, 2015.06.10, modify to control binder log freq:
     /*
 	binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
 		     "%d:%d transaction failed %d, size %lld-%lld\n",
 		     proc->pid, thread->pid, return_error,
 		     (u64)tr->data_size, (u64)tr->offsets_size);
     */
-    //#else /* VENDOR_EDIT */
-    //Replace binder_debug with printk_ratelimited for the moment until we solve binder problem.
     if (binder_debug_mask & BINDER_DEBUG_FAILED_TRANSACTION) {
         printk_ratelimited(KERN_INFO "%d:%d transaction failed %d, size %lld-%lld\n",
                  proc->pid, thread->pid, return_error,
                  (u64)tr->data_size, (u64)tr->offsets_size);
     }
-    //#endif /* VENDOR_EDIT */
 
 	{
 		struct binder_transaction_log_entry *fe;
@@ -1932,11 +1925,6 @@ static int binder_thread_write(struct binder_proc *proc,
 					buffer->target_node->has_async_transaction = 0;
 				else {
 					list_move_tail(buffer->target_node->async_todo.next, &thread->todo);
-					//#ifdef VENDOR_EDIT
-					//Peirs@Swdp.Android.frameworkUI, 2015.06.08, add qualcomm debug patch for debug
-					//binder problem:
-					//wake_up_interruptible(&thread->wait);
-					//#endif /* VENDOR_EDIT */
 				}
 			}
 			trace_binder_transaction_buffer_release(buffer);
@@ -2480,7 +2468,6 @@ static void binder_release_work(struct list_head *list)
 			    !(t->flags & TF_ONE_WAY)) {
 				binder_send_failed_reply(t, BR_DEAD_REPLY);
 			} else {
-			    //ifndef VENDOR_EDIT
                 //Peirs@Swdp.Android.frameworkUI, 2015.06.08, modify for debug:
 				//binder_debug(BINDER_DEBUG_DEAD_TRANSACTION,
 				//	"undelivered transaction %d\n",
@@ -2507,7 +2494,6 @@ static void binder_release_work(struct list_head *list)
 	                    t->flags
 	                    );
 				}
-                //#endif /* VENDOR_EDIT */
 
 				t->buffer->transaction = NULL;
 				kfree(t);

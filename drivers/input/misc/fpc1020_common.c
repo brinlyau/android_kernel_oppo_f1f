@@ -31,7 +31,6 @@
 struct chip_struct {
 	fpc1020_chip_t type;
 	u16 hwid;
-	u16 hwid2;
 	u8 revision;
 	u8 pixel_rows;
 	u8 pixel_columns;
@@ -57,21 +56,23 @@ struct chip_struct {
 
 static const char *chip_text[] = {
 	"N/A",		/* FPC1020_CHIP_NONE */
-	"fpc1020a", 	/* FPC1020_CHIP_1020A */
-	"fpc1021a", 	/* FPC1020_CHIP_1021A */
-	"fpc1021b", 	/* FPC1020_CHIP_1021B */
-	"fpc1150a", 	/* FPC1020_CHIP_1150A */
-	"fpc1150b", 	/* FPC1020_CHIP_1150B */
-	"fpc1150f" 	/* FPC1020_CHIP_1150F */
+	"fpc1020a",	/* FPC1020_CHIP_1020A */
+	"fpc1021a",	/* FPC1020_CHIP_1021A */
+	"fpc1021b",	/* FPC1020_CHIP_1021B */
+	"fpc1021f",	/* FPC1020_CHIP_1021F */
+	"fpc1150a",	/* FPC1020_CHIP_1150A */
+	"fpc1150b",	/* FPC1020_CHIP_1150B */
+	"fpc1150f"	/* FPC1020_CHIP_1150F */
 };
 
 static const struct chip_struct chip_data[] = {
-	{FPC1020_CHIP_1020A, 0x020a, 0x020a, 0, FPC1020_ROWS, FPC1020_COLUMNS, FPC102X_ADC_GROUP_SIZE},
-	{FPC1020_CHIP_1021A, 0x021a, 0x021a, 2, FPC1021_ROWS, FPC1021_COLUMNS, FPC102X_ADC_GROUP_SIZE},
-	{FPC1020_CHIP_1021B, 0x021b, 0x021f, 1, FPC1021_ROWS, FPC1021_COLUMNS, FPC102X_ADC_GROUP_SIZE},
-	{FPC1020_CHIP_1150A, 0x150a, 0x150a, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
-	{FPC1020_CHIP_1150B, 0x150b, 0x150b, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
-	{FPC1020_CHIP_1150F, 0x150f, 0x150f, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1020A, 0x020a, 0, FPC1020_ROWS, FPC1020_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1021A, 0x021a, 2, FPC1021_ROWS, FPC1021_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1021B, 0x021b, 1, FPC1021_ROWS, FPC1021_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1021F, 0x021f, 1, FPC1021_ROWS, FPC1021_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1150A, 0x150a, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1150B, 0x150b, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
+	{FPC1020_CHIP_1150F, 0x150f, 1, FPC1150_ROWS, FPC1150_COLUMNS, FPC102X_ADC_GROUP_SIZE},
 	{FPC1020_CHIP_NONE,  0,0,0,0,0}
 };
 
@@ -111,7 +112,7 @@ const fpc1020_setup_t fpc1020_setup_default_1020_a3a4 = {
 	.wakeup_detect_cols		= {64, 120},
 };
 
-const fpc1020_setup_t fpc1020_setup_default_1021_a2b1 = {
+const fpc1020_setup_t fpc1020_setup_default_1021_a2b1f1 = {
 	.adc_gain			= {2, 2, 3, 3},
 	.adc_shift			= {10, 10, 7, 7},
 	.pxl_ctrl			= {0x1e, 0x0e, 0x0e, 0x0e},
@@ -144,7 +145,7 @@ const fpc1020_setup_t fpc1020_setup_default_1150_a1b1f1 = {
 	.capture_finger_down_threshold	= 7,
 	.finger_detect_threshold	= 0x50,
 	.wakeup_detect_rows		= {72, 128},
-	.wakeup_detect_cols 		= {32, 32},
+	.wakeup_detect_cols		= {32, 32},
 };
 
 
@@ -215,7 +216,7 @@ int fpc1020_manage_huge_buffer(fpc1020_data_t *fpc1020, size_t new_size)
 		error = 0;
 
 	} else {
-		if (fpc1020->huge_buffer && 
+		if (fpc1020->huge_buffer &&
 			(buffer_order_curr != buffer_order_new)) {
 
 			free_pages((unsigned long)fpc1020->huge_buffer,
@@ -271,13 +272,14 @@ int fpc1020_setup_defaults(fpc1020_data_t *fpc1020)
 			NULL;
 		break;
 
-	case FPC1020_CHIP_1021A: 
-		ptr = (fpc1020->chip.revision == 2) ? &fpc1020_setup_default_1021_a2b1 :
+	case FPC1020_CHIP_1021A:
+		ptr = (fpc1020->chip.revision == 2) ? &fpc1020_setup_default_1021_a2b1f1 :
 			NULL;
 		break;
 
 	case FPC1020_CHIP_1021B:
-		ptr = (fpc1020->chip.revision == 1) ? &fpc1020_setup_default_1021_a2b1 :
+	case FPC1020_CHIP_1021F:
+		ptr = (fpc1020->chip.revision == 1) ? &fpc1020_setup_default_1021_a2b1f1 :
 			NULL;
 		break;
 
@@ -400,7 +402,9 @@ int fpc1020_reset(fpc1020_data_t *fpc1020)
 
 			fpc1020_gpio_reset(fpc1020);
 
+	disable_irq(fpc1020->irq);
 	fpc1020->interrupt_done = false;
+	enable_irq(fpc1020->irq);
 
 	error = fpc1020_check_irq_after_reset(fpc1020);
 
@@ -451,7 +455,7 @@ int fpc1020_check_hw_id(fpc1020_data_t *fpc1020)
 		return error;
 
 	while (!match && chip_data[counter].type != FPC1020_CHIP_NONE) {
-		if (chip_data[counter].hwid == hardware_id || chip_data[counter].hwid2 == hardware_id)
+		if (chip_data[counter].hwid == hardware_id)
 			match = true;
 		else
 			counter++;
@@ -649,6 +653,7 @@ int fpc1020_write_sensor_setup(fpc1020_data_t *fpc1020)
 
 		case FPC1020_CHIP_1021A:
 		case FPC1020_CHIP_1021B:
+		case FPC1020_CHIP_1021F:
 		return fpc1020_write_sensor_1021_setup(fpc1020);
 
 		case FPC1020_CHIP_1150A:
@@ -708,13 +713,13 @@ static int fpc1020_write_sensor_1020a_a1a2_setup(fpc1020_data_t *fpc1020)
 	if (error)
 		goto out;
 
-	temp_u8 = (rev == 1) ?	0x33 : 	0x0f;
+	temp_u8 = (rev == 1) ?	0x33 :	0x0f;
 	FPC1020_MK_REG_WRITE(reg, FPC102X_REG_PXL_RST_DLY, &temp_u8);
 	error = fpc1020_reg_access(fpc1020, &reg);
 	if (error)
 		goto out;
 
-	temp_u8 = (rev == 1) ? 0x37 : 0x15; 
+	temp_u8 = (rev == 1) ? 0x37 : 0x15;
 	FPC1020_MK_REG_WRITE(reg, FPC102X_REG_FINGER_DRIVE_DLY, &temp_u8);
 	error = fpc1020_reg_access(fpc1020, &reg);
 	if (error)
@@ -884,7 +889,7 @@ out:
 
 
 /* -------------------------------------------------------------------- */
-static int fpc1020_write_sensor_1021_setup(fpc1020_data_t *fpc1020) 
+static int fpc1020_write_sensor_1021_setup(fpc1020_data_t *fpc1020)
 {
 	int error = 0;
 	u8 temp_u8;
@@ -1454,7 +1459,7 @@ int fpc1020_wake_up(fpc1020_data_t *fpc1020)
 	int power  = fpc1020_regulator_set(fpc1020, true);
 	int reset  = fpc1020_reset(fpc1020);
 	int status = fpc1020_read_status_reg(fpc1020);
- 
+
 	if (power == 0 && reset == 0 && status >= 0 &&
 		(fpc1020_status_reg_t)(status & status_mask) ==
 		FPC1020_STATUS_REG_IN_IDLE_MODE) {
@@ -1814,4 +1819,3 @@ static int fpc1020_flush_adc(fpc1020_data_t *fpc1020)
 
 
 /* -------------------------------------------------------------------- */
-

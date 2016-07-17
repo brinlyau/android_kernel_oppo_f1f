@@ -14,5 +14,4 @@ obj-$(CONFIG_OPPO_CHARGER)	+= oppo_bq27541_encrypt.o
 obj-$(CONFIG_OPPO_CHARGER)	+= oppo_bq2022a.o
 obj-$(CONFIG_OPPO_CHARGER)	+= oppo_vooc.o
 obj-$(CONFIG_OPPO_CHARGER)	+= oppo_vooc_stm8s.o
-#Fuchun.Liao@Mobile.BSP.CHG 2015-04-26 move it to qpnp-linear-charger.c
 #obj-$(CONFIG_OPPO_CHARGER)	+= oppo_qpnp_charger.o

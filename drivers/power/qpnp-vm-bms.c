@@ -445,13 +445,11 @@ int opchg_backup_ocv_soc(int soc)
 {
 	int rc=0;
 	static int soc_temp =0;
-	
+
 	if(the_chip == NULL){
 		pr_err("%s the_chip is NULL\n",__func__);
 		return -1;
 	}
-	
-	
 	rc = backup_ocv_soc(the_chip,the_chip->last_ocv_uv,soc);
 	if(rc)
 	{
@@ -2767,14 +2765,12 @@ static int calculate_initial_soc(struct qpnp_bms_chip *chip)
 		 * estimate OCV
 		 */
 		if (chip->shutdown_soc_invalid) {
-			
 			est_ocv = estimate_ocv(chip);
 			if (est_ocv <= 0) {
 				pr_err("Unable to estimate OCV rc=%d\n",
 								est_ocv);
 				return -EINVAL;
 			}
-			
 			chip->last_ocv_uv = est_ocv;
 			chip->calculated_soc = lookup_soc_ocv(chip, est_ocv,
 								batt_temp);
@@ -2791,15 +2787,14 @@ static int calculate_initial_soc(struct qpnp_bms_chip *chip)
 /* OPPO 2015-05-23 sjc Add for soc_jumped when charger_boot */
 	else if (!chip->shutdown_soc_invalid
 			&& (boot_reason == PON_REASON_USB_CHG || boot_reason == PON_REASON_DC_CHG || boot_reason == PON_REASON_CBLPWR)) {
-
 		chip->last_ocv_uv = chip->shutdown_ocv;
 		chip->last_soc = chip->shutdown_soc;
 		chip->calculated_soc = lookup_soc_ocv(chip,
 					chip->shutdown_ocv, batt_temp);
-		
+
 		pr_info("oppo_debug charger_boot Using shutdown SOC last_ocv_uv=%d, last_soc=%d,shutdown_ocv=%d,calculated_soc=%d\n",
 			chip->last_ocv_uv,chip->last_soc,chip->shutdown_ocv,chip->calculated_soc);
-	} 
+	}
 #endif
 	else {
 		/*
@@ -3361,8 +3356,7 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 			return -EINVAL;
 	}
 #else
-	if(is_project(OPPO_14043))
-	{
+	if(is_project(OPPO_14043)){
 		rc = opchg_get_bq2022_manufacture_id();
 		if(rc < 0){
 			pr_err("%s get bq2022 manu id fail\n",__func__);
@@ -3382,9 +3376,7 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 				return -EINVAL;
 			}
 		}
-	} 
-	else if(is_project(OPPO_14037) || is_project(OPPO_15057))
-	{
+	} else if(is_project(OPPO_14037) || is_project(OPPO_15057)){
 		rc = opchg_get_bq2022_manufacture_id();
 		if(rc < 0){
 			pr_err("%s get bq2022 manu id fail\n",__func__);
@@ -3450,7 +3442,6 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 	} 
 	else if(is_project(OPPO_15109))
 	{
-		#if 1
 		rc = opchg_get_bq2022_manufacture_id();
 		if(rc < 0){
 			pr_err("%s get bq2022 manu id fail\n",__func__);
@@ -3494,30 +3485,16 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 			{
 				pr_err("available lg batterydata\n");
 			}
-		} 
-		#else
-		node = of_find_node_by_name(chip->spmi->dev.of_node,
-					"qcom,battery-data-atl");
-		if (!node) {
-			pr_err("No available batterydata\n");
-			return -EINVAL;
-		}
-		else
-		{
-			pr_err("available atl batterydata\n");
-		}
-		#endif
 	}
-	else if (is_project(OPPO_15009)|| is_project(OPPO_15037) || is_project(OPPO_15029)) 
-	{
+	} else if (is_project(OPPO_15009)|| is_project(OPPO_15037)) { 
 		node = of_find_node_by_name(chip->spmi->dev.of_node,
 					"qcom,battery-data-sony");
 		if (!node) {
 			pr_err("No available batterydata\n");
 			return -EINVAL;
 		}
-	} 
-    //#ifdef VENDOR_EDIT 
+	}
+    //#ifdef VENDOR_EDIT
     /*chaoying.chen@EXP.BaseDrv.charge,2015/06/19  modify  for 15085*/
     else if (is_project(OPPO_15085)) {
 		node = of_find_node_by_name(chip->spmi->dev.of_node,
@@ -3527,7 +3504,7 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 			return -EINVAL;
 		}
 	}
-    //#endif /*VENDOR_EDIT*/ 
+    //#endif /*VENDOR_EDIT*/
     else {
 		node = of_find_node_by_name(chip->spmi->dev.of_node,
 					"qcom,battery-data");

@@ -1581,7 +1581,7 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 /* zhengrong.zhang 2014-11-08 Add for open flash problem in status bar problem when camera opening */
 	camera_power_status = FALSE;
 #endif
-    
+
 	CDBG("%s exit\n", __func__);
 	return 0;
 }

@@ -874,8 +874,9 @@ static int akm_enable_set(struct sensors_classdev *sensors_cdev,
 
 	if (akm->use_poll && akm->pdata->auto_report) {
 		if (enable) {
-			AKECS_SetMode(akm,
-				AKM_MODE_SNG_MEASURE | AKM8963_BIT_OP_16);
+				AKECS_SetMode(akm,
+							AKM_MODE_SNG_MEASURE
+							| AKM8963_BIT_OP_16);
 			schedule_delayed_work(&akm->dwork,0);
 		} else {
 			cancel_delayed_work_sync(&akm->dwork);
@@ -1777,94 +1778,95 @@ static int akm8963_pinctrl_init(struct akm_compass_data *s_akm)
 */
 static void akm_dev_poll(struct work_struct *work)
 {
+	int ret;
 	struct akm_compass_data *akm;
 	uint8_t dat_buf[AKM_SENSOR_DATA_SIZE];/* for GET_DATA */
-	int ret;
 	int mag_x, mag_y, mag_z;
 	int tmp;
 
 	akm = container_of((struct delayed_work *)work,
 			struct akm_compass_data,  dwork);
-	ret = AKECS_GetData_Poll(akm, dat_buf, AKM_SENSOR_DATA_SIZE);
-	if (ret < 0) {
-		dev_warn(&s_akm->i2c->dev, "Get data failed\n");
-		goto exit;
-	}
+		ret = AKECS_GetData_Poll(akm, dat_buf, AKM_SENSOR_DATA_SIZE);
+		if (ret < 0) {
+			dev_warn(&s_akm->i2c->dev, "Get data failed\n");
+			goto exit;
+		}
 
-	tmp = 0xFF & (dat_buf[7] + dat_buf[0]);
-	if (STATUS_ERROR(tmp)) {
-		dev_warn(&akm->i2c->dev, "Status error(0x%x). Reset...\n",
+		tmp = 0xFF & (dat_buf[7] + dat_buf[0]);
+		if (STATUS_ERROR(tmp)) {
+			dev_warn(&akm->i2c->dev, "Status error(0x%x). Reset\n",
 				tmp);
-		AKECS_Reset(akm, 0);
-		goto exit;
-	}
+			AKECS_Reset(akm, 0);
+			goto exit;
+		}
 
-	tmp = (int)((int16_t)(dat_buf[2]<<8)+((int16_t)dat_buf[1]));
-	tmp = tmp * akm->sense_conf[0] / 256 + tmp / 2;
-	mag_x = tmp;
+		tmp = (int)((int16_t)(dat_buf[2]<<8)+((int16_t)dat_buf[1]));
+		tmp = tmp * akm->sense_conf[0] / 256 + tmp / 2;
+		mag_x = tmp;
 
-	tmp = (int)((int16_t)(dat_buf[4]<<8)+((int16_t)dat_buf[3]));
-	tmp = tmp * akm->sense_conf[1] / 256 + tmp / 2;
-	mag_y = tmp;
-
-	tmp = (int)((int16_t)(dat_buf[6]<<8)+((int16_t)dat_buf[5]));
-	tmp = tmp * akm->sense_conf[2] / 256 + tmp / 2;
-	mag_z = tmp;
-	printk(KERN_EMERG"%s: direction is %d\n",__func__, akm->pdata->layout);
-	switch (akm->pdata->layout) {
-	case 0:
-	case 1:
-		/* Fall into the default direction */
-		break;
-	case 2:
-		tmp = mag_x;
-		mag_x = mag_y;
-		mag_y = -tmp;
-		break;
-	case 3:
-		mag_x = -mag_x;
-		mag_y = -mag_y;
-		break;
-	case 4:
-		tmp = mag_x;
-		mag_x = -mag_y;
+		tmp = (int)((int16_t)(dat_buf[4]<<8)+((int16_t)dat_buf[3]));
+		tmp = tmp * akm->sense_conf[1] / 256 + tmp / 2;
 		mag_y = tmp;
-		break;
-	case 5:
-		mag_x = -mag_x;
-		mag_z = -mag_z;
-		break;
-	case 6:
-		tmp = mag_x;
-		mag_x = mag_y;
-		mag_y = tmp;
-		mag_z = -mag_z;
-		break;
-	case 7:
-		mag_y = -mag_y;
-		mag_z = -mag_z;
-		break;
-	case 8:
-		tmp = mag_x;
-		mag_x = -mag_y;
-		mag_y = -tmp;
-		mag_z = -mag_z;
-		break;
-	}
 
-	input_report_abs(akm->input, ABS_X, mag_x);
-	input_report_abs(akm->input, ABS_Y, mag_y);
-	input_report_abs(akm->input, ABS_Z, mag_z);
-	input_sync(akm->input);
+		tmp = (int)((int16_t)(dat_buf[6]<<8)+((int16_t)dat_buf[5]));
+		tmp = tmp * akm->sense_conf[2] / 256 + tmp / 2;
+		mag_z = tmp;
+		printk(KERN_EMERG"%s: direction is %d\n",__func__, akm->pdata->layout);
+		switch (akm->pdata->layout) {
+		case 0:
+		case 1:
+			/* Fall into the default direction */
+			break;
+		case 2:
+			tmp = mag_x;
+			mag_x = mag_y;
+			mag_y = -tmp;
+			break;
+		case 3:
+			mag_x = -mag_x;
+			mag_y = -mag_y;
+			break;
+		case 4:
+			tmp = mag_x;
+			mag_x = -mag_y;
+			mag_y = tmp;
+			break;
+		case 5:
+			mag_x = -mag_x;
+			mag_z = -mag_z;
+			break;
+		case 6:
+			tmp = mag_x;
+			mag_x = mag_y;
+			mag_y = tmp;
+			mag_z = -mag_z;
+			break;
+		case 7:
+			mag_y = -mag_y;
+			mag_z = -mag_z;
+			break;
+		case 8:
+			tmp = mag_x;
+			mag_x = -mag_y;
+			mag_y = -tmp;
+			mag_z = -mag_z;
+			break;
+		}
 
-	dev_vdbg(&s_akm->i2c->dev,
+		input_report_abs(akm->input, ABS_X, mag_x);
+		input_report_abs(akm->input, ABS_Y, mag_y);
+		input_report_abs(akm->input, ABS_Z, mag_z);
+		input_sync(akm->input);
+		dev_vdbg(&s_akm->i2c->dev,
 			"input report: mag_x=%02x, mag_y=%02x, mag_z=%02x",
 			mag_x, mag_y, mag_z);
 
 exit:
-	ret = AKECS_SetMode(akm, AKM_MODE_SNG_MEASURE | AKM8963_BIT_OP_16);
-	if (ret < 0)
-		dev_warn(&akm->i2c->dev, "Failed to set mode\n");
+			ret = AKECS_SetMode(akm,
+				AKM_MODE_SNG_MEASURE | AKM8963_BIT_OP_16);
+			if (ret < 0)
+				dev_warn(&akm->i2c->dev,
+					"Failed to set mode\n");
 
 	if (akm->use_poll)
 		schedule_delayed_work(&akm->dwork,
@@ -1925,65 +1927,65 @@ static ssize_t akm_geomag_raw_show(struct kobject *kobj, struct kobj_attribute *
 		dev_warn(&s_akm->i2c->dev, "Get data failed\n");
 	}
 
-	tmp = 0xFF & (dat_buf[7] + dat_buf[0]);
-	if (STATUS_ERROR(tmp)) {
-		dev_warn(&akm->i2c->dev, "Status error(0x%x). Reset...\n",
+		tmp = 0xFF & (dat_buf[7] + dat_buf[0]);
+		if (STATUS_ERROR(tmp)) {
+			dev_warn(&akm->i2c->dev, "Status error(0x%x). Reset\n",
 				tmp);
-		AKECS_Reset(akm, 0);
-	}
+			AKECS_Reset(akm, 0);
+		}
 
-	tmp = (int)((int16_t)(dat_buf[2]<<8)+((int16_t)dat_buf[1]));
-	tmp = tmp * akm->sense_conf[0] / 256 + tmp / 2;
-	mag_x = tmp;
+		tmp = (int)((int16_t)(dat_buf[2]<<8)+((int16_t)dat_buf[1]));
+		tmp = tmp * akm->sense_conf[0] / 256 + tmp / 2;
+		mag_x = tmp;
 
-	tmp = (int)((int16_t)(dat_buf[4]<<8)+((int16_t)dat_buf[3]));
-	tmp = tmp * akm->sense_conf[1] / 256 + tmp / 2;
-	mag_y = tmp;
-
-	tmp = (int)((int16_t)(dat_buf[6]<<8)+((int16_t)dat_buf[5]));
-	tmp = tmp * akm->sense_conf[2] / 256 + tmp / 2;
-	mag_z = tmp;
-	printk(KERN_EMERG"%s: direction is %d\n",__func__, akm->pdata->layout);
-	switch (akm->pdata->layout) {
-	case 0:
-	case 1:
-		/* Fall into the default direction */
-		break;
-	case 2:
-		tmp = mag_x;
-		mag_x = mag_y;
-		mag_y = -tmp;
-		break;
-	case 3:
-		mag_x = -mag_x;
-		mag_y = -mag_y;
-		break;
-	case 4:
-		tmp = mag_x;
-		mag_x = -mag_y;
+		tmp = (int)((int16_t)(dat_buf[4]<<8)+((int16_t)dat_buf[3]));
+		tmp = tmp * akm->sense_conf[1] / 256 + tmp / 2;
 		mag_y = tmp;
-		break;
-	case 5:
-		mag_x = -mag_x;
-		mag_z = -mag_z;
-		break;
-	case 6:
-		tmp = mag_x;
-		mag_x = mag_y;
-		mag_y = tmp;
-		mag_z = -mag_z;
-		break;
-	case 7:
-		mag_y = -mag_y;
-		mag_z = -mag_z;
-		break;
-	case 8:
-		tmp = mag_x;
-		mag_x = -mag_y;
-		mag_y = -tmp;
-		mag_z = -mag_z;
-		break;
-	}
+
+		tmp = (int)((int16_t)(dat_buf[6]<<8)+((int16_t)dat_buf[5]));
+		tmp = tmp * akm->sense_conf[2] / 256 + tmp / 2;
+		mag_z = tmp;
+		printk(KERN_EMERG"%s: direction is %d\n",__func__, akm->pdata->layout);
+		switch (akm->pdata->layout) {
+		case 0:
+		case 1:
+			/* Fall into the default direction */
+			break;
+		case 2:
+			tmp = mag_x;
+			mag_x = mag_y;
+			mag_y = -tmp;
+			break;
+		case 3:
+			mag_x = -mag_x;
+			mag_y = -mag_y;
+			break;
+		case 4:
+			tmp = mag_x;
+			mag_x = -mag_y;
+			mag_y = tmp;
+			break;
+		case 5:
+			mag_x = -mag_x;
+			mag_z = -mag_z;
+			break;
+		case 6:
+			tmp = mag_x;
+			mag_x = mag_y;
+			mag_y = tmp;
+			mag_z = -mag_z;
+			break;
+		case 7:
+			mag_y = -mag_y;
+			mag_z = -mag_z;
+			break;
+		case 8:
+			tmp = mag_x;
+			mag_x = -mag_y;
+			mag_y = -tmp;
+			mag_z = -mag_z;
+			break;
+		}
 
 	return snprintf(buf, PAGE_SIZE, "%d %d %d\n", mag_x, mag_y, mag_z);
 }
@@ -2212,13 +2214,13 @@ int akm8963_compass_probe(
 	if (err)
 		dev_err(&i2c->dev,
 			"Fail to disable power after probe: %d\n", err);
-			
+
 	akm_ftm.name = "geomagnetic";
 	akm_ftm.i2c_client = s_akm->i2c;
 	akm_ftm.priv_data = s_akm;
 	akm_ftm.attrs = akm_ftm_attrs;
 	register_single_dev_ftm(&akm_ftm);
-	
+
 	dev_info(&i2c->dev, "successfully probed.");
 	return 0;
 

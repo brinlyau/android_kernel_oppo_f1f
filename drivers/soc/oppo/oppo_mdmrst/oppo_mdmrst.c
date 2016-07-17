@@ -98,8 +98,6 @@ static ssize_t mdmreason_read(struct file *file, char __user *buf,
 
 static int mdmreason_release (struct inode *inode, struct file *file)
 {
-	//mdmreason_flag = 0;
-	//memset(mdmreason_buf,0,MDMREASON_BUF_LEN);
 	return 0;
 }
 
@@ -115,8 +113,6 @@ static const struct file_operations mdmreason_device_fops = {
 static struct miscdevice mdmreason_device = {
 	MISC_DYNAMIC_MINOR, "mdmreason", &mdmreason_device_fops
 };
-
-
 
 //*****yixue.ge add end******//
 
@@ -165,4 +161,3 @@ module_init(mdmrst_init);
 module_exit(mdmrst_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Geliang Tang <geliang.tang@oppo.com>");
-
