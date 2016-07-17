@@ -185,52 +185,50 @@ static int get_hw_operator_version(struct devinfo_data *devinfo_data)
 	}
 	devinfo_data->hw_id1_gpio = of_get_named_gpio(
 			np, "Hw,operator-gpio1", 0);
-	if (devinfo_data->hw_id1_gpio < 0) {
+	if (devinfo_data->hw_id1_gpio < 0)
 		pr_err("devinfo_data->hw_id1_gpio not specified\n");
-	}
+
 	devinfo_data->hw_id2_gpio = of_get_named_gpio(
 			np, "Hw,operator-gpio2", 0);
-	if (devinfo_data->hw_id2_gpio < 0) {
+	if (devinfo_data->hw_id2_gpio < 0)
 		pr_err("devinfo_data->hw_id2_gpio not specified\n");
-	}
+
 	devinfo_data->hw_id3_gpio = of_get_named_gpio(
 			np, "Hw,operator-gpio3", 0);
-	if (devinfo_data->hw_id3_gpio < 0) {
+	if (devinfo_data->hw_id3_gpio < 0)
 		pr_err("devinfo_data->hw_id3_gpio not specified\n");
-	}
+
 	if (devinfo_data->hw_id1_gpio >= 0) {
 		ret = gpio_request(devinfo_data->hw_id1_gpio, "HW_ID1");
-		if (ret){
+		if (ret)
 			pr_err("unable to request gpio [%d]\n",
 					devinfo_data->hw_id1_gpio);
-		}else{
+		else
 			id1 = gpio_get_value(devinfo_data->hw_id1_gpio);
 	}
-	}
-	if (devinfo_data->hw_id2_gpio >= 0) {
+
+	if(devinfo_data->hw_id2_gpio >= 0) {
 		ret = gpio_request(devinfo_data->hw_id2_gpio, "HW_ID2");
-		if(ret){
+		if (ret)
 			pr_err("unable to request gpio [%d]\n",
 					devinfo_data->hw_id2_gpio);
-		}else{
+		else
 			id2 = gpio_get_value(devinfo_data->hw_id2_gpio);
-		}
 	}
 
 	if (devinfo_data->hw_id3_gpio >= 0) {
 		ret = gpio_request(devinfo_data->hw_id3_gpio, "HW_ID2");
-		if(ret){
+		if (ret)
 			pr_err("unable to request gpio [%d]\n",
 					devinfo_data->hw_id3_gpio);
-		}else{
+		else
 			id3 = gpio_get_value(devinfo_data->hw_id3_gpio);
-		}
 	}
 
 	if (is_project(OPPO_15018)) {
-		if(( id1==0 )&&( id2==0 ))
+		if ((id1 == 0) && (id2 == 0))
 			hw_operator_name = OPERATOR_CHINA_TELECOM;
-		else if(( id1==0 )&&( id2==1 ))
+		else if ((id1 == 0) && (id2 == 1))
 			hw_operator_name = OPERATOR_ALL_CHINA_CARRIER;
 		else
 			hw_operator_name = OPERATOR_UNKOWN;
@@ -258,72 +256,63 @@ static void sub_mainboard_verify(struct devinfo_data *devinfo_data)
 	np = devinfo_data->devinfo->dev.of_node;
 
 	devinfo_data->sub_hw_id1 = of_get_named_gpio(np, "Hw,sub_hwid_1", 0);
-	if (devinfo_data->sub_hw_id1 < 0) {
+	if (devinfo_data->sub_hw_id1 < 0)
 		pr_err("devinfo_data->sub_hw_id1 not specified\n");
-	}
-	devinfo_data->sub_hw_id2 = of_get_named_gpio(np, "Hw,sub_hwid_2", 0);
-	if (devinfo_data->sub_hw_id2 < 0) {
-		pr_err("devinfo_data->sub_hw_id2 not specified\n");
-	}
 
-	}
+	devinfo_data->sub_hw_id2 = of_get_named_gpio(np, "Hw,sub_hwid_2", 0);
+	if (devinfo_data->sub_hw_id2 < 0)
+		pr_err("devinfo_data->sub_hw_id2 not specified\n");
+
 	if (devinfo_data->sub_hw_id1 >= 0) {
 		ret = gpio_request(devinfo_data->sub_hw_id1, "SUB_HW_ID1");
-		if(ret) {
+		if(ret)
 			pr_err("unable to request gpio [%d]\n",
 					devinfo_data->sub_hw_id1);
-		}else{
+		else
 			id1 = gpio_get_value(devinfo_data->sub_hw_id1);
 	}
 
 	if (devinfo_data->sub_hw_id2 >= 0) {
 		ret = gpio_request(devinfo_data->sub_hw_id2, "SUB_HW_ID2");
-		if(ret){
+		if(ret)
 			pr_err("unable to request gpio [%d]\n",
 					devinfo_data->sub_hw_id2);
-		}else{
+		else
 			id2 = gpio_get_value(devinfo_data->sub_hw_id2);
-		}
 	}
-
 
 	mainboard_info.manufacture = temp_manufacture_sub;
 	mainboard_info.version ="Qcom";
 
 	switch (get_project()) {
 		case OPPO_15011: {
-			if ((id1 == 0) ) {
+			if (id1 == 0)
 				sprintf(mainboard_info.manufacture,
 					"15011-%d", get_Operator_Version());
-			}
-			 else {
+			else
 				mainboard_info.manufacture = "UNSPECIFIED";
-			}
 			break;
 		}
 		case OPPO_15018: {
-			if(( id1==0 )&&( id2==0 )) {
+			if ((id1 == 0) && (id2 == 0))
 				sprintf(mainboard_info.manufacture,
 					"%d-%d", get_project(),
 					get_Operator_Version());
-			}
-			else if ((id1 == 1) && (id2 == 0)) {
+			else if ((id1 == 1) && (id2 == 0))
 				sprintf(mainboard_info.manufacture,
 					"15089-%d", get_Operator_Version());
-			}
-			 else {
+			else
 				mainboard_info.manufacture = "UNSPECIFIED";
-			}
 			break;
 		}
 		case OPPO_15109: {
-			if((id1 == 1)&&(id2 == 1))
+			if ((id1 == 1) && (id2 == 1))
 				sprintf(mainboard_info.manufacture,"15109-%d",OPERATOR_CHINA_MOBILE);
-			else if ((id1 == 0)&&(id2 == 1))
+			else if ((id1 == 0) && (id2 == 1))
 				sprintf(mainboard_info.manufacture,"15109-%d",OPERATOR_ALL_CHINA_CARRIER);
-			else if ((id1 == 1)&&(id2 == 0))
+			else if ((id1 == 1) && (id2 == 0))
 				sprintf(mainboard_info.manufacture,"15109-%d", get_Operator_Version());
-			else if ((id1 == 0)&&(id2 == 0)&&(get_Operator_Version() != OPERATOR_FOREIGN_TAIWAN))
+			else if ((id1 == 0) && (id2 == 0) && (get_Operator_Version() != OPERATOR_FOREIGN_TAIWAN))
 				sprintf(mainboard_info.manufacture,
 					"15109-%d", get_Operator_Version());
 			else
@@ -425,6 +414,7 @@ static int devinfo_probe(struct platform_device *pdev)
 {
 	int ret = 0;
 	struct devinfo_data *devinfo_data = NULL;
+
 	devinfo_data = kzalloc(sizeof(struct devinfo_data), GFP_KERNEL);
 	if (devinfo_data == NULL) {
 		pr_err("devinfo_data kzalloc failed\n");
